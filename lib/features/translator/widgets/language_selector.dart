@@ -4,8 +4,10 @@ class LanguageSelector extends StatelessWidget {
   final String selectedLanguage;
   final Function(String) onLanguageChanged;
 
-  LanguageSelector(
-      {required this.selectedLanguage, required this.onLanguageChanged});
+  LanguageSelector({
+    required this.selectedLanguage,
+    required this.onLanguageChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -44,31 +46,30 @@ class LanguageSelector extends StatelessWidget {
     // Create DropdownMenuItems from the language options
     List<DropdownMenuItem<String>> dropdownItems = languageOptions.map((lang) {
       return DropdownMenuItem<String>(
-        value: lang['value'],
-        child: Text(lang['label']!),
+        value: lang['value'], // This is how you're getting the value
+        child: Text(lang['label']!), // This is the display text
       );
     }).toList();
 
+
     return DropdownButton<String>(
-      value: selectedLanguage, // Ensure this value exists in the dropdownItems
+      value: selectedLanguage,
       items: dropdownItems,
       onChanged: (newValue) {
         if (newValue != null) {
-          onLanguageChanged(
-              newValue); // Pass the new value to the parent widget
+          onLanguageChanged(newValue);
         }
       },
-      isExpanded: true, // Expands to fit available width
+      isExpanded: true,
       underline: Container(
         height: 1,
-        color:
-            Color.fromARGB(255, 42, 157, 143), // Customize the underline color
+        color: Color.fromARGB(255, 42, 157, 143),
       ),
       style: TextStyle(
         color: Colors.black,
         fontSize: 16,
-      ), // Customize text style
-      dropdownColor: Colors.white, // Customize dropdown background color
+      ),
+      dropdownColor: Colors.white,
     );
   }
 }

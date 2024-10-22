@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart'; // Import AutoSizeText
 import 'package:translation_app/core/utilities/colors.dart';
+import '../../../core/widgets/translator_provider.dart';
 import '../widgets/input_field.dart';
 import '../widgets/language_selector.dart';
 
@@ -10,16 +11,59 @@ class TranslatorScreen extends StatefulWidget {
 }
 
 class _TranslatorScreenState extends State<TranslatorScreen> {
-  String _sourceLanguage = 'en';
-  String _targetLanguage = 'ur';
+  String _sourceLanguage = 'en'; // Default source language
+  String _targetLanguage = 'ur'; // Default target language
   String _inputText = '';
   String _translatedText = '';
 
-  void _translateText(String inputText) {
-    // Simulate translation logic (replace with actual API call)
+  final TranslationService _translationService =
+      TranslationService(); // Create an instance of TranslationService
+
+  void _translateText(String inputText) async {
+    if (inputText.isEmpty) {
+      setState(() {
+        _translatedText = ''; // Clear translated text if input is empty
+      });
+      return;
+    }
+
+    try {
+      // Call the translation service
+      final translation = await _translationService.translate(
+        text: inputText,
+        from: _sourceLanguage,
+        to: _targetLanguage,
+      );
+
+      setState(() {
+        _translatedText = translation; // Update translated text
+      });
+    } catch (e) {
+      print("Translation Error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error in translation: $e')),
+      );
+      setState(() {
+        _translatedText = 'Error in translation';
+      });
+    }
+  }
+
+  void _clearInput() {
     setState(() {
-      _translatedText = '$inputText'; // Update translated text
+      _inputText = ''; // Clear the input text
+      _translatedText = ''; // Optionally clear translated text
     });
+  }
+
+  void _updateLanguages(String newTargetLanguage) {
+    setState(() {
+      _targetLanguage = newTargetLanguage; // Update target language
+      _sourceLanguage = 'auto'; // Set source language to auto for detection
+    });
+
+    // Translate the text immediately after changing the target language
+    _translateText(_inputText);
   }
 
   void _saveInstance() {
@@ -45,7 +89,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         elevation: 0,
-        scrolledUnderElevation: 0,
         backgroundColor: Colors.white,
         title: Text('Translator'),
         actions: [
@@ -64,10 +107,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             height: size.height * 0.08,
             width: double.infinity,
             margin: EdgeInsets.fromLTRB(16, 0, 16, 0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              //borderRadius: BorderRadius.circular(40),
-            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -84,8 +123,13 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                       selectedLanguage: _sourceLanguage,
                       onLanguageChanged: (newLang) {
                         setState(() {
-                          _sourceLanguage = newLang;
+                          _sourceLanguage = newLang; // Update source language
                         });
+                        // Check if _inputText is not empty before translating
+                        if (_inputText.isNotEmpty) {
+                          _translateText(
+                              _inputText); // Translate with the new source language
+                        }
                       },
                     ),
                   ),
@@ -99,6 +143,10 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                       _sourceLanguage = _targetLanguage;
                       _targetLanguage = temp;
                     });
+                    // Check if _inputText is not empty before translating
+                    if (_inputText.isNotEmpty) {
+                      _translateText(_inputText); // Translate after swapping
+                    }
                   },
                 ),
                 Container(
@@ -114,8 +162,13 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                       selectedLanguage: _targetLanguage,
                       onLanguageChanged: (newLang) {
                         setState(() {
-                          _targetLanguage = newLang;
+                          _targetLanguage = newLang; // Update target language
                         });
+                        // Check if _inputText is not empty before translating
+                        if (_inputText.isNotEmpty) {
+                          _translateText(
+                              _inputText); // Translate with the new target language
+                        }
                       },
                     ),
                   ),
@@ -127,25 +180,22 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             child: Container(
               margin: EdgeInsets.fromLTRB(16, 8, 16, 8),
               width: size.width * 1,
-              //height: size.height*0.6,
               decoration: BoxDecoration(
-                //color: Colors.grey,
                 border: Border.all(
                   color: Color.fromARGB(255, 42, 157, 143),
                 ),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: SingleChildScrollView(
-                // Enable scrolling for long content
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     InputField(
                       onChanged: (text) {
                         setState(() {
-                          _inputText = text;
+                          _inputText = text; // Update input text
                         });
-                        _translateText(_inputText);
+                        _translateText(_inputText); // Translate input text
                       },
                     ),
                     // Translated Text Container

@@ -21,6 +21,12 @@ class _InputFieldState extends State<InputField> {
   @override
   void initState() {
     super.initState();
+    // Listen for changes in the text field
+    _controller.addListener(() {
+      setState(() {
+        _text = _controller.text; // Update text based on input field
+      });
+    });
   }
 
   @override
@@ -38,7 +44,7 @@ class _InputFieldState extends State<InputField> {
     return status.isGranted;
   }
 
-// Function to handle speech recognition
+  // Function to handle speech recognition
   void _listen() async {
     bool hasPermission = await _checkMicrophonePermission();
     if (!hasPermission) {
@@ -75,10 +81,16 @@ class _InputFieldState extends State<InputField> {
     }
   }
 
-// Helper function to stop listening
+  // Helper function to stop listening
   void _stopListening() {
     setState(() => _isListening = false);
     _speech.stop();
+  }
+
+  // Function to clear the input field
+  void _clearInput() {
+    _controller.clear(); // Clear the TextField
+    widget.onChanged(''); // Notify parent with empty string
   }
 
   @override
@@ -100,6 +112,14 @@ class _InputFieldState extends State<InputField> {
             },
           ),
         ),
+        // Show clear button only when there is text
+        if (_text.isNotEmpty) ...[
+          IconButton(
+            icon: Icon(Icons.clear), // Clear button icon
+            onPressed: _clearInput, // Clear input action
+            tooltip: 'Clear',
+          ),
+        ],
         IconButton(
           icon: Icon(_isListening ? Icons.mic : Icons.mic_none),
           onPressed: _listen, // Trigger voice input
