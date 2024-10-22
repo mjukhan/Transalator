@@ -38,7 +38,7 @@ class _InputFieldState extends State<InputField> {
     return status.isGranted;
   }
 
-  // Function to handle speech recognition
+// Function to handle speech recognition
   void _listen() async {
     bool hasPermission = await _checkMicrophonePermission();
     if (!hasPermission) {
@@ -51,8 +51,12 @@ class _InputFieldState extends State<InputField> {
     if (!_isListening) {
       bool available = await _speech.initialize(
         onStatus: (val) => print('onStatus: $val'),
-        onError: (val) => print('onError: $val'),
+        onError: (val) {
+          print('onError: $val');
+          setState(() => _isListening = false); // Reset on error
+        },
       );
+
       if (available) {
         setState(() => _isListening = true);
         _speech.listen(onResult: (val) {
@@ -61,12 +65,22 @@ class _InputFieldState extends State<InputField> {
             _controller.text = _text; // Update the input field
             widget.onChanged(_text); // Trigger callback with recognized text
           });
+
+          // Stop listening if the speech is complete
+          if (val.hasConfidenceRating && val.confidence > 0.5) {
+            _stopListening();
+          }
         });
       }
     } else {
-      setState(() => _isListening = false);
-      _speech.stop();
+      _stopListening(); // Stop listening if already listening
     }
+  }
+
+// Helper function to stop listening
+  void _stopListening() {
+    setState(() => _isListening = false);
+    _speech.stop();
   }
 
   @override
