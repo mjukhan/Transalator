@@ -50,9 +50,7 @@ class _InputFieldState extends State<InputField> {
 
     if (!_isListening) {
       bool available = await _speech.initialize(
-        onStatus: (val) => print('onStatus: $val'),
         onError: (val) {
-          print('onError: $val');
           setState(() => _isListening = false); // Reset on error
         },
       );
