@@ -4,8 +4,9 @@ import 'package:permission_handler/permission_handler.dart';
 
 class InputField extends StatefulWidget {
   final ValueChanged<String> onChanged;
+  final String sourceLanguage;
 
-  InputField({required this.onChanged});
+  InputField({required this.onChanged, required this.sourceLanguage});
 
   @override
   _InputFieldState createState() => _InputFieldState();
@@ -13,21 +14,6 @@ class InputField extends StatefulWidget {
 
 class _InputFieldState extends State<InputField> {
   TextEditingController _controller = TextEditingController();
-  double _fontSize = 20.0;
-  stt.SpeechToText _speech = stt.SpeechToText();
-  bool _isListening = false;
-  String _text = "";
-
-  @override
-  void initState() {
-    super.initState();
-    // Listen for changes in the text field
-    _controller.addListener(() {
-      setState(() {
-        _text = _controller.text; // Update text based on input field
-      });
-    });
-  }
 
   @override
   void dispose() {
@@ -35,7 +21,90 @@ class _InputFieldState extends State<InputField> {
     super.dispose();
   }
 
-  // Function to check microphone permission
+  // Function to clear the input field
+  void _clearInput() {
+    _controller.clear();
+    widget.onChanged(''); // Notify parent with empty string
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        // Text Input Widget
+        Expanded(
+          child: TextInputField(
+            controller: _controller,
+            hintText: 'Enter or speak text here', // Static hint text
+            onChanged: (text) {
+              widget.onChanged(text); // Pass text to parent widget
+            },
+          ),
+        ),
+        // Show clear button only when there is text
+        if (_controller.text.isNotEmpty) ...[
+          IconButton(
+            icon: Icon(Icons.clear),
+            onPressed: _clearInput,
+            tooltip: 'Clear',
+          ),
+        ],
+        // Voice Input Widget
+        VoiceInputButton(
+          onResult: (text) {
+            _controller.text = text; // Update the text field with voice input
+            widget.onChanged(text); // Notify parent widget with recognized text
+          },
+        ),
+      ],
+    );
+  }
+}
+
+// Separate widget for Text Input
+class TextInputField extends StatelessWidget {
+  final TextEditingController controller;
+  final ValueChanged<String> onChanged;
+  final String hintText;
+
+  TextInputField({
+    required this.controller,
+    required this.hintText,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        hintText: hintText, // Static hint text
+        border: InputBorder.none,
+        contentPadding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
+      ),
+      maxLines: null,
+      style: TextStyle(fontSize: 20.0),
+      onChanged: onChanged,
+    );
+  }
+}
+
+// Separate widget for Voice Input Button
+class VoiceInputButton extends StatefulWidget {
+  final ValueChanged<String> onResult;
+
+  VoiceInputButton({required this.onResult});
+
+  @override
+  _VoiceInputButtonState createState() => _VoiceInputButtonState();
+}
+
+class _VoiceInputButtonState extends State<VoiceInputButton> {
+  final stt.SpeechToText _speech = stt.SpeechToText();
+  bool _isListening = false;
+  String _text = "";
+
+  // Check microphone permission
   Future<bool> _checkMicrophonePermission() async {
     var status = await Permission.microphone.status;
     if (!status.isGranted) {
@@ -55,19 +124,16 @@ class _InputFieldState extends State<InputField> {
     }
 
     if (!_isListening) {
-      bool available = await _speech.initialize(
-        onError: (val) {
-          setState(() => _isListening = false); // Reset on error
-        },
-      );
+      bool available = await _speech.initialize(onError: (val) {
+        setState(() => _isListening = false); // Reset on error
+      });
 
       if (available) {
         setState(() => _isListening = true);
         _speech.listen(onResult: (val) {
           setState(() {
             _text = val.recognizedWords;
-            _controller.text = _text; // Update the input field
-            widget.onChanged(_text); // Trigger callback with recognized text
+            widget.onResult(_text); // Trigger callback with recognized text
           });
 
           // Stop listening if the speech is complete
@@ -87,44 +153,11 @@ class _InputFieldState extends State<InputField> {
     _speech.stop();
   }
 
-  // Function to clear the input field
-  void _clearInput() {
-    _controller.clear(); // Clear the TextField
-    widget.onChanged(''); // Notify parent with empty string
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: TextField(
-            controller: _controller,
-            decoration: InputDecoration(
-              hintText: 'Enter or speak text here',
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
-            ),
-            maxLines: null,
-            style: TextStyle(fontSize: _fontSize),
-            onChanged: (text) {
-              widget.onChanged(text); // Pass text to parent
-            },
-          ),
-        ),
-        // Show clear button only when there is text
-        if (_text.isNotEmpty) ...[
-          IconButton(
-            icon: Icon(Icons.clear), // Clear button icon
-            onPressed: _clearInput, // Clear input action
-            tooltip: 'Clear',
-          ),
-        ],
-        IconButton(
-          icon: Icon(_isListening ? Icons.mic : Icons.mic_none),
-          onPressed: _listen, // Trigger voice input
-        ),
-      ],
+    return IconButton(
+      icon: Icon(_isListening ? Icons.mic : Icons.mic_none),
+      onPressed: _listen,
     );
   }
 }

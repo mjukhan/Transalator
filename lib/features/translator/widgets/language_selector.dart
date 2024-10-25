@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:translation_app/core/utilities/colors.dart';
 
 class LanguageSelector extends StatelessWidget {
   final String selectedLanguage;
@@ -63,7 +64,7 @@ class LanguageSelector extends StatelessWidget {
       isExpanded: true,
       underline: Container(
         height: 1,
-        color: Color.fromARGB(255, 42, 157, 143),
+        color: langSelectorColor,
       ),
       style: TextStyle(
         color: Colors.black,

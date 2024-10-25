@@ -76,7 +76,7 @@ class _TranslationInstanceState extends State<TranslationInstance> {
                   _inputText = text;
                   _isExpanded = text.isNotEmpty; // Expand card if there's input
                 });
-              },
+              }, sourceLanguage: '',
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,

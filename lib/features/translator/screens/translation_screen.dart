@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:auto_size_text/auto_size_text.dart'; // Import AutoSizeText
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:translation_app/core/utilities/colors.dart';
 import '../../../core/widgets/translator_provider.dart';
+
+import '../widgets/error_handler.dart';
 import '../widgets/input_field.dart';
 import '../widgets/language_selector.dart';
 
@@ -39,10 +41,8 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         _translatedText = translation; // Update translated text
       });
     } catch (e) {
-      print("Translation Error: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error in translation: $e')),
-      );
+      // Use centralized error handler to manage the error
+      ErrorHandler.handleTranslationError(context, e);
       setState(() {
         _translatedText = 'Error in translation';
       });
@@ -54,16 +54,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
       _inputText = ''; // Clear the input text
       _translatedText = ''; // Optionally clear translated text
     });
-  }
-
-  void _updateLanguages(String newTargetLanguage) {
-    setState(() {
-      _targetLanguage = newTargetLanguage; // Update target language
-      _sourceLanguage = 'auto'; // Set source language to auto for detection
-    });
-
-    // Translate the text immediately after changing the target language
-    _translateText(_inputText);
   }
 
   void _saveInstance() {
@@ -85,11 +75,11 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Color.fromARGB(255, 248, 249, 250),
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.white,
+        backgroundColor: Color.fromARGB(255, 248, 249, 250),
         title: Text('Translator'),
         actions: [
           IconButton(
@@ -113,25 +103,23 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                 Container(
                   height: size.height * 0.06,
                   width: size.width * 0.4,
-                  padding: EdgeInsets.all(8),
+                  padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                   decoration: BoxDecoration(
                     color: langSelectorColor,
                     borderRadius: BorderRadius.circular(32),
                   ),
-                  child: Center(
-                    child: LanguageSelector(
-                      selectedLanguage: _sourceLanguage,
-                      onLanguageChanged: (newLang) {
-                        setState(() {
-                          _sourceLanguage = newLang; // Update source language
-                        });
-                        // Check if _inputText is not empty before translating
-                        if (_inputText.isNotEmpty) {
-                          _translateText(
-                              _inputText); // Translate with the new source language
-                        }
-                      },
-                    ),
+                  child: LanguageSelector(
+                    selectedLanguage: _sourceLanguage,
+                    onLanguageChanged: (newLang) {
+                      setState(() {
+                        _sourceLanguage = newLang; // Update source language
+                      });
+                      // Check if _inputText is not empty before translating
+                      if (_inputText.isNotEmpty) {
+                        _translateText(
+                            _inputText); // Translate with the new source language
+                      }
+                    },
                   ),
                 ),
                 IconButton(
@@ -152,25 +140,23 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                 Container(
                   height: size.height * 0.06,
                   width: size.width * 0.4,
-                  padding: EdgeInsets.all(8),
+                  padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                   decoration: BoxDecoration(
                     color: langSelectorColor,
                     borderRadius: BorderRadius.circular(32),
                   ),
-                  child: Center(
-                    child: LanguageSelector(
-                      selectedLanguage: _targetLanguage,
-                      onLanguageChanged: (newLang) {
-                        setState(() {
-                          _targetLanguage = newLang; // Update target language
-                        });
-                        // Check if _inputText is not empty before translating
-                        if (_inputText.isNotEmpty) {
-                          _translateText(
-                              _inputText); // Translate with the new target language
-                        }
-                      },
-                    ),
+                  child: LanguageSelector(
+                    selectedLanguage: _targetLanguage,
+                    onLanguageChanged: (newLang) {
+                      setState(() {
+                        _targetLanguage = newLang; // Update target language
+                      });
+                      // Check if _inputText is not empty before translating
+                      if (_inputText.isNotEmpty) {
+                        _translateText(
+                            _inputText); // Translate with the new target language
+                      }
+                    },
                   ),
                 ),
               ],
@@ -182,7 +168,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
               width: size.width * 1,
               decoration: BoxDecoration(
                 border: Border.all(
-                  color: Color.fromARGB(255, 42, 157, 143),
+                  color: borderColor,
                 ),
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -197,6 +183,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                         });
                         _translateText(_inputText); // Translate input text
                       },
+                      sourceLanguage: '',
                     ),
                     // Translated Text Container
                     if (_translatedText.isNotEmpty)
@@ -210,7 +197,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                                 color: dividerColor,
                               ),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
+                                mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
                                   IconButton(
                                     icon: Icon(Icons.search),

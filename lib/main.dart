@@ -48,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       body: _pages[_selectedIndex], // Show the currently selected page
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Color.fromARGB(255, 248, 249, 250),
         unselectedItemColor: unSelectedTebColor,
         selectedItemColor: selectedTebColor,
         type: BottomNavigationBarType.fixed, // Keeps items from shifting

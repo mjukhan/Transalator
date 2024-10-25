@@ -23,13 +23,4 @@ class TranslationService {
       return "Error translating text."; // Provide a fallback message
     }
   }
-
-  // Function to print the translation (optional)
-  Future<void> translateAndPrint(String text, {
-    String? from,
-    required String to,
-  }) async {
-    final translation = await translate(text: text, from: from, to: to);
-    print("Source: $text\nTranslated: $translation");
-  }
 }
