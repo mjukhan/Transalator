@@ -60,7 +60,7 @@ class _TranslationInstanceState extends State<TranslationInstance> {
                     setState(() {
                       _sourceLanguage = newLang;
                     });
-                  },
+                  }, fontSize: 12,
                 ),
                 IconButton(
                   icon: Icon(Icons.mic),
@@ -103,7 +103,7 @@ class _TranslationInstanceState extends State<TranslationInstance> {
                     setState(() {
                       _targetLanguage = newLang;
                     });
-                  },
+                  }, fontSize: 12,
                 ),
                 IconButton(
                   icon: Icon(Icons.mic),

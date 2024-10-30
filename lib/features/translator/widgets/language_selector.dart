@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:translation_app/core/utilities/colors.dart';
 
 class LanguageSelector extends StatelessWidget {
   final String selectedLanguage;
   final Function(String) onLanguageChanged;
+  final double fontSize;
 
   LanguageSelector({
+    super.key,
     required this.selectedLanguage,
     required this.onLanguageChanged,
+    required this.fontSize,
   });
 
   @override
@@ -52,9 +54,15 @@ class LanguageSelector extends StatelessWidget {
       );
     }).toList();
 
+    // Check if selectedLanguage exists in dropdownItems, default to 'en' if not
+    final String defaultLanguage = 'en';
+    final String dropdownValue = dropdownItems
+        .any((item) => item.value == selectedLanguage)
+        ? selectedLanguage
+        : defaultLanguage;
 
     return DropdownButton<String>(
-      value: selectedLanguage,
+      value: dropdownValue,
       items: dropdownItems,
       onChanged: (newValue) {
         if (newValue != null) {
@@ -62,13 +70,10 @@ class LanguageSelector extends StatelessWidget {
         }
       },
       isExpanded: true,
-      underline: Container(
-        height: 1,
-        color: langSelectorColor,
-      ),
+      underline: null,
       style: TextStyle(
         color: Colors.black,
-        fontSize: 16,
+        fontSize: fontSize,
       ),
       dropdownColor: Colors.white,
     );

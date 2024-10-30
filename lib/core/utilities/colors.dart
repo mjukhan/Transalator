@@ -17,3 +17,7 @@ Color sheetColor = Color.fromARGB(255, 233, 236, 239);
 Color person1Color = Color.fromARGB(255, 206, 212, 218);
 
 Color person2Color = Color.fromARGB(255, 173, 181, 189);
+
+Color bgColor =  Color.fromARGB(255, 248, 249, 250);
+
+Color imageCaptureColor =  Color.fromARGB(255, 186, 24, 27);

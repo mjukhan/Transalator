@@ -3,7 +3,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:translation_app/features/camera/screens/file_upload.dart';
+import 'package:open_file/open_file.dart';
+import 'package:translation_app/features/camera/screens/file.dart';
 import 'package:translation_app/features/camera/screens/picture.dart';
 
 class FileScreen extends StatefulWidget {
@@ -17,34 +18,37 @@ class FileScreen extends StatefulWidget {
 
 class _FileScreenState extends State<FileScreen> {
   File? imageFile; // Store the picked image file
-  File? pdfFile; // Store the picked PDF file
+  File? _selectedFile; // Store the picked PDF file
 
   void _getFromCamera() async {
-    XFile? pickedFile = await ImagePicker().pickImage(
-      source: ImageSource.camera,
-      preferredCameraDevice: CameraDevice.front,
-      maxHeight: 1000,
-      maxWidth: 1000,
-    );
-    if (pickedFile != null) {
-      setState(() {
-        imageFile = File(pickedFile.path);
-      });
-
-      // Navigate to PictureScreen if an image is captured
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PictureScreen(
-            imageFile: imageFile!,
-          ),
-        ),
-      ).then((value) {
-        // Refresh or handle any state if needed when returning
+    try {
+      XFile? pickedFile = await ImagePicker().pickImage(
+        source: ImageSource.camera,
+        preferredCameraDevice: CameraDevice.front,
+        maxHeight: 1000,
+        maxWidth: 1000,
+      );
+      if (pickedFile != null) {
         setState(() {
-          imageFile = null; // Clear the image if needed
+          imageFile = File(pickedFile.path);
         });
-      });
+
+        // Navigate to PictureScreen if an image is captured
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PictureScreen(
+              imageFile: imageFile!,
+            ),
+          ),
+        ).then((value) {
+          setState(() {
+            imageFile = null; // Clear the image if needed
+          });
+        });
+      }
+    } catch (e) {
+      _logException("Error picking image from camera: ${e.toString()}");
     }
   }
 
@@ -83,127 +87,86 @@ class _FileScreenState extends State<FileScreen> {
   }
 
   void _pickImage() async {
-    XFile? pickedFile = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-      preferredCameraDevice: CameraDevice.front,
-      maxHeight: 1000,
-      maxWidth: 1000,
-    );
-    if (pickedFile != null) {
-      setState(() {
-        imageFile = File(pickedFile.path);
-      });
+    try {
+      XFile? pickedFile = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        preferredCameraDevice: CameraDevice.front,
+        maxHeight: 1000,
+        maxWidth: 1000,
+      );
+      if (pickedFile != null) {
+        setState(() {
+          imageFile = File(pickedFile.path);
+        });
 
-      // Navigate to PictureScreen if an image is captured
+        // Navigate to PictureScreen if an image is captured
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PictureScreen(
+              imageFile: imageFile!,
+            ),
+          ),
+        ).then((value) {
+          setState(() {
+            imageFile = null; // Clear the image if needed
+          });
+        });
+      }
+    } catch (e) {
+      _logException("Error picking image from gallery: ${e.toString()}");
+    }
+  }
+
+  Future<void> _pickPDF() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        allowMultiple: false,
+      );
+
+      if (result != null && result.files.isNotEmpty) {
+        setState(() {
+          _selectedFile = File(result.files.single.path!);
+        });
+        _goToUploadPage();
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error selecting file: $e")),
+      );
+    }
+  }
+
+  void _goToUploadPage() {
+    if (_selectedFile != null) {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => PictureScreen(
-            imageFile: imageFile!,
+          builder: (context) => FileUpload(file: _selectedFile!),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please select a file first")),
+      );
+    }
+  }
+
+  void _logException(String message) {
+    print(message);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(
+            color: Colors.white,
           ),
         ),
-      ).then((value) {
-        setState(() {
-          imageFile = null; // Clear the image if needed
-        });
-      });
-    }
-  }
-
-  void _pickPDF() async {
-    // Use the file_picker package to select a PDF file
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf'],
+        backgroundColor:
+            Colors.red, // Optional: Set background color for the SnackBar
+      ),
     );
-
-    if (result != null && result.files.isNotEmpty) {
-      try {
-        // Set the selected PDF file
-        final pdfFilePath = result.files.single.path;
-        if (pdfFilePath != null) {
-          setState(() {
-            pdfFile = File(pdfFilePath);
-          });
-
-          // Handle the PDF upload logic here
-          await _uploadPDF(pdfFile);
-        } else {
-          throw Exception("PDF file path is null");
-        }
-      } catch (e) {
-        // Handle any errors during file processing
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Error processing the PDF file: ${e.toString()}"),
-          ),
-        );
-      }
-    } else {
-      // Handle the case when no file is selected
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("No PDF file selected")),
-      );
-    }
   }
-
-  void _uploadPDF(File? file) async {
-    if (file != null) {
-      try {
-        // Show a loading indicator or change UI state to indicate upload in progress
-        setState(() {
-          _isLoading = true; // Assuming you have a loading state variable
-        });
-
-        // Example: Upload the PDF file to a server or perform any action
-        print("Uploading PDF file: ${file.path}");
-
-        // TODO: Implement your actual upload logic here
-        // For example, using http package to upload to a server:
-        // var response = await http.post(
-        //   Uri.parse("YOUR_UPLOAD_URL"),
-        //   body: {
-        //     'file': await http.MultipartFile.fromPath('file', file.path),
-        //   },
-        // );
-
-        // Simulate upload delay (for demo purposes only)
-        await Future.delayed(Duration(seconds: 2));
-
-        // Handle the response as needed
-        // if (response.statusCode == 200) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text("PDF uploaded successfully!")),
-        //   );
-        // } else {
-        //   throw Exception("Failed to upload PDF: ${response.reasonPhrase}");
-        // }
-
-        // Simulate successful upload for demo purposes
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("PDF uploaded successfully!")),
-        );
-      } catch (e) {
-        // Handle any errors during the upload process
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Error uploading PDF file: ${e.toString()}"),
-          ),
-        );
-      } finally {
-        // Reset loading state
-        setState(() {
-          _isLoading = false; // Reset loading state
-        });
-      }
-    } else {
-      // Handle the case when the file is null
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("No PDF file to upload")),
-      );
-    }
-  }
-
 
   @override
   Widget build(BuildContext context) {

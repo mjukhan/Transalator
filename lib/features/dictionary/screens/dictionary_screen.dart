@@ -6,6 +6,8 @@ import '../../../data/repositories/word_repository.dart';
 import '../../../data/services/word_service.dart';
 
 class DictionaryScreen extends StatefulWidget {
+  const DictionaryScreen({super.key});
+
   @override
   State<DictionaryScreen> createState() => _DictionaryScreenState();
 }
