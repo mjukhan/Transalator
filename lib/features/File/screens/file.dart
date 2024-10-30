@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:translation_app/core/widgets/widgets.dart';
 import 'package:translation_app/data/models/ocr_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -103,7 +104,7 @@ class _FileUploadState extends State<FileUpload> {
         _isLoading = false; // Upload completed
       });
       // Show success dialog
-      _showSuccessDialog(fileName);
+      ReFunctions().showSuccessDialog(context, fileName);
       print(_savedFilePath);
       _ocrOnFile(savedFile);
     } catch (e) {
@@ -229,26 +230,6 @@ class _FileUploadState extends State<FileUpload> {
       );
     }
     throw Exception('File not uploaded');
-  }
-
-  void _showSuccessDialog(String? fileName) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Upload Successful'),
-          content: Text('File "$fileName" has been uploaded successfully.'),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 
   void openFile(File pdfFile) {
