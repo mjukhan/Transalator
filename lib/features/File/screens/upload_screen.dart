@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:open_file/open_file.dart';
-import 'package:translation_app/features/camera/screens/file.dart';
-import 'package:translation_app/features/camera/screens/picture.dart';
+import 'package:translation_app/features/File/screens/picture.dart';
+
+import 'file.dart';
 
 class FileScreen extends StatefulWidget {
   const FileScreen({

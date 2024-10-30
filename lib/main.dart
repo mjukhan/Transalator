@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:translation_app/core/utilities/colors.dart';
-import 'package:translation_app/features/camera/screens/test.dart';
+
+import 'features/File/screens/upload_screen.dart';
 import 'features/translator/screens/translation_screen.dart';
 import 'features/conversation/screens/conversation_screen.dart';
-import 'features/camera/screens/upload_screen.dart';
+
 import 'features/dictionary/screens/dictionary_screen.dart';
 
 void main() {

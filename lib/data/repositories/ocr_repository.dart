@@ -8,14 +8,30 @@ class OcrRepository {
       'https://api.ocr.space/parse/imageurl'; // Replace with your API URL
   final String apiKey = 'K85137114488957'; // Replace with your API key
 
-  Future<OcrModel> uploadFile(File file,
-      {bool overlay = true, String language = 'eng'}) async {
+  Future<OcrModel> uploadFile(
+    File file, {
+    bool overlay = true,
+    String language = 'eng',
+    bool detectOrientation = false,
+    bool isCreateSearchablePdf = false,
+    bool isSearchablePdfHideTextLayer = false,
+    bool scale = false,
+    bool isTable = false,
+    int ocrEngine = 1,
+  }) async {
     final request = http.MultipartRequest('GET', Uri.parse(apiUrl));
 
     request.files.add(await http.MultipartFile.fromPath('file', file.path));
     request.fields['isOverlayRequired'] = overlay.toString();
     request.fields['apikey'] = apiKey;
     request.fields['language'] = language;
+    request.fields['detectOrientation'] = detectOrientation.toString();
+    request.fields['isCreateSearchablePdf'] = isCreateSearchablePdf.toString();
+    request.fields['isSearchablePdfHideTextLayer'] =
+        isSearchablePdfHideTextLayer.toString();
+    request.fields['scale'] = scale.toString();
+    request.fields['isTable'] = isTable.toString();
+    request.fields['OCREngine'] = ocrEngine.toString();
 
     final response = await request.send();
 
@@ -28,13 +44,28 @@ class OcrRepository {
     }
   }
 
-  Future<OcrModel> uploadUrl(String url,
-      {bool overlay = false, String language = 'eng'}) async {
+  Future<OcrModel> uploadUrl(
+    String url, {
+    bool overlay = false,
+    String language = 'eng',
+    bool detectOrientation = false,
+    bool isCreateSearchablePdf = false,
+    bool isSearchablePdfHideTextLayer = false,
+    bool scale = false,
+    bool isTable = false,
+    int ocrEngine = 1,
+  }) async {
     final payload = {
       'url': url,
       'isOverlayRequired': overlay,
       'apikey': apiKey,
       'language': language,
+      'detectOrientation': detectOrientation.toString(),
+      'isCreateSearchablePdf': isCreateSearchablePdf.toString(),
+      'isSearchablePdfHideTextLayer': isSearchablePdfHideTextLayer.toString(),
+      'scale': scale.toString(),
+      'isTable': isTable.toString(),
+      'OCREngine': ocrEngine.toString(),
     };
 
     final response = await http.post(

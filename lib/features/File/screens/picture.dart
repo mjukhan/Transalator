@@ -26,38 +26,10 @@ class _PictureScreenState extends State<PictureScreen> {
   bool _isTranslating = false;
   final OcrRepository _ocrRepository = OcrRepository();
   String _resultText = '';
-  String _sourceLanguage = 'auto'; // Default source language
-  String _targetLanguage = 'ur'; // Default target language
+  String _sourceLanguage = 'auto';
+  String _targetLanguage = 'ur';
   String _translatedText = '';
   final TranslationService _translationService = TranslationService();
-
-  void _translateText(String inputText) async {
-    if (inputText.isEmpty) {
-      setState(() {
-        _translatedText = '';
-      });
-      return;
-    }
-
-    try {
-      // Call the translation service
-      final translation = await _translationService.translate(
-        text: inputText,
-        from: _sourceLanguage,
-        to: _targetLanguage,
-      );
-
-      setState(() {
-        _translatedText = translation; // Update translated text
-      });
-    } catch (e) {
-      ErrorHandler.handleTranslationError(context, e);
-      setState(() {
-        _translatedText = 'Error in translation';
-      });
-    }
-  }
-
   final StreamController<String> controller = StreamController<String>();
 
   @override
@@ -126,7 +98,6 @@ class _PictureScreenState extends State<PictureScreen> {
         _resultText = result.parsedResults![0].parsedText!;
         _isTranslating = false;
       });
-      _translateText(_resultText);
       print('OCR Result: $_resultText');
     } catch (e) {
       print('Error: $e');

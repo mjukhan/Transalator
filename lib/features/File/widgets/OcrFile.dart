@@ -9,8 +9,8 @@ import 'package:translation_app/core/widgets/widgets.dart';
 import 'package:translation_app/data/models/ocr_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../core/widgets/translator_provider.dart';
-import '../../../data/repositories/ocr_repository.dart';
+import '../../../../core/widgets/translator_provider.dart';
+import '../../../../data/repositories/ocr_repository.dart';
 
 class OCR extends StatefulWidget {
   const OCR({super.key});

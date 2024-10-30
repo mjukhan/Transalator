@@ -12,7 +12,7 @@ class TranslatorScreen extends StatefulWidget {
 }
 
 class _TranslatorScreenState extends State<TranslatorScreen> {
-  String _sourceLanguage = 'en'; // Default source language
+  String _sourceLanguage = 'auto'; // Default source language
   String _targetLanguage = 'ur'; // Default target language
   String _inputText = '';
   String _translatedText = '';
