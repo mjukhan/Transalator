@@ -79,34 +79,36 @@ class _PictureScreenState extends State<PictureScreen> {
     return SizedBox(
       height: size.height * 0.7,
       width: size.width,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Image.file(
-            widget.imageFile!,
-            fit: BoxFit.fitWidth,
-          ),
-          for (int i = 0; i < translatedLines.length; i++)
-            _buildTranstaledLinesView(translatedLines[i]),
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.file(
+              widget.imageFile!,
+              fit: BoxFit.contain,
+            ),
+            _isTranslating
+                ? CircularProgressIndicator()
+                : _buildTranslatedLinesView(translatedLines),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildTranstaledLinesView(String line) {
-    return _isTranslating
-        ? CircularProgressIndicator()
-        : Center(
-            child: Card(
-              color: Colors.white.withOpacity(0.3),
-              elevation: 0,
-              child: Text(
-                line,
-                style: TextStyle(color: Colors.red, fontSize: 16),
-                textAlign: TextAlign.center,
+  Widget _buildTranslatedLinesView(List<String> lines) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: lines
+          .map(
+            (line) => SizedBox(
+              child: Card(
+                child: Text(line),
               ),
             ),
-          );
+          )
+          .toList(),
+    );
   }
 
   Widget _buildBottomControls() {
