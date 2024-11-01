@@ -46,12 +46,12 @@ class OcrRepository {
 
   Future<OcrModel> uploadUrl(
     String url, {
-    bool overlay = false,
-    String language = 'eng',
-    bool detectOrientation = false,
+    bool overlay = true,
+    String language = 'auto',
+    bool detectOrientation = true,
     bool isCreateSearchablePdf = false,
     bool isSearchablePdfHideTextLayer = false,
-    bool scale = false,
+    bool scale = true,
     bool isTable = false,
     int ocrEngine = 1,
   }) async {

@@ -56,10 +56,10 @@ class LanguageSelector extends StatelessWidget {
 
     // Check if selectedLanguage exists in dropdownItems, default to 'en' if not
     final String defaultLanguage = 'en';
-    final String dropdownValue = dropdownItems
-        .any((item) => item.value == selectedLanguage)
-        ? selectedLanguage
-        : defaultLanguage;
+    final String dropdownValue =
+        dropdownItems.any((item) => item.value == selectedLanguage)
+            ? selectedLanguage
+            : defaultLanguage;
 
     return DropdownButton<String>(
       value: dropdownValue,

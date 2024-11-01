@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ErrorHandler {
-  static void handleTranslationError(
-      BuildContext context, Object error) {
+  static void handleTranslationError(BuildContext context, Object error) {
     final String errorMessage;
 
     if (error is NetworkException) {

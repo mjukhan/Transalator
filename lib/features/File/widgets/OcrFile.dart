@@ -1,51 +1,97 @@
-import 'dart:async';
 import 'dart:io';
-import 'package:path/path.dart' as p;
-import 'package:flutter/material.dart';
+import '../../../data/models/ocr_model.dart';
+import '../../../data/repositories/ocr_repository.dart';
 
-import 'package:open_file/open_file.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:translation_app/core/widgets/widgets.dart';
-import 'package:translation_app/data/models/ocr_model.dart';
-import 'package:url_launcher/url_launcher.dart';
-
-import '../../../../core/widgets/translator_provider.dart';
-import '../../../../data/repositories/ocr_repository.dart';
-
-class OCR extends StatefulWidget {
-  const OCR({super.key});
-
-  @override
-  State<OCR> createState() => _OCRState();
-}
-
-class _OCRState extends State<OCR> {
+class OCR {
   String _extractedText = '';
   bool _isExtractingText = false;
 
   final OcrRepository _ocrRepository = OcrRepository();
 
-  Future<void> ocrOnFile(File file) async {
-    setState(() {
-      _isExtractingText = true;
-    });
+  bool get isExtractingText => _isExtractingText;
+  String get extractedText => _extractedText;
+
+  Future<String> ocrOnFile(File file) async {
+    _isExtractingText = true;
+
     try {
       OcrModel result = await _ocrRepository.uploadFile(file);
-      setState(() {
-        _extractedText = result.parsedResults![0].parsedText!;
-        _isExtractingText = false;
-      });
-      print('OCR Result: $_extractedText');
+
+      // Combine all lines and words into a single string for `extractedText`
+      _extractedText = result.parsedResults!
+          .map((parsedResult) => parsedResult.textOverlay!.lines!
+              .map((line) => line.words!.map((word) => word.wordText).join(' '))
+              .join('\n'))
+          .join('\n\n');
+
+      print('Text Extracted: $_extractedText');
+      return _extractedText;
     } catch (e) {
-      setState(() {
-        _isExtractingText = false;
-      });
       print('Error: $e');
+      return '';
+    } finally {
+      _isExtractingText = false;
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
+  // Function to get each line of text along with MaxHeight and MinTop
+  Future<List<Map<String, dynamic>>> getLinesWithAttributes(File file) async {
+    List<Map<String, dynamic>> linesWithAttributes = [];
+
+    try {
+      // Upload the file and get OCR results
+      final OcrModel result = await _ocrRepository.uploadFile(file);
+
+      // If parsedResults or nested lists are null, set to an empty list to prevent null errors
+      final parsedResults = result.parsedResults ?? [];
+
+      for (var parsedResult in parsedResults) {
+        final lines = parsedResult.textOverlay?.lines ?? [];
+
+        for (var line in lines) {
+          linesWithAttributes.add({
+            "LineText": line.lineText,
+            "Words": (line.words ?? []).map((word) {
+              return {
+                "WordText": word.wordText,
+                "Left": word.left,
+                "Top": word.top,
+                "Height": word.height,
+                "Width": word.width,
+              };
+            }).toList(), // Returning words as a list of attributes
+            "MaxHeight": line.maxHeight,
+            "MinTop": line.minTop,
+          });
+        }
+      }
+    } catch (e) {
+      // Log the error message and stack trace to help with debugging
+      print('Error fetching lines with attributes: $e');
+    }
+
+    return linesWithAttributes;
+  }
+
+  // Function to get each word with its Left, Top, Height, and Width
+  Future<List<Map<String, dynamic>>> getWordsWithAttributes(File file) async {
+    try {
+      OcrModel result = await _ocrRepository.uploadFile(file);
+      List<Map<String, dynamic>> wordsWithAttributes = result.parsedResults!
+          .expand((parsedResult) => parsedResult.textOverlay!.lines!
+              .expand((line) => line.words!.map((word) => {
+                    "text": word.wordText,
+                    "left": word.left,
+                    "top": word.top,
+                    "height": word.height,
+                    "width": word.width,
+                  })))
+          .toList();
+
+      return wordsWithAttributes;
+    } catch (e) {
+      print('Error fetching words with attributes: $e');
+      return [];
+    }
   }
 }

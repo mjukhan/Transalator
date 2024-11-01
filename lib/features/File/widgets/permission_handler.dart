@@ -41,7 +41,8 @@ class PermissionHelper {
     return cameraGranted && galleryGranted;
   }
 
-  static void _showPermissionDeniedDialog(BuildContext context, Permission permission) {
+  static void _showPermissionDeniedDialog(
+      BuildContext context, Permission permission) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

@@ -87,16 +87,17 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          _buildLanguageSelector(size),
+          _buildLanguageSelector(),
           Expanded(
-            child: _buildTranslationContainer(size),
+            child: _buildTranslationContainer(),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildLanguageSelector(Size size) {
+  Widget _buildLanguageSelector() {
+    final size = MediaQuery.of(context).size;
     return Container(
       height: size.height * 0.08,
       width: double.infinity,
@@ -134,6 +135,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
 
   Widget _buildLanguageDropdown(
       String selectedLanguage, Function(String) onChanged) {
+    final size = MediaQuery.of(context).size;
     return Container(
       height: 50,
       width: 120,
@@ -150,7 +152,8 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     );
   }
 
-  Widget _buildTranslationContainer(Size size) {
+  Widget _buildTranslationContainer() {
+    final size = MediaQuery.of(context).size;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(

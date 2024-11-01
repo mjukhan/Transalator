@@ -1,16 +1,13 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:translation_app/core/widgets/widgets.dart';
-import 'package:translator/translator.dart';
 import 'dart:async';
-import 'package:path/path.dart' as p;
 import '../../../core/utilities/colors.dart';
 import '../../../core/widgets/translator_provider.dart';
-import '../../../data/models/ocr_model.dart';
-import '../../../data/repositories/ocr_repository.dart';
 import '../../translator/widgets/error_handler.dart';
 import '../../translator/widgets/language_selector.dart';
+import '../widgets/OcrFile.dart';
+import '../widgets/upload.dart';
 
 class PictureScreen extends StatefulWidget {
   final File? imageFile;
@@ -21,25 +18,18 @@ class PictureScreen extends StatefulWidget {
 }
 
 class _PictureScreenState extends State<PictureScreen> {
-  bool _isLoading = false;
-  String? _savedFilePath;
-  bool _isTranslating = false;
-  final OcrRepository _ocrRepository = OcrRepository();
-  String _resultText = '';
-  String _sourceLanguage = 'auto';
   String _targetLanguage = 'ur';
-  String _translatedText = '';
-  final TranslationService _translationService = TranslationService();
+  List<Map<String, dynamic>> extractedLines = [];
+  List<String> translatedLines = [];
+  List<String> inputLines = [];
+  bool _isTranslating = false;
   final StreamController<String> controller = StreamController<String>();
+  final TranslationService _translationService = TranslationService();
 
   @override
   void initState() {
     super.initState();
-    _startUpload();
-  }
-
-  void setText(value) {
-    controller.add(value);
+    imageUpload();
   }
 
   @override
@@ -48,82 +38,35 @@ class _PictureScreenState extends State<PictureScreen> {
     super.dispose();
   }
 
-  Future<void> _startUpload() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      // Obtain the app's document directory
-      final directory = await getApplicationDocumentsDirectory();
-
-      // Generate the new file path in the app's storage
-      final fileName =
-          widget.imageFile!.path.split('/').last; // Get the file name
-      final newFilePath =
-          '${directory.path}/$fileName'; // Path within app storage
-
-      // Copy the file to the app's storage directory
-      File savedFile = await widget.imageFile!.copy(newFilePath);
-
-      final fileExtension = p.extension(savedFile.path);
-      print('file extension : $fileExtension');
-
-      setState(() {
-        _savedFilePath =
-            savedFile.path; // Set saved path to display or use later
-        _isLoading = false; // Upload completed
-      });
-      // Show success dialog
-      ReFunctions().showSuccessDialog(context, fileName);
-      print(_savedFilePath);
-      _ocrOnFile(savedFile);
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error uploading file: $e")),
-      );
+  Future<void> imageUpload() async {
+    File? upLoadedFile =
+        await Upload(imageFile: widget.imageFile).startUpload(context);
+    if (upLoadedFile != null) {
+      // Use compute to offload the OCR processing
+      extractedLines = await compute(_performOcr, upLoadedFile);
+      // Extracting text lines from the extracted lines
+      inputLines =
+          extractedLines.map((line) => line['LineText'] as String).toList();
+      print(inputLines);
+      await _translateText(inputLines);
     }
   }
 
-  Future<void> _ocrOnFile(File file) async {
-    setState(() {
-      _isTranslating = true;
-    });
-    try {
-      OcrModel result = await _ocrRepository.uploadFile(file);
-      setState(() {
-        _resultText = result.parsedResults![0].parsedText!;
-        _isTranslating = false;
-      });
-      print('OCR Result: $_resultText');
-    } catch (e) {
-      print('Error: $e');
-    }
+  static Future<List<Map<String, dynamic>>> _performOcr(File file) async {
+    // Your OCR processing logic
+    return await OCR().getLinesWithAttributes(file);
   }
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     return Scaffold(
+      appBar: AppBar(),
       body: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
-          return Stack(
-            alignment: Alignment.bottomCenter,
+          return Column(
             children: [
-              // Display the image file
-              if (widget.imageFile != null)
-                SizedBox(
-                  height: MediaQuery.of(context).size.height,
-                  width: MediaQuery.of(context).size.width,
-                  child: Image.file(
-                    widget.imageFile!,
-                    fit: BoxFit.fitWidth, // Change to cover for better fit
-                  ),
-                ),
-              _buildBottomControls(size),
+              _buildImageView(),
+              _buildBottomControls(),
             ],
           );
         },
@@ -131,43 +74,61 @@ class _PictureScreenState extends State<PictureScreen> {
     );
   }
 
-  Widget _buildBottomControls(Size size) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        _buildLanguageSelector(size),
-        const SizedBox(height: 10),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(0, 8, 0, 32),
-          child: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: Icon(
-              Icons.cancel_outlined,
-              size: 50,
-              color: borderColor,
-            ),
+  Widget _buildImageView() {
+    final size = MediaQuery.of(context).size;
+    return SizedBox(
+      height: size.height * 0.7,
+      width: size.width,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Image.file(
+            widget.imageFile!,
+            fit: BoxFit.fitWidth,
           ),
-        ),
-      ],
+          for (int i = 0; i < translatedLines.length; i++)
+            _buildTranstaledLinesView(translatedLines[i]),
+        ],
+      ),
     );
   }
 
-  Widget _buildLanguageSelector(Size size) {
-    return Container(
-      height: 50,
+  Widget _buildTranstaledLinesView(String line) {
+    return _isTranslating
+        ? CircularProgressIndicator()
+        : Center(
+            child: Card(
+              color: Colors.white.withOpacity(0.3),
+              elevation: 0,
+              child: Text(
+                line,
+                style: TextStyle(color: Colors.red, fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          );
+  }
+
+  Widget _buildBottomControls() {
+    return _buildLanguageSelector();
+  }
+
+  Widget _buildLanguageSelector() {
+    final size = MediaQuery.of(context).size;
+    return SizedBox(
+      height: 100,
       width: 250,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Text('Translate to :'),
+          Text('Translate to:'),
           _buildLanguageDropdown(
             size,
             _targetLanguage,
-            (newLang) => setState(() {
-              _targetLanguage = newLang;
-            }),
+            (newLang) {
+              setState(() => _targetLanguage = newLang);
+              _translateText(inputLines);
+            },
           ),
         ],
       ),
@@ -190,5 +151,43 @@ class _PictureScreenState extends State<PictureScreen> {
         fontSize: 10,
       ),
     );
+  }
+
+  // Function to translate each line of text in the selected target language
+  Future<void> _translateText(List<String> inputLines) async {
+    _isTranslating = true;
+    if (inputLines.isEmpty) {
+      setState(() {
+        translatedLines = [];
+        _isTranslating = false;
+      });
+      return;
+    }
+
+    List<String> translations = [];
+
+    for (String line in inputLines) {
+      try {
+        // Use the dynamically set target language for translation
+        String translation = await _translationService.translate(
+          text: line,
+          from: 'auto',
+          to: _targetLanguage, // Uses selected language from dropdown
+        );
+
+        translations.add(translation.isNotEmpty
+            ? translation
+            : 'Translation result is empty.');
+      } catch (e) {
+        ErrorHandler.handleTranslationError(context, e);
+        translations.add('Translation error occurred for line: $line');
+        _isTranslating = false;
+      }
+    }
+
+    setState(() {
+      translatedLines = translations; // Update translatedLines state
+      _isTranslating = false;
+    });
   }
 }
