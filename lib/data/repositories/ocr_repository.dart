@@ -53,7 +53,7 @@ class OcrRepository {
     bool isSearchablePdfHideTextLayer = false,
     bool scale = true,
     bool isTable = false,
-    int ocrEngine = 1,
+    int ocrEngine = 2,
   }) async {
     final payload = {
       'url': url,

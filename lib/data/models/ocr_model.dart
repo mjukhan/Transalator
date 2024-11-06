@@ -4,6 +4,7 @@
 /// ErrorMessage : ["The maximum page limit of 3 was reached and only pages upto the limit were parsed successfully"]
 /// ProcessingTimeInMilliseconds : "4704"
 /// SearchablePDFURL : "https://api.ocr.space/SearchablePDF/80c1a02d-ed01-4df2-b3ea-a62fe5def0c6.pdf"
+library;
 
 class OcrModel {
   OcrModel({

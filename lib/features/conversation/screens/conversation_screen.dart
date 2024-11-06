@@ -1,8 +1,8 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:translation_app/core/utilities/colors.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
-import 'package:translation_app/features/translator/widgets/input_field.dart';
 import '../../../core/widgets/translator_provider.dart';
 import '../../translator/widgets/error_handler.dart';
 import '../../translator/widgets/language_selector.dart';
@@ -15,19 +15,21 @@ class ConversationScreen extends StatefulWidget {
 }
 
 class _ConversationScreenState extends State<ConversationScreen> {
-  String _person1Language = 'en'; // Default source language
-  String _person2Language = 'ur'; // Default target language
+  String _person1Language = 'auto';
+  String _person2Language = 'ur';
   String _inputText = '';
   String _translatedText = '';
-  bool _isListeningperson1 = false;
-  bool _isListeningperson2 = false;
+  bool speaker1 = false;
+  bool speaker2 = false;
+  bool _isListeningPerson1 = false;
+  bool _isListeningPerson2 = false;
+  final TextEditingController _controller = TextEditingController();
 
   final stt.SpeechToText _speech =
       stt.SpeechToText(); // Speech-to-text instance
-
   final TranslationService _translationService = TranslationService();
 
-  void _translateText(String inputText) async {
+  void _translateText(String inputText, bool speaker1, bool speaker2) async {
     if (inputText.isEmpty) {
       setState(() {
         _translatedText = ''; // Clear translated text if input is empty
@@ -37,60 +39,138 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
     try {
       // Call the translation service
-      final translation = await _translationService.translate(
-        text: inputText,
-        from: _person1Language,
-        to: _person2Language,
-      );
-
-      setState(() {
-        _translatedText = translation; // Update translated text
-      });
+      if (speaker1) {
+        final translation = await _translationService.translate(
+          text: inputText,
+          from: _person1Language,
+          to: _person2Language,
+        );
+        setState(() {
+          _translatedText = translation;
+        });
+      }
+      if (speaker2) {
+        final translation = await _translationService.translate(
+          text: inputText,
+          from: _person2Language,
+          to: _person1Language,
+        );
+        setState(() {
+          _translatedText = translation;
+        });
+      }
     } catch (e) {
       // Use centralized error handler to manage the error
       ErrorHandler.handleTranslationError(context, e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error in translation')),
+      );
       setState(() {
         _translatedText = 'Error in translation';
       });
     }
   }
 
-  // Method to handle speech recognition for source language
+  // Check microphone permission
+  Future<bool> _checkMicrophonePermission() async {
+    var status = await Permission.microphone.status;
+    if (!status.isGranted) {
+      status = await Permission.microphone.request();
+    }
+    return status.isGranted;
+  }
+
+  // Method to handle speech recognition for source language (Person 1)
   void _listenPerson1() async {
-    if (!_isListeningperson1) {
+    bool hasPermission = await _checkMicrophonePermission();
+    if (!hasPermission) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Microphone permission is required.')),
+      );
+      return;
+    }
+    if (!_isListeningPerson1) {
       bool available = await _speech.initialize();
       if (available) {
-        setState(() => _isListeningperson1 = true);
+        setState(() {
+          _isListeningPerson1 = true;
+        });
         _speech.listen(onResult: (val) {
           setState(() {
+            _inputText = '';
+            _translatedText = '';
             _inputText = val.recognizedWords;
-            _translateText(_inputText); // Translate from source to target
+            _controller.text = _inputText;
+            setState(() {
+              speaker2 = false;
+              speaker1 = true;
+            });
+            _translateText(_inputText, speaker1, speaker2);
+            // Stop listening if the speech is complete
+            if (val.hasConfidenceRating && val.confidence > 0.5) {
+              _speech.stop();
+              _isListeningPerson1 = false;
+            }
           });
         });
       }
     } else {
-      setState(() => _isListeningperson1 = false);
-      _speech.stop();
+      setState(() {
+        _speech.stop();
+        _isListeningPerson1 = false;
+      });
     }
   }
 
-  // Method to handle speech recognition for target language
+  // Method to handle speech recognition for target language (Person 2)
   void _listenPerson2() async {
-    if (!_isListeningperson2) {
+    bool hasPermission = await _checkMicrophonePermission();
+    if (!hasPermission) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Microphone permission is required.')),
+      );
+      return;
+    }
+    if (!_isListeningPerson2) {
       bool available = await _speech.initialize();
       if (available) {
-        setState(() => _isListeningperson2 = true);
+        setState(() {
+          _isListeningPerson2 = true;
+        });
         _speech.listen(onResult: (val) {
           setState(() {
-            _translatedText = val.recognizedWords;
-            _translateText(_translatedText); // Translate from target to source
+            _inputText = '';
+            _translatedText = '';
+            _inputText = val.recognizedWords;
+            _controller.text = _inputText;
+            setState(() {
+              speaker1 = false;
+              speaker2 = true;
+            });
+            _translateText(_inputText, speaker1, speaker2);
+            // Stop listening if the speech is complete
+            if (val.hasConfidenceRating && val.confidence > 0.5) {
+              _speech.stop();
+              _isListeningPerson2 = false;
+            }
           });
         });
       }
     } else {
-      setState(() => _isListeningperson2 = false);
+      setState(() {
+        _speech.stop();
+        _isListeningPerson2 = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    if (_speech.isListening) {
       _speech.stop();
     }
+    super.dispose();
   }
 
   @override
@@ -118,79 +198,53 @@ class _ConversationScreenState extends State<ConversationScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      margin: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    SizedBox(
+                      height: size.height * 0.25,
+                      width: size.width,
+                      //margin: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                      // decoration: BoxDecoration(
+                      //   border: Border.all(color: Colors.yellow),
+                      // ),
                       child: AutoSizeText(
-                        _inputText, // Display the translated text here
+                        _inputText,
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                          color: Colors.black87,
+                          fontSize: 32,
+                        ),
+                        maxFontSize: 32,
+                        minFontSize: 24,
+                        maxLines: null,
+                      ),
+                    ),
+                    Divider(
+                      thickness: 2,
+                      color: dividerColor.withOpacity(0.5),
+                    ),
+                    // Translated Text Container
+                    SizedBox(
+                      height: size.height * 0.25,
+                      width: size.width,
+                      //margin: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                      child: AutoSizeText(
+                        _translatedText, // Display the translated text here
                         textAlign: TextAlign.start,
                         style: TextStyle(
                           color: Colors.black87,
                         ),
-                        maxFontSize: 24,
-                        minFontSize: 16,
-                        maxLines: null, // Remove maxLines limit
+                        maxFontSize: 32,
+                        minFontSize: 24,
+                        maxLines: null,
                       ),
                     ),
-                    // Translated Text Container
-                    if (_translatedText.isNotEmpty)
-                      Column(
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Divider(
-                                thickness: 2,
-                                color: dividerColor,
-                              ),
-                              // Row(
-                              //   mainAxisAlignment: MainAxisAlignment.start,
-                              //   children: [
-                              //     IconButton(
-                              //       icon: Icon(Icons.search),
-                              //       onPressed: _findInDictionary,
-                              //       tooltip: 'Find in Dictionary',
-                              //     ),
-                              //     IconButton(
-                              //       icon: Icon(Icons.star),
-                              //       onPressed: _saveInstance,
-                              //       tooltip: 'Save Instance',
-                              //     ),
-                              //     IconButton(
-                              //       icon: Icon(Icons.copy),
-                              //       onPressed: _copyToClipboard,
-                              //       tooltip: 'Copy',
-                              //     ),
-                              //   ],
-                              // ),
-                            ],
-                          ),
-                          Container(
-                            margin: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                            child: AutoSizeText(
-                              _translatedText, // Display the translated text here
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                color: Colors.black87,
-                              ),
-                              maxFontSize: 24,
-                              minFontSize: 16,
-                              maxLines: null, // Remove maxLines limit
-                            ),
-                          ),
-                        ],
-                      ),
                   ],
                 ),
               ),
             ),
           ),
-          Container(
+          SizedBox(
             height: size.height * 0.2,
             width: size.width,
-            // decoration: BoxDecoration(
-            //   color: bgColor,
-            //   border: Border.all(color: Colors.yellow),
-            // ),
             child: Row(
               children: [
                 Column(
@@ -209,31 +263,30 @@ class _ConversationScreenState extends State<ConversationScreen> {
                         selectedLanguage: _person1Language,
                         onLanguageChanged: (newLang) {
                           setState(() {
-                            _person1Language =
-                                newLang; // Update source language
+                            // Update source language
+                            _person1Language = newLang;
+                            print('person 1 lang : $_person1Language');
+                            print('person 2 lang : $_person2Language');
                           });
-                          // Check if _inputText is not empty before translating
                           if (_inputText.isNotEmpty) {
-                            _translateText(
-                                _inputText); // Translate with the new source language
+                            _translateText(_inputText, speaker1, speaker2);
                           }
-                        }, fontSize: 12,
+                        },
+                        fontSize: 12,
                       ),
                     ),
-                    Container(
-                      height: 60,
-                      width: 60,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: borderColor,
+                    GestureDetector(
+                      onTap: _listenPerson1,
+                      child: Container(
+                        height: 60,
+                        width: 60,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: borderColor),
                         ),
-                      ),
-                      child: IconButton(
-                        onPressed: _listenPerson1,
-                        icon: _isListeningperson1
-                            ? Icon(Icons.mic)
-                            : Icon(Icons.mic_none),
+                        child: Icon(
+                          _isListeningPerson1 ? Icons.mic : Icons.mic_none,
+                        ),
                       ),
                     ),
                   ],
@@ -254,35 +307,35 @@ class _ConversationScreenState extends State<ConversationScreen> {
                         selectedLanguage: _person2Language,
                         onLanguageChanged: (newLang) {
                           setState(() {
-                            _person2Language =
-                                newLang; // Update source language
+                            // Update target language
+                            _person2Language = newLang;
+                            print('person 1 lang : $_person1Language');
+                            print('person 2 lang : $_person2Language');
                           });
-                          // Check if _inputText is not empty before translating
                           if (_inputText.isNotEmpty) {
-                            _translateText(
-                                _inputText); // Translate with the new source language
+                            _translateText(_inputText, speaker1, speaker2);
                           }
-                        }, fontSize: 12,
+                        },
+                        fontSize: 12,
                       ),
                     ),
-                    Container(
-                      height: 60,
-                      width: 60,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: borderColor,
+                    GestureDetector(
+                      onTap:
+                          _listenPerson2, // Call the listen method for person 2
+                      child: Container(
+                        height: 60,
+                        width: 60,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: borderColor),
                         ),
-                      ),
-                      child: IconButton(
-                        onPressed: _listenPerson2,
-                        icon: _isListeningperson2
-                            ? Icon(Icons.mic)
-                            : Icon(Icons.mic_none),
+                        child: Icon(
+                          _isListeningPerson2 ? Icons.mic : Icons.mic_none,
+                        ),
                       ),
                     ),
                   ],
-                )
+                ),
               ],
             ),
           ),

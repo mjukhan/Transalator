@@ -79,19 +79,17 @@ class _PictureScreenState extends State<PictureScreen> {
     return SizedBox(
       height: size.height * 0.7,
       width: size.width,
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.file(
-              widget.imageFile!,
-              fit: BoxFit.contain,
-            ),
-            _isTranslating
-                ? CircularProgressIndicator()
-                : _buildTranslatedLinesView(translatedLines),
-          ],
-        ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Image.file(
+            widget.imageFile!,
+            fit: BoxFit.contain,
+          ),
+          _isTranslating
+              ? CircularProgressIndicator()
+              : _buildTranslatedLinesView(translatedLines),
+        ],
       ),
     );
   }

@@ -160,12 +160,12 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                 future: _wordDefinition,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Container(
+                    return SizedBox(
                       height: size.height * 0.3,
                       child: Center(child: CircularProgressIndicator()),
                     );
                   } else if (snapshot.hasError) {
-                    return Container(
+                    return SizedBox(
                       height: size.height * 0.3,
                       child: Center(child: Text('Error fetching meaning')),
                     );
@@ -214,7 +214,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                       ),
                     );
                   } else {
-                    return Container(
+                    return SizedBox(
                       height: size.height * 0.3,
                       child: Center(
                           child: Text('No data found for "$_searchedWord"')),

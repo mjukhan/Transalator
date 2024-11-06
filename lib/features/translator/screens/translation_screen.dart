@@ -7,12 +7,14 @@ import '../widgets/input_field.dart';
 import '../widgets/language_selector.dart';
 
 class TranslatorScreen extends StatefulWidget {
+  const TranslatorScreen({super.key});
+
   @override
   _TranslatorScreenState createState() => _TranslatorScreenState();
 }
 
 class _TranslatorScreenState extends State<TranslatorScreen> {
-  String _sourceLanguage = 'auto'; // Default source language
+  String _sourceLanguage = 'en'; // Default source language
   String _targetLanguage = 'ur'; // Default target language
   String _inputText = '';
   String _translatedText = '';
@@ -46,13 +48,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     }
   }
 
-  void _clearInput() {
-    setState(() {
-      _inputText = ''; // Clear input text
-      _translatedText = ''; // Optionally clear translated text
-    });
-  }
-
   void _saveInstance() {
     print("Instance saved: $_translatedText");
   }
@@ -67,8 +62,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
@@ -114,11 +107,15 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
           IconButton(
             icon: const Icon(Icons.swap_horiz),
             onPressed: () {
+              print("source language before : $_sourceLanguage");
+              print("target language before : $_targetLanguage");
               setState(() {
                 final temp = _sourceLanguage;
                 _sourceLanguage = _targetLanguage;
                 _targetLanguage = temp;
               });
+              print("source language after : $_sourceLanguage");
+              print("target language after : $_targetLanguage");
               if (_inputText.isNotEmpty) _translateText(_inputText);
             },
           ),
@@ -126,6 +123,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             setState(() {
               _targetLanguage = newLang;
             });
+
             if (_inputText.isNotEmpty) _translateText(_inputText);
           }),
         ],
@@ -135,7 +133,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
 
   Widget _buildLanguageDropdown(
       String selectedLanguage, Function(String) onChanged) {
-    final size = MediaQuery.of(context).size;
     return Container(
       height: 50,
       width: 120,
@@ -153,7 +150,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   }
 
   Widget _buildTranslationContainer() {
-    final size = MediaQuery.of(context).size;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
@@ -173,7 +169,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
               },
               sourceLanguage: '',
             ),
-            if (_translatedText.isNotEmpty) _buildTranslatedText(),
+            if (_inputText.isNotEmpty) _buildTranslatedText()
           ],
         ),
       ),
@@ -183,26 +179,31 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   Widget _buildTranslatedText() {
     return Column(
       children: [
-        Divider(thickness: 2, color: dividerColor),
-        _buildActionButtons(),
         Container(
           margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
           child: AutoSizeText(
             _translatedText,
-            textAlign: TextAlign.start,
+            textAlign: TextAlign.center,
             style: const TextStyle(color: Colors.black87),
-            maxFontSize: 24,
-            minFontSize: 16,
+            maxFontSize: 32,
+            minFontSize: 24,
             maxLines: null,
           ),
         ),
+        Divider(
+          thickness: 2,
+          color: dividerColor,
+          indent: 16,
+          endIndent: 16,
+        ),
+        _buildActionButtons(),
       ],
     );
   }
 
   Widget _buildActionButtons() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
         IconButton(
           icon: const Icon(Icons.search),

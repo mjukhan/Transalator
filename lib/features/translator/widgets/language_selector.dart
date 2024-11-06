@@ -5,7 +5,7 @@ class LanguageSelector extends StatelessWidget {
   final Function(String) onLanguageChanged;
   final double fontSize;
 
-  LanguageSelector({
+  const LanguageSelector({
     super.key,
     required this.selectedLanguage,
     required this.onLanguageChanged,
@@ -21,8 +21,6 @@ class LanguageSelector extends StatelessWidget {
       {'value': 'es', 'label': 'Spanish (ES)'},
       {'value': 'fr', 'label': 'French (FR)'},
       {'value': 'de', 'label': 'German (DE)'},
-      {'value': 'zh', 'label': 'Chinese (Simplified)'},
-      {'value': 'ar', 'label': 'Arabic'},
       {'value': 'hi', 'label': 'Hindi'},
       {'value': 'pt', 'label': 'Portuguese'},
       {'value': 'ja', 'label': 'Japanese'},
@@ -45,6 +43,7 @@ class LanguageSelector extends StatelessWidget {
       {'value': 'sk', 'label': 'Slovak'},
       // Add more languages here
     ];
+
 
     // Create DropdownMenuItems from the language options
     List<DropdownMenuItem<String>> dropdownItems = languageOptions.map((lang) {

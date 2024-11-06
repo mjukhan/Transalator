@@ -47,6 +47,7 @@ dependencies:
   open_file: ^3.5.9
   url_launcher: ^6.3.1
 
+  http: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

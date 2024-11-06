@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class FilePickerDemo extends StatefulWidget {
+  const FilePickerDemo({super.key});
+
   @override
   _FilePickerDemoState createState() => _FilePickerDemoState();
 }
@@ -50,7 +52,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       ))
           ?.files;
     } on PlatformException catch (e) {
-      _logException('Unsupported operation' + e.toString());
+      _logException('Unsupported operation$e');
     } catch (e) {
       _logException(e.toString());
     }
@@ -81,7 +83,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         ),
       );
     } on PlatformException catch (e) {
-      _logException('Unsupported operation' + e.toString());
+      _logException('Unsupported operation$e');
     } catch (e) {
       _logException(e.toString());
     } finally {
@@ -102,7 +104,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         _userAborted = path == null;
       });
     } on PlatformException catch (e) {
-      _logException('Unsupported operation' + e.toString());
+      _logException('Unsupported operation$e');
     } catch (e) {
       _logException(e.toString());
     } finally {
@@ -128,7 +130,7 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
         _userAborted = fileName == null;
       });
     } on PlatformException catch (e) {
-      _logException('Unsupported operation' + e.toString());
+      _logException('Unsupported operation$e');
     } catch (e) {
       _logException(e.toString());
     } finally {
@@ -251,8 +253,8 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                         items: FileType.values
                             .map(
                               (fileType) => DropdownMenuItem<FileType>(
-                                child: Text(fileType.toString()),
                                 value: fileType,
+                                child: Text(fileType.toString()),
                               ),
                             )
                             .toList(),
@@ -450,12 +452,11 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
                                           final bool isMultiPath =
                                               _paths != null &&
                                                   _paths!.isNotEmpty;
-                                          final String name = 'File $index: ' +
-                                              (isMultiPath
+                                          final String name = 'File $index: ${isMultiPath
                                                   ? _paths!
                                                       .map((e) => e.name)
                                                       .toList()[index]
-                                                  : _fileName ?? '...');
+                                                  : _fileName ?? '...'}';
                                           final path = kIsWeb
                                               ? null
                                               : _paths!

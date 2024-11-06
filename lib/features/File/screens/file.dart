@@ -27,8 +27,8 @@ class _FileUploadState extends State<FileUpload> {
   bool _isTranslating = false;
   final OcrRepository _ocrRepository = OcrRepository();
   String _resultText = '';
-  String _sourceLanguage = 'auto'; // Default source language
-  String _targetLanguage = 'ur'; // Default target language
+  final String _sourceLanguage = 'auto'; // Default source language
+  final String _targetLanguage = 'ur'; // Default target language
   String _translatedText = '';
 
   final TranslationService _translationService = TranslationService();
@@ -302,9 +302,9 @@ class _FileUploadState extends State<FileUpload> {
 
 class Result extends StatelessWidget {
   const Result({
-    Key? key,
+    super.key,
     required this.text,
-  }) : super(key: key);
+  });
 
   final String text;
 

@@ -5,7 +5,7 @@ import 'language_selector.dart';
 class TranslationInstance extends StatefulWidget {
   final Function onNext; // Callback to add a new translation instance
 
-  TranslationInstance({required this.onNext});
+  const TranslationInstance({super.key, required this.onNext});
 
   @override
   _TranslationInstanceState createState() => _TranslationInstanceState();

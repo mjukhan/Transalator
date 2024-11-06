@@ -6,14 +6,15 @@ class InputField extends StatefulWidget {
   final ValueChanged<String> onChanged;
   final String sourceLanguage;
 
-  InputField({required this.onChanged, required this.sourceLanguage});
+  const InputField(
+      {super.key, required this.onChanged, required this.sourceLanguage});
 
   @override
   _InputFieldState createState() => _InputFieldState();
 }
 
 class _InputFieldState extends State<InputField> {
-  TextEditingController _controller = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
 
   @override
   void dispose() {
@@ -49,13 +50,17 @@ class _InputFieldState extends State<InputField> {
             tooltip: 'Clear',
           ),
         ],
-        // Voice Input Widget
-        VoiceInputButton(
-          onResult: (text) {
-            _controller.text = text; // Update the text field with voice input
-            widget.onChanged(text); // Notify parent widget with recognized text
-          },
-        ),
+        if (_controller.text.isEmpty) ...[
+          // Voice Input Widget
+          VoiceInputButton(
+            onResult: (text) {
+              _controller.text = text; // Update the text field with voice input
+              widget
+                  .onChanged(text); // Notify parent widget with recognized text
+            },
+            languageCode: widget.sourceLanguage,
+          ),
+        ],
       ],
     );
   }
@@ -67,7 +72,8 @@ class TextInputField extends StatelessWidget {
   final ValueChanged<String> onChanged;
   final String hintText;
 
-  TextInputField({
+  const TextInputField({
+    super.key,
     required this.controller,
     required this.hintText,
     required this.onChanged,
@@ -83,7 +89,7 @@ class TextInputField extends StatelessWidget {
         contentPadding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
       ),
       maxLines: null,
-      style: TextStyle(fontSize: 20.0),
+      style: TextStyle(fontSize: 24.0),
       onChanged: onChanged,
     );
   }
@@ -92,8 +98,10 @@ class TextInputField extends StatelessWidget {
 // Separate widget for Voice Input Button
 class VoiceInputButton extends StatefulWidget {
   final ValueChanged<String> onResult;
+  final String languageCode; // Language code for speech recognition
 
-  VoiceInputButton({required this.onResult});
+  const VoiceInputButton(
+      {super.key, required this.onResult, required this.languageCode});
 
   @override
   _VoiceInputButtonState createState() => _VoiceInputButtonState();
@@ -101,7 +109,7 @@ class VoiceInputButton extends StatefulWidget {
 
 class _VoiceInputButtonState extends State<VoiceInputButton> {
   final stt.SpeechToText _speech = stt.SpeechToText();
-  bool _isListening = false;
+
   String _text = "";
 
   // Check microphone permission
@@ -123,41 +131,44 @@ class _VoiceInputButtonState extends State<VoiceInputButton> {
       return;
     }
 
-    if (!_isListening) {
+    if (_speech.isNotListening) {
       bool available = await _speech.initialize(onError: (val) {
-        setState(() => _isListening = false); // Reset on error
+        setState(() {}); // Reset on error
       });
 
       if (available) {
-        setState(() => _isListening = true);
-        _speech.listen(onResult: (val) {
-          setState(() {
-            _text = val.recognizedWords;
-            widget.onResult(_text); // Trigger callback with recognized text
-          });
+        _speech.listen(
+            localeId: widget.languageCode,
+            onResult: (val) {
+              setState(() {
+                _text = val.recognizedWords;
+                // Trigger callback with recognized text
+                widget.onResult(_text);
+              });
 
-          // Stop listening if the speech is complete
-          if (val.hasConfidenceRating && val.confidence > 0.5) {
-            _stopListening();
-          }
-        });
+              // Stop listening if the speech is complete
+              if (val.hasConfidenceRating && val.confidence > 0.5) {
+                _stopListening();
+              }
+            });
       }
     } else {
-      _stopListening(); // Stop listening if already listening
+      _stopListening();
     }
   }
 
   // Helper function to stop listening
-  void _stopListening() {
-    setState(() => _isListening = false);
-    _speech.stop();
+  void _stopListening() async {
+    await _speech.stop();
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      icon: Icon(_isListening ? Icons.mic : Icons.mic_none),
-      onPressed: _listen,
+      onPressed: _speech.isNotListening ? _listen : _stopListening,
+      icon: Icon(_speech.isNotListening ? Icons.mic_none : Icons.mic),
+      tooltip: 'Listen',
     );
   }
 }
