@@ -111,7 +111,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     }
   }
 
-
   // Open dictionary lookup for the input text
   void _findInDictionary() {
     // For demonstration, simply print the text; in a real app, use a dictionary API
