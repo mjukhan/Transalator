@@ -2,12 +2,10 @@ import 'dart:async';
 import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:flutter/material.dart';
-
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:translation_app/core/widgets/widgets.dart';
 import 'package:translation_app/data/models/ocr_model.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/widgets/translator_provider.dart';
 import '../../../data/repositories/ocr_repository.dart';
@@ -268,35 +266,6 @@ class _FileUploadState extends State<FileUpload> {
       },
       child: Text('Translate'),
     );
-  }
-
-  _showTranslatedDialog(String filename, Uri downloadableLink) {
-    // return showDialog(
-    //     context: context,
-    //     builder: (BuildContext context) {
-    //       return AlertDialog(
-    //         title: const Text('Translated Successful'),
-    //         content: Text('File "$filename" has been translated successfully.'),
-    //         actions: <Widget>[
-    //           TextButton(
-    //             child: const Text('OK'),
-    //             onPressed: () {
-    //               Navigator.of(context).pop();
-    //             },
-    //           ),
-    //           TextButton(
-    //             onPressed: () => _downloadFile(downloadableLink),
-    //             child: Text('Download'),
-    //           ),
-    //         ],
-    //       );
-    //     });
-  }
-
-  Future<void> _downloadFile(Uri url) async {
-    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-      throw Exception('Could not Download');
-    }
   }
 }
 

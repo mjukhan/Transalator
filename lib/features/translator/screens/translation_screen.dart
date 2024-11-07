@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:translation_app/core/navigation/app_routes.dart';
 import 'package:translation_app/core/utilities/colors.dart';
+import 'package:translation_app/features/dictionary/screens/dictionary_screen.dart';
 import '../../../core/widgets/translator_provider.dart';
 import '../../../core/widgets/permission_handler.dart';
 import '../widgets/error_handler.dart';
@@ -80,11 +83,35 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     print("Instance saved: $_translatedText");
   }
 
+  // Open dictionary lookup for the input text
   void _findInDictionary() {
-    print("Finding '$_inputText' in dictionary");
+    // For demonstration, simply print the text; in a real app, use a dictionary API
+    final searchTerm = _inputText;
+    if (searchTerm.isNotEmpty) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DictionaryScreen(searchWord: searchTerm),
+        ),
+      );
+      print("Finding '$searchTerm' in dictionary");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Finding '$searchTerm' in dictionary...")),
+      );
+      // Here, you could navigate to a dictionary screen or make an API call
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No text to search in the dictionary')),
+      );
+    }
   }
 
+  // Copy the translated text to clipboard
   void _copyToClipboard() {
+    Clipboard.setData(ClipboardData(text: _translatedText));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Copied to clipboard!')),
+    );
     print("Copied: $_translatedText");
   }
 

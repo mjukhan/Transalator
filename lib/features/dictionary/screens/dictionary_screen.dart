@@ -6,7 +6,8 @@ import '../../../data/repositories/word_repository.dart';
 import '../../../data/services/word_service.dart';
 
 class DictionaryScreen extends StatefulWidget {
-  const DictionaryScreen({super.key});
+  final String? searchWord;
+  const DictionaryScreen({super.key, this.searchWord});
 
   @override
   State<DictionaryScreen> createState() => _DictionaryScreenState();
@@ -25,7 +26,11 @@ class _DictionaryScreenState extends State<DictionaryScreen>
   @override
   void initState() {
     super.initState();
-    _loadRecentSearches(); // Load recent searches only once during initialization
+    _searchedWord = widget.searchWord ?? '';
+    if (_searchedWord.isNotEmpty) {
+      _searchWord(_searchedWord);
+    }
+    _loadRecentSearches();
   }
 
   @override
@@ -76,8 +81,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
 
     return GestureDetector(
       onTap: () {
-        _hideKeyboard(
-            context); // Hide the keyboard when tapping outside the TextField
+        _hideKeyboard(context);
       },
       child: Scaffold(
         backgroundColor: Colors.white,
