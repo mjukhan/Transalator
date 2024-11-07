@@ -7,7 +7,7 @@ class ReFunctions {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Upload Successful'),
-          content: Text('File "$fileName" has been uploaded successfully.'),
+          content: Text('File has been uploaded successfully.'),
           actions: <Widget>[
             TextButton(
               child: const Text('OK'),

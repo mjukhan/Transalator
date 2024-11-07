@@ -79,8 +79,8 @@ class _PictureScreenState extends State<PictureScreen> {
     return SizedBox(
       height: size.height * 0.7,
       width: size.width,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+      child: Stack(
+        alignment: Alignment.center,
         children: [
           Image.file(
             widget.imageFile!,
@@ -95,17 +95,23 @@ class _PictureScreenState extends State<PictureScreen> {
   }
 
   Widget _buildTranslatedLinesView(List<String> lines) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: lines
-          .map(
-            (line) => SizedBox(
-              child: Card(
-                child: Text(line),
-              ),
-            ),
-          )
-          .toList(),
+    return IntrinsicHeight(
+      child: Container(
+        color: bgColor,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: lines
+              .map(
+                (line) => Padding(
+                  padding: const EdgeInsets.all(2.0),
+                  child: Text(
+                    line,
+                  ),
+                ),
+              )
+              .toList(),
+        ),
+      ),
     );
   }
 

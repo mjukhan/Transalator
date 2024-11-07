@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:translation_app/core/utilities/colors.dart';
-
+import 'core/widgets/permission_handler.dart';
 import 'features/File/screens/upload_screen.dart';
-import 'features/conversation/screens/test.dart';
 import 'features/translator/screens/translation_screen.dart';
 import 'features/conversation/screens/conversation_screen.dart';
 
@@ -20,6 +19,10 @@ class TranslatorApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Translator App',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
       home: const HomeScreen(),
     );
   }
@@ -39,7 +42,6 @@ class _HomeScreenState extends State<HomeScreen> {
     TranslatorScreen(),
     ConversationScreen(),
     FileScreen(),
-    //FilePickerDemo(),
     DictionaryScreen(),
   ];
 

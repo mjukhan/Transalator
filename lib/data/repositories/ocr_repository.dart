@@ -6,16 +6,16 @@ import 'package:translation_app/data/models/ocr_model.dart';
 class OcrRepository {
   final String apiUrl =
       'https://api.ocr.space/parse/imageurl'; // Replace with your API URL
-  final String apiKey = 'K85137114488957'; // Replace with your API key
+  final String apiKey = 'K85137114488957';
 
   Future<OcrModel> uploadFile(
     File file, {
     bool overlay = true,
     String language = 'eng',
-    bool detectOrientation = false,
+    bool detectOrientation = true,
     bool isCreateSearchablePdf = false,
     bool isSearchablePdfHideTextLayer = false,
-    bool scale = false,
+    bool scale = true,
     bool isTable = false,
     int ocrEngine = 1,
   }) async {
@@ -39,42 +39,6 @@ class OcrRepository {
       final responseData = await http.Response.fromStream(response);
       print('Response body: ${responseData.body}');
       return OcrModel.fromJson(jsonDecode(responseData.body));
-    } else {
-      throw Exception('Failed to load OCR data');
-    }
-  }
-
-  Future<OcrModel> uploadUrl(
-    String url, {
-    bool overlay = true,
-    String language = 'auto',
-    bool detectOrientation = true,
-    bool isCreateSearchablePdf = false,
-    bool isSearchablePdfHideTextLayer = false,
-    bool scale = true,
-    bool isTable = false,
-    int ocrEngine = 2,
-  }) async {
-    final payload = {
-      'url': url,
-      'isOverlayRequired': overlay,
-      'apikey': apiKey,
-      'language': language,
-      'detectOrientation': detectOrientation.toString(),
-      'isCreateSearchablePdf': isCreateSearchablePdf.toString(),
-      'isSearchablePdfHideTextLayer': isSearchablePdfHideTextLayer.toString(),
-      'scale': scale.toString(),
-      'isTable': isTable.toString(),
-      'OCREngine': ocrEngine.toString(),
-    };
-
-    final response = await http.post(
-      Uri.parse(apiUrl),
-      body: payload,
-    );
-
-    if (response.statusCode == 200) {
-      return OcrModel.fromJson(jsonDecode(response.body));
     } else {
       throw Exception('Failed to load OCR data');
     }

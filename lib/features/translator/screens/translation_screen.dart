@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:translation_app/core/utilities/colors.dart';
 import '../../../core/widgets/translator_provider.dart';
+import '../../../core/widgets/permission_handler.dart';
 import '../widgets/error_handler.dart';
 import '../widgets/input_field.dart';
 import '../widgets/language_selector.dart';
@@ -14,14 +16,40 @@ class TranslatorScreen extends StatefulWidget {
 }
 
 class _TranslatorScreenState extends State<TranslatorScreen> {
-  String _sourceLanguage = 'en'; // Default source language
-  String _targetLanguage = 'ur'; // Default target language
+  String _sourceLanguage = 'auto';
+  String _targetLanguage = 'auto';
   String _inputText = '';
   String _translatedText = '';
 
   final TranslationService _translationService = TranslationService();
 
+  @override
+  void initState() {
+    super.initState();
+    _loadLanguagePreferences();
+  }
+
+  // Load the previously selected languages from SharedPreferences
+  void _loadLanguagePreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _sourceLanguage =
+          prefs.getString('sourceLanguage') ?? 'en'; // Default to 'en'
+      _targetLanguage =
+          prefs.getString('targetLanguage') ?? 'ur'; // Default to 'ur'
+    });
+  }
+
+  // Save the language preferences to SharedPreferences
+  void _saveLanguagePreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('sourceLanguage', _sourceLanguage);
+    prefs.setString('targetLanguage', _targetLanguage);
+  }
+
   void _translateText(String inputText) async {
+    if (!await PermissionHelper().checkMicrophonePermission()) return;
+    if (!await PermissionHelper().checkWifiConnection(context)) return;
     if (inputText.isEmpty) {
       setState(() {
         _translatedText = ''; // Clear translated text if input is empty
@@ -102,6 +130,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             setState(() {
               _sourceLanguage = newLang;
             });
+            _saveLanguagePreferences();
             if (_inputText.isNotEmpty) _translateText(_inputText);
           }),
           IconButton(
@@ -114,6 +143,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                 _sourceLanguage = _targetLanguage;
                 _targetLanguage = temp;
               });
+              _saveLanguagePreferences();
               print("source language after : $_sourceLanguage");
               print("target language after : $_targetLanguage");
               if (_inputText.isNotEmpty) _translateText(_inputText);
@@ -123,7 +153,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             setState(() {
               _targetLanguage = newLang;
             });
-
+            _saveLanguagePreferences();
             if (_inputText.isNotEmpty) _translateText(_inputText);
           }),
         ],

@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:translation_app/core/utilities/colors.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:translation_app/core/widgets/permission_handler.dart';
 import '../../../core/widgets/translator_provider.dart';
 import '../../translator/widgets/error_handler.dart';
 import '../../translator/widgets/language_selector.dart';
@@ -16,150 +19,146 @@ class ConversationScreen extends StatefulWidget {
 
 class _ConversationScreenState extends State<ConversationScreen> {
   String _person1Language = 'auto';
-  String _person2Language = 'ur';
+  String _person2Language = 'auto';
   String _inputText = '';
   String _translatedText = '';
   bool speaker1 = false;
   bool speaker2 = false;
   bool _isListeningPerson1 = false;
   bool _isListeningPerson2 = false;
+  StreamSubscription? _connectivitySubscription;
   final TextEditingController _controller = TextEditingController();
-
-  final stt.SpeechToText _speech =
-      stt.SpeechToText(); // Speech-to-text instance
+  final stt.SpeechToText _speech = stt.SpeechToText();
   final TranslationService _translationService = TranslationService();
+  Timer? _debounce; // Timer for debounce mechanism
 
+  @override
+  void initState() {
+    super.initState();
+    _loadLanguagePreferences();
+  }
+
+  // Load the previously selected languages from SharedPreferences
+  void _loadLanguagePreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _person1Language = prefs.getString('person1Language') ?? 'auto';
+      _person2Language = prefs.getString('person2Language') ?? 'auto';
+    });
+  }
+
+  // Save the language preferences to SharedPreferences
+  void _saveLanguagePreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('person1Language', _person1Language);
+    prefs.setString('person2Language', _person2Language);
+  }
+
+  // Debounced text translation
   void _translateText(String inputText, bool speaker1, bool speaker2) async {
+    if (!await PermissionHelper().checkMicrophonePermission()) return;
+    if (!await PermissionHelper().checkWifiConnection(context)) return;
     if (inputText.isEmpty) {
       setState(() {
-        _translatedText = ''; // Clear translated text if input is empty
+        _translatedText = '';
       });
       return;
     }
 
-    try {
-      // Call the translation service
-      if (speaker1) {
+    // Debounce the translation to avoid multiple calls
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () async {
+      try {
         final translation = await _translationService.translate(
           text: inputText,
-          from: _person1Language,
-          to: _person2Language,
+          from: speaker1 ? _person1Language : _person2Language,
+          to: speaker1 ? _person2Language : _person1Language,
         );
         setState(() {
           _translatedText = translation;
         });
-      }
-      if (speaker2) {
-        final translation = await _translationService.translate(
-          text: inputText,
-          from: _person2Language,
-          to: _person1Language,
+      } catch (e) {
+        ErrorHandler.handleTranslationError(context, e);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error in translation')),
         );
         setState(() {
-          _translatedText = translation;
+          _translatedText = 'Error in translation';
         });
       }
-    } catch (e) {
-      // Use centralized error handler to manage the error
-      ErrorHandler.handleTranslationError(context, e);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error in translation')),
-      );
-      setState(() {
-        _translatedText = 'Error in translation';
-      });
-    }
+    });
   }
 
-  // Check microphone permission
-  Future<bool> _checkMicrophonePermission() async {
-    var status = await Permission.microphone.status;
-    if (!status.isGranted) {
-      status = await Permission.microphone.request();
-    }
-    return status.isGranted;
-  }
-
-  // Method to handle speech recognition for source language (Person 1)
+  // Method to handle speech recognition for Person 1
   void _listenPerson1() async {
-    bool hasPermission = await _checkMicrophonePermission();
-    if (!hasPermission) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Microphone permission is required.')),
-      );
-      return;
-    }
+    if (!await PermissionHelper().checkMicrophonePermission()) return;
+
     if (!_isListeningPerson1) {
-      bool available = await _speech.initialize();
-      if (available) {
+      if (await _speech.initialize()) {
         setState(() {
           _isListeningPerson1 = true;
+          _isListeningPerson2 = false;
         });
         _speech.listen(onResult: (val) {
           setState(() {
-            _inputText = '';
-            _translatedText = '';
             _inputText = val.recognizedWords;
             _controller.text = _inputText;
-            setState(() {
-              speaker2 = false;
-              speaker1 = true;
-            });
+            speaker1 = true;
+            speaker2 = false;
             _translateText(_inputText, speaker1, speaker2);
-            // Stop listening if the speech is complete
-            if (val.hasConfidenceRating && val.confidence > 0.5) {
-              _speech.stop();
-              _isListeningPerson1 = false;
-            }
           });
+
+          if (val.hasConfidenceRating && val.confidence > 0.5) {
+            _speech.stop();
+            setState(() {
+              _isListeningPerson1 = false;
+              _isListeningPerson2 = false;
+            });
+          }
         });
       }
     } else {
+      _speech.stop();
       setState(() {
-        _speech.stop();
         _isListeningPerson1 = false;
+        _isListeningPerson2 = false;
       });
     }
   }
 
-  // Method to handle speech recognition for target language (Person 2)
+  // Method to handle speech recognition for Person 2
   void _listenPerson2() async {
-    bool hasPermission = await _checkMicrophonePermission();
-    if (!hasPermission) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Microphone permission is required.')),
-      );
-      return;
-    }
+    if (!await PermissionHelper().checkMicrophonePermission()) return;
+
     if (!_isListeningPerson2) {
-      bool available = await _speech.initialize();
-      if (available) {
+      if (await _speech.initialize()) {
         setState(() {
           _isListeningPerson2 = true;
+          _isListeningPerson1 = false;
         });
         _speech.listen(onResult: (val) {
           setState(() {
-            _inputText = '';
-            _translatedText = '';
             _inputText = val.recognizedWords;
             _controller.text = _inputText;
-            setState(() {
-              speaker1 = false;
-              speaker2 = true;
-            });
+            speaker1 = false;
+            speaker2 = true;
             _translateText(_inputText, speaker1, speaker2);
-            // Stop listening if the speech is complete
-            if (val.hasConfidenceRating && val.confidence > 0.5) {
-              _speech.stop();
-              _isListeningPerson2 = false;
-            }
           });
+
+          if (val.hasConfidenceRating && val.confidence > 0.5) {
+            _speech.stop();
+            setState(() {
+              _isListeningPerson2 = false;
+              _isListeningPerson1 = false;
+            });
+          }
         });
       }
     } else {
+      _speech.stop();
       setState(() {
-        _speech.stop();
         _isListeningPerson2 = false;
+        _isListeningPerson1 = false;
       });
     }
   }
@@ -167,15 +166,18 @@ class _ConversationScreenState extends State<ConversationScreen> {
   @override
   void dispose() {
     _controller.dispose();
+    _debounce?.cancel();
     if (_speech.isListening) {
       _speech.stop();
     }
+    _connectivitySubscription?.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 248, 249, 250),
       appBar: AppBar(
@@ -268,6 +270,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                             print('person 1 lang : $_person1Language');
                             print('person 2 lang : $_person2Language');
                           });
+                          _saveLanguagePreferences();
                           if (_inputText.isNotEmpty) {
                             _translateText(_inputText, speaker1, speaker2);
                           }
@@ -312,6 +315,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                             print('person 1 lang : $_person1Language');
                             print('person 2 lang : $_person2Language');
                           });
+                          _saveLanguagePreferences();
                           if (_inputText.isNotEmpty) {
                             _translateText(_inputText, speaker1, speaker2);
                           }

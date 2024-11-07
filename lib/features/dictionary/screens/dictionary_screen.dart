@@ -148,8 +148,10 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                   )
                 : Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Text('No recent searches',
-                        style: TextStyle(color: Colors.grey)),
+                    child: Text(
+                      'No recent searches',
+                      style: TextStyle(color: Colors.black),
+                    ),
                   ),
           ],
         ),
@@ -175,7 +177,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                       height: size.height * 0.3,
                       width: size.width,
                       decoration: BoxDecoration(
-                        color: sheetColor,
+                        color: bgColor,
                         border: Border.all(color: borderColor),
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(16),

@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -67,6 +68,34 @@ class PermissionHelper {
     );
   }
 
+  /// Check WiFi connection and prompt settings if denied multiple times
+  Future<bool> checkWifiConnection(BuildContext context) async {
+    var connectivityResult = await Connectivity().checkConnectivity();
 
+    // Handle WiFi connectivity based on status
+    if (connectivityResult == ConnectivityResult.none) {
+      // If no connectivity, redirect user to settings to enable WiFi
+      openAppSettings(); // Open app settings
+      // Show snack bar for no internet connection
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('No internet connection. Please connect to WiFi.')),
+      );
+      return false;
+    } else
+      return true;
+  }
 
+  // Check microphone permission and prompt settings if denied multiple times
+  Future<bool> checkMicrophonePermission() async {
+    var status = await Permission.microphone.status;
+    if (!status.isGranted) {
+      status = await Permission.microphone.request();
+      if (!status.isGranted) {
+        openAppSettings(); // Redirect user to settings
+        return false;
+      }
+    }
+    return status.isGranted;
+  }
 }
