@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import '../../../core/utilities/colors.dart';
 import '../../../core/widgets/translator_provider.dart';
@@ -18,7 +19,7 @@ class PictureScreen extends StatefulWidget {
 }
 
 class _PictureScreenState extends State<PictureScreen> {
-  String _targetLanguage = 'ur';
+  String _targetLanguage = 'auto';
   List<Map<String, dynamic>> extractedLines = [];
   List<String> translatedLines = [];
   List<String> inputLines = [];
@@ -30,6 +31,21 @@ class _PictureScreenState extends State<PictureScreen> {
   void initState() {
     super.initState();
     imageUpload();
+    _loadLanguagePreferences();
+  }
+
+  // Load the previously selected languages from SharedPreferences
+  void _loadLanguagePreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _targetLanguage = prefs.getString('targetLanguage') ?? 'auto';
+    });
+  }
+
+  // Save the language preferences to SharedPreferences
+  void _saveLanguagePreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('targetLanguage', _targetLanguage);
   }
 
   @override
@@ -134,6 +150,7 @@ class _PictureScreenState extends State<PictureScreen> {
             (newLang) {
               setState(() => _targetLanguage = newLang);
               _translateText(inputLines);
+              _saveLanguagePreferences();
             },
           ),
         ],

@@ -4,7 +4,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:translation_app/core/utilities/colors.dart';
 import 'package:translation_app/features/File/screens/picture.dart';
 
-
 class FileScreen extends StatefulWidget {
   const FileScreen({
     super.key,
@@ -55,36 +54,6 @@ class _FileScreenState extends State<FileScreen> {
     //_showFileTypeDialog();
   }
 
-  // void _showFileTypeDialog() {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: Text('Select File Type'),
-  //         content: Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           children: [
-  //             ListTile(
-  //               title: Text('Picture'),
-  //               onTap: () {
-  //                 Navigator.pop(context);
-  //                 _pickImage();
-  //               },
-  //             ),
-  //             ListTile(
-  //               title: Text('PDF'),
-  //               onTap: () {
-  //                 Navigator.pop(context);
-  //                 _pickPDF(); // Add this method to handle PDF selection
-  //               },
-  //             ),
-  //           ],
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
-
   void _pickImage() async {
     try {
       XFile? pickedFile = await ImagePicker().pickImage(
@@ -115,40 +84,6 @@ class _FileScreenState extends State<FileScreen> {
       _logException("Error picking image from gallery: ${e.toString()}");
     }
   }
-
-  // Future<void> _pickPDF() async {
-  //   try {
-  //     FilePickerResult? result = await FilePicker.platform.pickFiles(
-  //       allowMultiple: false,
-  //     );
-  //
-  //     if (result != null && result.files.isNotEmpty) {
-  //       setState(() {
-  //         _selectedFile = File(result.files.single.path!);
-  //       });
-  //       _goToUploadPage();
-  //     }
-  //   } catch (e) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text("Error selecting file: $e")),
-  //     );
-  //   }
-  // }
-
-  // void _goToUploadPage() {
-  //   if (_selectedFile != null) {
-  //     Navigator.push(
-  //       context,
-  //       MaterialPageRoute(
-  //         builder: (context) => FileUpload(file: _selectedFile!),
-  //       ),
-  //     );
-  //   } else {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text("Please select a file first")),
-  //     );
-  //   }
-  // }
 
   void _logException(String message) {
     print(message);

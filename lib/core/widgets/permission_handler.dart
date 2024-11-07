@@ -82,8 +82,9 @@ class PermissionHelper {
             content: Text('No internet connection. Please connect to WiFi.')),
       );
       return false;
-    } else
+    } else {
       return true;
+    }
   }
 
   // Check microphone permission and prompt settings if denied multiple times

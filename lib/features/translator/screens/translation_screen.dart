@@ -1,10 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:translation_app/core/navigation/app_routes.dart';
 import 'package:translation_app/core/utilities/colors.dart';
 import 'package:translation_app/features/dictionary/screens/dictionary_screen.dart';
+import 'package:translation_app/features/translator/screens/save_translation_instance.dart';
 import '../../../core/widgets/translator_provider.dart';
 import '../../../core/widgets/permission_handler.dart';
 import '../widgets/error_handler.dart';
@@ -23,6 +25,8 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   String _targetLanguage = 'auto';
   String _inputText = '';
   String _translatedText = '';
+  bool _isSaved = false; // Toggle for changing the icon
+  List<String> _savedTranslations = []; // List of saved translations
 
   final TranslationService _translationService = TranslationService();
 
@@ -30,16 +34,15 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   void initState() {
     super.initState();
     _loadLanguagePreferences();
+    _loadSavedTranslations();
   }
 
   // Load the previously selected languages from SharedPreferences
   void _loadLanguagePreferences() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _sourceLanguage =
-          prefs.getString('sourceLanguage') ?? 'en'; // Default to 'en'
-      _targetLanguage =
-          prefs.getString('targetLanguage') ?? 'ur'; // Default to 'ur'
+      _sourceLanguage = prefs.getString('sourceLanguage') ?? 'auto';
+      _targetLanguage = prefs.getString('targetLanguage') ?? 'auto';
     });
   }
 
@@ -48,6 +51,13 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString('sourceLanguage', _sourceLanguage);
     prefs.setString('targetLanguage', _targetLanguage);
+  }
+
+  void _loadSavedTranslations() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _savedTranslations = prefs.getStringList('savedTranslations') ?? [];
+    });
   }
 
   void _translateText(String inputText) async {
@@ -79,9 +89,28 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     }
   }
 
-  void _saveInstance() {
-    print("Instance saved: $_translatedText");
+  void _saveInstance() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!_isSaved && _translatedText.isNotEmpty) {
+      // Combine input and translated text into a map
+      final instance = {
+        'inputText': _inputText,
+        'translatedText': _translatedText,
+      };
+      _savedTranslations.add(jsonEncode(instance)); // Save as JSON string
+
+      // Update SharedPreferences with the new list
+      await prefs.setStringList('savedTranslations', _savedTranslations);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Translation saved!')),
+      );
+      print("Instance saved: $_inputText -> $_translatedText");
+      setState(() {
+        _isSaved = true;
+      });
+    }
   }
+
 
   // Open dictionary lookup for the input text
   void _findInDictionary() {
@@ -115,6 +144,19 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     print("Copied: $_translatedText");
   }
 
+  void _showSavedTranslationsPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SavedTranslationsPage(
+          savedTranslations: _savedTranslations,
+          sourceLanguage: _sourceLanguage,
+          targetLanguage: _targetLanguage,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -127,7 +169,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
           IconButton(
             icon: const Icon(Icons.star_border),
             onPressed: () {
-              // Handle saved translations
+              _showSavedTranslationsPage();
             },
           ),
         ],
@@ -221,6 +263,8 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
               onChanged: (text) {
                 setState(() {
                   _inputText = text;
+                  _translatedText = '';
+                  _isSaved = false;
                 });
                 _translateText(_inputText);
               },
@@ -268,7 +312,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
           tooltip: 'Find in Dictionary',
         ),
         IconButton(
-          icon: const Icon(Icons.star),
+          icon: Icon(_isSaved ? Icons.star : Icons.star_border),
           onPressed: _saveInstance,
           tooltip: 'Save Instance',
         ),
