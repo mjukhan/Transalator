@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/services.dart';
@@ -34,7 +33,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   void initState() {
     super.initState();
     _loadLanguagePreferences();
-    _loadSavedTranslations();
+    //_loadSavedTranslations();
   }
 
   // Load the previously selected languages from SharedPreferences
@@ -53,12 +52,12 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     prefs.setString('targetLanguage', _targetLanguage);
   }
 
-  void _loadSavedTranslations() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _savedTranslations = prefs.getStringList('savedTranslations') ?? [];
-    });
-  }
+  // void _loadSavedTranslations() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   setState(() {
+  //     _savedTranslations = prefs.getStringList('savedTranslations') ?? [];
+  //   });
+  // }
 
   void _translateText(String inputText) async {
     if (!await PermissionHelper().checkMicrophonePermission()) return;
@@ -111,29 +110,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     }
   }
 
-  // Open dictionary lookup for the input text
-  void _findInDictionary() {
-    // For demonstration, simply print the text; in a real app, use a dictionary API
-    final searchTerm = _inputText;
-    if (searchTerm.isNotEmpty) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => DictionaryScreen(searchWord: searchTerm),
-        ),
-      );
-      print("Finding '$searchTerm' in dictionary");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Finding '$searchTerm' in dictionary...")),
-      );
-      // Here, you could navigate to a dictionary screen or make an API call
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No text to search in the dictionary')),
-      );
-    }
-  }
-
   // Copy the translated text to clipboard
   void _copyToClipboard() {
     Clipboard.setData(ClipboardData(text: _translatedText));
@@ -143,18 +119,18 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     print("Copied: $_translatedText");
   }
 
-  void _showSavedTranslationsPage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SavedTranslationsPage(
-          savedTranslations: _savedTranslations,
-          sourceLanguage: _sourceLanguage,
-          targetLanguage: _targetLanguage,
-        ),
-      ),
-    );
-  }
+  // void _showSavedTranslationsPage() {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(
+  //       builder: (context) => SavedTranslationsPage(
+  //         savedTranslations: _savedTranslations,
+  //         sourceLanguage: _sourceLanguage,
+  //         targetLanguage: _targetLanguage,
+  //       ),
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -165,12 +141,12 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         backgroundColor: const Color(0xFFF8F9FA),
         title: const Text('Translator'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.star_border),
-            onPressed: () {
-              _showSavedTranslationsPage();
-            },
-          ),
+          // IconButton(
+          //   icon: const Icon(Icons.star_border),
+          //   onPressed: () {
+          //     _showSavedTranslationsPage();
+          //   },
+          // ),
         ],
       ),
       body: Column(
@@ -305,16 +281,16 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        IconButton(
-          icon: const Icon(Icons.search),
-          onPressed: _findInDictionary,
-          tooltip: 'Find in Dictionary',
-        ),
-        IconButton(
-          icon: Icon(_isSaved ? Icons.star : Icons.star_border),
-          onPressed: _saveInstance,
-          tooltip: 'Save Instance',
-        ),
+        // IconButton(
+        //   icon: const Icon(Icons.search),
+        //   onPressed: _findInDictionary,
+        //   tooltip: 'Find in Dictionary',
+        // ),
+        // IconButton(
+        //   icon: Icon(_isSaved ? Icons.star : Icons.star_border),
+        //   onPressed: _saveInstance,
+        //   tooltip: 'Save Instance',
+        // ),
         IconButton(
           icon: const Icon(Icons.copy),
           onPressed: _copyToClipboard,
