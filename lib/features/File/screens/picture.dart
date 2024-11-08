@@ -19,7 +19,7 @@ class PictureScreen extends StatefulWidget {
 }
 
 class _PictureScreenState extends State<PictureScreen> {
-  String _targetLanguage = 'auto';
+  String _targetLanguage = '';
   List<Map<String, dynamic>> extractedLines = [];
   List<String> translatedLines = [];
   List<String> inputLines = [];
