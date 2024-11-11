@@ -94,8 +94,8 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     if (!_isSaved && _translatedText.isNotEmpty) {
       // Combine input and translated text into a map
       final instance = {
-        'inputText': _inputText,
-        'translatedText': _translatedText,
+        '$_sourceLanguage': _inputText,
+        '$_targetLanguage': _translatedText,
       };
       _savedTranslations.add(jsonEncode(instance)); // Save as JSON string
 
@@ -126,8 +126,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   //     MaterialPageRoute(
   //       builder: (context) => SavedTranslationsPage(
   //         savedTranslations: _savedTranslations,
-  //         sourceLanguage: _sourceLanguage,
-  //         targetLanguage: _targetLanguage,
   //       ),
   //     ),
   //   );
@@ -151,7 +149,9 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => Setting(),
+                  builder: (context) => Setting(
+                    savedTranslation: _savedTranslations,
+                  ),
                 ),
               );
             },
@@ -306,11 +306,11 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         //   onPressed: _findInDictionary,
         //   tooltip: 'Find in Dictionary',
         // ),
-        // IconButton(
-        //   icon: Icon(_isSaved ? Icons.star : Icons.star_border),
-        //   onPressed: _saveInstance,
-        //   tooltip: 'Save Instance',
-        // ),
+        IconButton(
+          icon: Icon(_isSaved ? Icons.star : Icons.star_border),
+          onPressed: _saveInstance,
+          tooltip: 'Save Instance',
+        ),
         IconButton(
           icon: const Icon(Icons.copy),
           onPressed: _copyToClipboard,

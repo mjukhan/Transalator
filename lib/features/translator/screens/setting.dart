@@ -3,10 +3,15 @@ import 'package:share_plus/share_plus.dart';
 import 'package:translation_app/core/utilities/colors.dart';
 import 'package:translation_app/core/widgets/language.dart';
 import 'package:translation_app/core/widgets/privacy_policy.dart';
+import 'package:translation_app/features/translator/screens/save_translation_instance.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Setting extends StatefulWidget {
-  const Setting({super.key});
+  final List<String> savedTranslation;
+  const Setting({
+    super.key,
+    required this.savedTranslation,
+  });
 
   @override
   _SettingState createState() => _SettingState();
@@ -78,6 +83,17 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
             builder: (context) => PrivacyPolicy(),
           ),
         );
+        break;
+      case 'Favorite':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SavedTranslationsPage(
+              savedTranslations: widget.savedTranslation,
+            ),
+          ),
+        );
+
         break;
       case 'Share App':
         _shareApp();
