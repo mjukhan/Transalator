@@ -179,7 +179,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 248, 249, 250),
+      backgroundColor: bgColor,
       appBar: AppBar(
         title: Text("Conversation"),
         backgroundColor: bgColor,
@@ -250,7 +250,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
             child: Row(
               children: [
                 Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Container(
                       height: size.height * 0.05,
@@ -260,6 +260,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       decoration: BoxDecoration(
                         color: langSelectorColor,
                         borderRadius: BorderRadius.circular(32),
+                        border: Border.all(color: borderColor),
                       ),
                       child: LanguageSelector(
                         selectedLanguage: _person1Language,
@@ -275,7 +276,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                             _translateText(_inputText, speaker1, speaker2);
                           }
                         },
-                        fontSize: 12,
+                        fontSize: 14,
                       ),
                     ),
                     GestureDetector(
@@ -284,11 +285,13 @@ class _ConversationScreenState extends State<ConversationScreen> {
                         height: 60,
                         width: 60,
                         decoration: BoxDecoration(
+                          color: micColor,
                           shape: BoxShape.circle,
                           border: Border.all(color: borderColor),
                         ),
                         child: Icon(
                           _isListeningPerson1 ? Icons.mic : Icons.mic_none,
+                          color: Colors.white,
                         ),
                       ),
                     ),
@@ -305,6 +308,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       decoration: BoxDecoration(
                         color: langSelectorColor,
                         borderRadius: BorderRadius.circular(32),
+                        border: Border.all(color: borderColor),
                       ),
                       child: LanguageSelector(
                         selectedLanguage: _person2Language,
@@ -320,7 +324,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                             _translateText(_inputText, speaker1, speaker2);
                           }
                         },
-                        fontSize: 12,
+                        fontSize: 14,
                       ),
                     ),
                     GestureDetector(
@@ -330,11 +334,12 @@ class _ConversationScreenState extends State<ConversationScreen> {
                         height: 60,
                         width: 60,
                         decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: borderColor),
-                        ),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: borderColor),
+                            color: micColor),
                         child: Icon(
                           _isListeningPerson2 ? Icons.mic : Icons.mic_none,
+                          color: Colors.white,
                         ),
                       ),
                     ),

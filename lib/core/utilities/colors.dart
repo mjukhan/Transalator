@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-// Color selectedTebColor = Color.fromARGB(255, 73, 80, 87);
+Color selectedTebColor = Color.fromARGB(255, 73, 80, 87);
 
-// Color unSelectedTebColor = Color.fromARGB(255, 206, 212, 218);
+Color unSelectedTebColor = Color.fromARGB(255, 206, 212, 218);
 
 Color langSelectorColor = Color.fromARGB(255, 227, 242, 253);
 

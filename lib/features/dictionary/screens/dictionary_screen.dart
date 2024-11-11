@@ -75,8 +75,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
 
   @override
   Widget build(BuildContext context) {
-    super.build(
-        context); // Need to call this because of AutomaticKeepAliveClientMixin
+    super.build(context);
     final size = MediaQuery.of(context).size;
 
     return GestureDetector(
@@ -84,10 +83,10 @@ class _DictionaryScreenState extends State<DictionaryScreen>
         _hideKeyboard(context);
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: bgColor,
         appBar: AppBar(
           title: Text('Dictionary'),
-          backgroundColor: Colors.white,
+          backgroundColor: bgColor,
           elevation: 0,
         ),
         body: Column(
@@ -103,7 +102,10 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                     borderRadius: BorderRadius.circular(8.0),
                     borderSide: BorderSide(color: borderColor),
                   ),
-                  prefixIcon: Icon(Icons.search),
+                  suffixIcon: Image.asset(
+                    'assets/icons/search.png',
+                    scale: 16,
+                  ),
                 ),
                 onSubmitted: (text) {
                   _searchWord(text); // Perform search on submit
@@ -152,9 +154,9 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                   )
                 : Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      'No recent searches',
-                      style: TextStyle(color: Colors.black),
+                    child: Image.asset(
+                      'assets/icons/empty.png',
+                      scale: 3,
                     ),
                   ),
           ],

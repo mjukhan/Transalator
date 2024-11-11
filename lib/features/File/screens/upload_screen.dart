@@ -126,9 +126,9 @@ class _FileScreenState extends State<FileScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.upload_file_outlined,
-                            size: 50,
+                          Image.asset(
+                            'assets/icons/upload.png',
+                            scale: 10,
                           ),
                           Text('Upload Image'),
                         ],
@@ -149,9 +149,9 @@ class _FileScreenState extends State<FileScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.camera_alt_outlined,
-                            size: 50,
+                          Image.asset(
+                            'assets/icons/camera.png',
+                            scale: 10,
                           ),
                           Text('Take Picture'),
                         ],

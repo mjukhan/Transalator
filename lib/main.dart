@@ -62,8 +62,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildBottomNavigationBar() {
     return BottomNavigationBar(
       backgroundColor: bgColor,
-      // unselectedItemColor: unSelectedTebColor,
-      // selectedItemColor: selectedTebColor,
+      unselectedItemColor: unSelectedTebColor,
+      selectedItemColor: selectedTebColor,
       type: BottomNavigationBarType.fixed,
       currentIndex: _selectedIndex,
       elevation: 0,
@@ -92,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         BottomNavigationBarItem(
           icon: Image.asset(
-            'assets/icons/dictionary.png',
+            'assets/icons/dictionary (1).png',
             scale: 24,
           ),
           label: 'Dictionary',

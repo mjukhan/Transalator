@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:translation_app/core/utilities/colors.dart';
 import 'package:translation_app/features/dictionary/screens/dictionary_screen.dart';
 import 'package:translation_app/features/translator/screens/save_translation_instance.dart';
+import 'package:translation_app/features/translator/screens/setting.dart';
 import '../../../core/widgets/translator_provider.dart';
 import '../../../core/widgets/permission_handler.dart';
 import '../widgets/error_handler.dart';
@@ -146,7 +147,14 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
               'assets/icons/menu.png',
               scale: 24,
             ),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Setting(),
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -179,8 +187,8 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             if (_inputText.isNotEmpty) _translateText(_inputText);
           }),
           Container(
-            height: 40,
-            width: 40,
+            height: 50,
+            width: 50,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: changeLangColor,
