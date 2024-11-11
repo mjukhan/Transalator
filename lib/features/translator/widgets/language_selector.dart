@@ -16,10 +16,10 @@ class LanguageSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     // List of available language codes and names
     List<Map<String, String>> languageOptions = [
-      {'value': 'en', 'label': 'English (US)'},
-      {'value': 'es', 'label': 'Spanish (ES)'},
-      {'value': 'fr', 'label': 'French (FR)'},
-      {'value': 'de', 'label': 'German (DE)'},
+      {'value': 'en', 'label': 'English'},
+      {'value': 'es', 'label': 'Spanish'},
+      {'value': 'fr', 'label': 'French)'},
+      {'value': 'de', 'label': 'German'},
       {'value': 'nl', 'label': 'Dutch'},
       {'value': 'cs', 'label': 'Czech'},
       {'value': 'hu', 'label': 'Hungarian'},

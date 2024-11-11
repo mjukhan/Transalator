@@ -1,29 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:translation_app/core/utilities/colors.dart';
+import 'package:translation_app/core/widgets/language.dart';
+import 'core/widgets/app_localization.dart';
+import 'core/widgets/localization_provider.dart';
 import 'features/File/screens/upload_screen.dart';
 import 'features/splash/splash_screen.dart';
 import 'features/translator/screens/translation_screen.dart';
 import 'features/conversation/screens/conversation_screen.dart';
-
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'features/dictionary/screens/dictionary_screen.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(const TranslatorApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => LocalizationProvider(),
+      child: TranslatorApp(),
+    ),
+  );
 }
 
 class TranslatorApp extends StatelessWidget {
-  const TranslatorApp({super.key});
-
   @override
   Widget build(BuildContext context) {
+    localizationsDelegates:
+    [
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+      // Custom localization delegate if created
+    ];
+    supportedLocales:
+    [
+      Locale('en', ''), // English
+      Locale('es', ''), // Spanish, add more as needed
+    ];
     return MaterialApp(
-      title: 'Translator App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: const SplashScreen(),
+      home: SplashScreen(),
     );
   }
 }

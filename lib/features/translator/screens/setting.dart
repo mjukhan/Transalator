@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:translation_app/core/utilities/colors.dart';
+import 'package:translation_app/core/widgets/language.dart';
+import 'package:translation_app/core/widgets/privacy_policy.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Setting extends StatefulWidget {
   const Setting({super.key});
@@ -9,6 +13,8 @@ class Setting extends StatefulWidget {
 }
 
 class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
+  final String appLink =
+      'https://play.google.com/store/apps/details?id=com.example.yourapp';
   final List<Map<String, String>> general = [
     {
       'icon': 'assets/icons/premium.png',
@@ -54,6 +60,51 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
     },
   ];
 
+  // Function to handle navigation to the next page
+  void _navigateToPage(String title) {
+    switch (title) {
+      case 'App Language':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AppLanguage(),
+          ),
+        );
+        break;
+      case 'Privacy Policy':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PrivacyPolicy(),
+          ),
+        );
+        break;
+      case 'Share App':
+        _shareApp();
+        break;
+      case 'Rate Us':
+        _rateApp(context);
+        break;
+      // Add more cases for other list items if necessary
+      default:
+        break;
+    }
+  }
+
+  void _shareApp() {
+    Share.share('Check out this amazing app: $appLink');
+  }
+
+  Future<void> _rateApp(BuildContext context) async {
+    if (await canLaunchUrl(Uri.parse(appLink))) {
+      await launchUrl(Uri.parse(appLink), mode: LaunchMode.externalApplication);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not open the app store.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,7 +116,7 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
         child: Column(
           children: [
             Container(
-              height: 450,
+              height: 410,
               margin: EdgeInsets.fromLTRB(16, 8, 16, 8),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -89,6 +140,7 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
                     child: ListView.builder(
                       itemCount: general.length,
                       shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
                       itemBuilder: (context, index) {
                         return ListTile(
                           leading: Image.asset(
@@ -112,6 +164,9 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
                             size: 16,
                             color: Colors.grey,
                           ),
+                          onTap: () {
+                            _navigateToPage(general[index]['title']!);
+                          },
                         );
                       },
                     ),
@@ -120,7 +175,7 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
               ),
             ),
             Container(
-              height: 300,
+              height: 270,
               margin: EdgeInsets.fromLTRB(16, 8, 16, 8),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -144,20 +199,21 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
                     child: ListView.builder(
                       itemCount: other.length,
                       shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
                       itemBuilder: (context, index) {
                         return ListTile(
                           leading: Image.asset(
-                            general[index]['icon']!,
+                            other[index]['icon']!,
                             scale: 24,
                           ),
                           title: Text(
-                            general[index]['title']!,
+                            other[index]['title']!,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           subtitle: Text(
-                            general[index]['subtitle']!,
+                            other[index]['subtitle']!,
                             style: TextStyle(
                               fontSize: 12,
                             ),
@@ -167,6 +223,9 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
                             size: 16,
                             color: Colors.grey,
                           ),
+                          onTap: () {
+                            _navigateToPage(other[index]['title']!);
+                          },
                         );
                       },
                     ),
