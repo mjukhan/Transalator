@@ -135,18 +135,19 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: bgColor,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: const Color(0xFFF8F9FA),
+        backgroundColor: bgColor,
         title: const Text('Translator'),
         actions: [
-          // IconButton(
-          //   icon: const Icon(Icons.star_border),
-          //   onPressed: () {
-          //     _showSavedTranslationsPage();
-          //   },
-          // ),
+          IconButton(
+            icon: Image.asset(
+              'assets/icons/menu.png',
+              scale: 24,
+            ),
+            onPressed: () {},
+          ),
         ],
       ),
       body: Column(
@@ -165,7 +166,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     final size = MediaQuery.of(context).size;
     return Container(
       height: size.height * 0.08,
-      width: double.infinity,
+      width: size.width,
       margin: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -177,21 +178,29 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             _saveLanguagePreferences();
             if (_inputText.isNotEmpty) _translateText(_inputText);
           }),
-          IconButton(
-            icon: const Icon(Icons.swap_horiz),
-            onPressed: () {
-              print("source language before : $_sourceLanguage");
-              print("target language before : $_targetLanguage");
-              setState(() {
-                final temp = _sourceLanguage;
-                _sourceLanguage = _targetLanguage;
-                _targetLanguage = temp;
-              });
-              _saveLanguagePreferences();
-              print("source language after : $_sourceLanguage");
-              print("target language after : $_targetLanguage");
-              if (_inputText.isNotEmpty) _translateText(_inputText);
-            },
+          Container(
+            height: 40,
+            width: 40,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: changeLangColor,
+            ),
+            child: IconButton(
+              icon: Icon(Icons.swap_horiz, color: micColor),
+              onPressed: () {
+                print("source language before : $_sourceLanguage");
+                print("target language before : $_targetLanguage");
+                setState(() {
+                  final temp = _sourceLanguage;
+                  _sourceLanguage = _targetLanguage;
+                  _targetLanguage = temp;
+                });
+                _saveLanguagePreferences();
+                print("source language after : $_sourceLanguage");
+                print("target language after : $_targetLanguage");
+                if (_inputText.isNotEmpty) _translateText(_inputText);
+              },
+            ),
           ),
           _buildLanguageDropdown(_targetLanguage, (newLang) {
             setState(() {
@@ -210,15 +219,17 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     return Container(
       height: 50,
       width: 120,
-      padding: const EdgeInsets.all(8),
+      alignment: Alignment.center,
+      padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
       decoration: BoxDecoration(
         color: langSelectorColor,
         borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: borderColor),
       ),
       child: LanguageSelector(
         selectedLanguage: selectedLanguage,
         onLanguageChanged: onChanged,
-        fontSize: 12,
+        fontSize: 16,
       ),
     );
   }
@@ -227,6 +238,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
+        color: Colors.white,
         border: Border.all(color: borderColor),
         borderRadius: BorderRadius.circular(16),
       ),

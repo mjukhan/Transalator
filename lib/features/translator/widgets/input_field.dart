@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:translation_app/core/utilities/colors.dart';
 
 class InputField extends StatefulWidget {
   final ValueChanged<String> onChanged;
@@ -36,7 +37,7 @@ class _InputFieldState extends State<InputField> {
         Expanded(
           child: TextInputField(
             controller: _controller,
-            hintText: 'Enter or speak text here', // Static hint text
+            hintText: 'Enter or speak text here',
             onChanged: (text) {
               widget.onChanged(text); // Pass text to parent widget
             },
@@ -84,9 +85,13 @@ class TextInputField extends StatelessWidget {
     return TextField(
       controller: controller,
       decoration: InputDecoration(
-        hintText: hintText, // Static hint text
+        hintText: hintText,
+        hintStyle: TextStyle(
+          fontSize: 22,
+          color: Colors.grey.shade500,
+        ),
         border: InputBorder.none,
-        contentPadding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
+        contentPadding: EdgeInsets.fromLTRB(16, 20, 0, 16),
       ),
       maxLines: null,
       style: TextStyle(fontSize: 24.0),
@@ -165,10 +170,19 @@ class _VoiceInputButtonState extends State<VoiceInputButton> {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: _speech.isNotListening ? _listen : _stopListening,
-      icon: Icon(_speech.isNotListening ? Icons.mic_none : Icons.mic),
-      tooltip: 'Listen',
+    return Container(
+      margin: EdgeInsets.fromLTRB(0, 16, 16, 0),
+      height: 40,
+      width: 40,
+      decoration: BoxDecoration(shape: BoxShape.circle, color: micColor),
+      child: IconButton(
+        onPressed: _speech.isNotListening ? _listen : _stopListening,
+        icon: Icon(
+          _speech.isNotListening ? Icons.mic_none : Icons.mic,
+          color: Colors.white,
+        ),
+        tooltip: 'Listen',
+      ),
     );
   }
 }

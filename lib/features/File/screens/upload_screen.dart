@@ -95,8 +95,7 @@ class _FileScreenState extends State<FileScreen> {
             color: Colors.white,
           ),
         ),
-        backgroundColor:
-            Colors.red, // Optional: Set background color for the SnackBar
+        backgroundColor: borderColor,
       ),
     );
   }
@@ -123,6 +122,7 @@ class _FileScreenState extends State<FileScreen> {
                     height: size.height * 0.15,
                     width: size.width * 0.5,
                     child: Card(
+                      color: langSelectorColor,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -145,6 +145,7 @@ class _FileScreenState extends State<FileScreen> {
                     height: size.height * 0.15,
                     width: size.width * 0.5,
                     child: Card(
+                      color: langSelectorColor,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [

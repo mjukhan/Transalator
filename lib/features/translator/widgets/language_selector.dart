@@ -32,7 +32,10 @@ class LanguageSelector extends StatelessWidget {
     List<DropdownMenuItem<String>> dropdownItems = languageOptions.map((lang) {
       return DropdownMenuItem<String>(
         value: lang['value'], // This is how you're getting the value
-        child: Text(lang['label']!), // This is the display text
+        child: Text(
+          lang['label']!,
+          textAlign: TextAlign.center,
+        ), // This is the display text
       );
     }).toList();
 
@@ -52,7 +55,8 @@ class LanguageSelector extends StatelessWidget {
         }
       },
       isExpanded: true,
-      underline: null,
+      underline: SizedBox.shrink(),
+      icon: SizedBox.shrink(),
       style: TextStyle(
         color: Colors.black,
         fontSize: fontSize,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:translation_app/core/utilities/colors.dart';
 import 'features/File/screens/upload_screen.dart';
+import 'features/splash/splash_screen.dart';
 import 'features/translator/screens/translation_screen.dart';
 import 'features/conversation/screens/conversation_screen.dart';
 
@@ -23,41 +24,6 @@ class TranslatorApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: const SplashScreen(),
-    );
-  }
-}
-
-// SplashScreen Widget
-class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
-
-  @override
-  State<SplashScreen> createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    super.initState();
-    // Navigate to HomeScreen after a 3-second delay
-    Future.delayed(const Duration(seconds: 3), () {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white, // Set background color to white
-      body: Center(
-        child: Image.asset(
-          'assets/appicon/translate.png',
-          width: 100, // Adjust size as needed
-          height: 100,
-        ),
-      ),
     );
   }
 }
@@ -95,27 +61,40 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildBottomNavigationBar() {
     return BottomNavigationBar(
-      backgroundColor: const Color(0xFFF8F9FA),
-      unselectedItemColor: unSelectedTebColor,
-      selectedItemColor: selectedTebColor,
+      backgroundColor: bgColor,
+      // unselectedItemColor: unSelectedTebColor,
+      // selectedItemColor: selectedTebColor,
       type: BottomNavigationBarType.fixed,
       currentIndex: _selectedIndex,
+      elevation: 0,
       onTap: _onItemTapped,
-      items: const [
+      items: [
         BottomNavigationBarItem(
-          icon: Icon(Icons.translate),
+          icon: Image.asset(
+            'assets/icons/translate.png',
+            scale: 24,
+          ),
           label: 'Translator',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.chat),
+          icon: Image.asset(
+            'assets/icons/chat (3).png',
+            scale: 24,
+          ),
           label: 'Conversation',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.file_upload),
-          label: 'File',
+          icon: Image.asset(
+            'assets/icons/upload.png',
+            scale: 24,
+          ),
+          label: 'Upload',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.book),
+          icon: Image.asset(
+            'assets/icons/dictionary.png',
+            scale: 24,
+          ),
           label: 'Dictionary',
         ),
       ],
