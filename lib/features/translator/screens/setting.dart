@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:translation_app/core/utilities/colors.dart';
 import 'package:translation_app/core/widgets/language.dart';
+import 'package:translation_app/core/widgets/premium.dart';
 import 'package:translation_app/core/widgets/privacy_policy.dart';
 import 'package:translation_app/features/translator/screens/save_translation_instance.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -77,6 +78,14 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
           ),
         );
         break;
+      case 'Premium':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PremiumSubscriptionScreen(),
+          ),
+        );
+        break;
       case 'Privacy Policy':
         Navigator.push(
           context,
@@ -120,6 +129,46 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
         SnackBar(content: Text('Could not open the app store.')),
       );
     }
+  }
+
+  void showPosterDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          contentPadding: EdgeInsets.all(0),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Poster image
+              Image.asset(
+                'assets/icons/premium.png',
+                fit: BoxFit.cover,
+              ),
+              // Continue and Cancel buttons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      // Handle continue action
+                      Navigator.of(context).pop();
+                    },
+                    child: Text("Continue"),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text("Cancel"),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
