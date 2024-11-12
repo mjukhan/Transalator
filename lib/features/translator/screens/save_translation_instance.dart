@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:translation_app/core/utilities/colors.dart';
 
 class SavedTranslationsPage extends StatefulWidget {
   final List<String> savedTranslations;
@@ -16,21 +17,21 @@ class SavedTranslationsPage extends StatefulWidget {
 }
 
 class _SavedTranslationsPageState extends State<SavedTranslationsPage> {
-  late List<String> _savedTranslations;
+  late List<String> savedTranslation;
 
   @override
   void initState() {
     super.initState();
-    _savedTranslations = widget.savedTranslations;
+    savedTranslation = widget.savedTranslations;
   }
 
   // Remove specific translation instance
   Future<void> _removeTranslation(int index) async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _savedTranslations.removeAt(index);
+      savedTranslation.removeAt(index);
     });
-    await prefs.setStringList('savedTranslations', _savedTranslations);
+    await prefs.setStringList('savedTranslations', savedTranslation);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Translation removed!')),
     );
@@ -40,20 +41,29 @@ class _SavedTranslationsPageState extends State<SavedTranslationsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Saved Translations")),
-      body: _savedTranslations.isEmpty
+      body: savedTranslation.isEmpty
           ? const Center(child: Text("No saved translations"))
           : ListView.builder(
-              itemCount: _savedTranslations.length,
+              itemCount: savedTranslation.length,
               itemBuilder: (context, index) {
-                final instance = jsonDecode(_savedTranslations[index]);
+                final instance = jsonDecode(savedTranslation[index]);
+                print(instance);
                 return ListTile(
-                  title: Text("Input: ${instance['inputText']}"),
-                  subtitle: Text("Translation: ${instance['translatedText']}"),
+                  title: Text(
+                    "${instance['input']}  ->  ${instance['translate']}",
+                  ),
                   trailing: IconButton(
-                    icon: const Icon(Icons.delete),
+                    icon: Image.asset(
+                      'assets/icons/bin.png',
+                      scale: 14,
+                    ),
                     onPressed: () => _removeTranslation(index),
                     tooltip: 'Delete this translation',
                   ),
+                  style: ListTileStyle.drawer,
+                  //tileColor: listTileColor,
+                  contentPadding: EdgeInsets.fromLTRB(16, 4, 16, 4),
+                  horizontalTitleGap: 16,
                 );
               },
             ),

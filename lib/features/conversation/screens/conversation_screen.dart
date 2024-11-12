@@ -191,6 +191,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
             height: size.height * 0.6,
             width: size.width,
             decoration: BoxDecoration(
+              color: Colors.white,
               border: Border.all(color: borderColor),
               borderRadius: BorderRadius.circular(16),
             ),

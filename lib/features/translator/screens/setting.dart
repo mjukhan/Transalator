@@ -41,11 +41,11 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
       'title': 'Favorite',
       'subtitle': 'View all translations Favorites',
     },
-    {
-      'icon': 'assets/icons/history.png',
-      'title': 'History',
-      'subtitle': 'View all translation history',
-    },
+    // {
+    //   'icon': 'assets/icons/history.png',
+    //   'title': 'History',
+    //   'subtitle': 'View all translation history',
+    // },
   ];
   final List<Map<String, String>> other = [
     {
@@ -67,6 +67,7 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
 
   // Function to handle navigation to the next page
   void _navigateToPage(String title) {
+    print(widget.savedTranslation);
     switch (title) {
       case 'App Language':
         Navigator.push(
@@ -132,7 +133,7 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
         child: Column(
           children: [
             Container(
-              height: 410,
+              height: 340,
               margin: EdgeInsets.fromLTRB(16, 8, 16, 8),
               decoration: BoxDecoration(
                 color: Colors.white,

@@ -25,3 +25,5 @@ Color imageCaptureColor = Color.fromARGB(255, 186, 24, 27);
 Color micColor = Color.fromARGB(255, 25, 118, 210);
 
 Color changeLangColor = Color.fromARGB(255, 227, 242, 253);
+
+Color listTileColor = Color.fromARGB(255, 187, 222, 251);

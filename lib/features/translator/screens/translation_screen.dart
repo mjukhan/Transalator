@@ -94,11 +94,13 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     if (!_isSaved && _translatedText.isNotEmpty) {
       // Combine input and translated text into a map
       final instance = {
-        '$_sourceLanguage': _inputText,
-        '$_targetLanguage': _translatedText,
+        'source': _sourceLanguage,
+        'target': _targetLanguage,
+        'input': _inputText,
+        'translate': _translatedText,
       };
       _savedTranslations.add(jsonEncode(instance)); // Save as JSON string
-
+      print(_savedTranslations);
       // Update SharedPreferences with the new list
       await prefs.setStringList('savedTranslations', _savedTranslations);
       ScaffoldMessenger.of(context).showSnackBar(
