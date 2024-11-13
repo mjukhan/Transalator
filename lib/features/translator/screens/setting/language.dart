@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'app_localization.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'localization_provider.dart';
 
 class AppLanguage extends StatefulWidget {
@@ -38,16 +38,14 @@ class _AppLanguageState extends State<AppLanguage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)?.translate('app_title') ??
-            'App Languages'),
+        title: Text('App Languages'),
         actions: [
           IconButton(
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                    content: Text(AppLocalizations.of(context)
-                            ?.translate('language_changed') ??
-                        'Language changed')),
+                  content: Text('Language changed'),
+                ),
               );
             },
             icon: Icon(Icons.check, color: Colors.green),
