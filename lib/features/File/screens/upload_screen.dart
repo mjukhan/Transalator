@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:translation_app/core/utilities/colors.dart';
 import 'package:translation_app/features/File/screens/picture.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class FileScreen extends StatefulWidget {
   const FileScreen({
@@ -45,7 +46,8 @@ class _FileScreenState extends State<FileScreen> {
         });
       }
     } catch (e) {
-      _logException("Error picking image from camera: ${e.toString()}");
+      _logException(
+          "${AppLocalizations.of(context)!.errorInPickImageFromCamera} ${e.toString()}");
     }
   }
 
@@ -81,7 +83,8 @@ class _FileScreenState extends State<FileScreen> {
         });
       }
     } catch (e) {
-      _logException("Error picking image from gallery: ${e.toString()}");
+      _logException(
+          "${AppLocalizations.of(context)!.errorInPickImageFromGallery} ${e.toString()}");
     }
   }
 
@@ -107,7 +110,7 @@ class _FileScreenState extends State<FileScreen> {
       backgroundColor: bgColor,
       appBar: AppBar(
         backgroundColor: bgColor,
-        title: Text('File'),
+        title: Text(AppLocalizations.of(context)!.file),
       ),
       body: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
@@ -130,7 +133,7 @@ class _FileScreenState extends State<FileScreen> {
                             'assets/icons/upload.png',
                             scale: 10,
                           ),
-                          Text('Upload Image'),
+                          Text(AppLocalizations.of(context)!.uploadImage),
                         ],
                       ),
                     ),
@@ -153,7 +156,7 @@ class _FileScreenState extends State<FileScreen> {
                             'assets/icons/camera.png',
                             scale: 10,
                           ),
-                          Text('Take Picture'),
+                          Text(AppLocalizations.of(context)!.takePicture),
                         ],
                       ),
                     ),

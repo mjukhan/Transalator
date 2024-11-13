@@ -4,6 +4,7 @@ import 'package:translation_app/core/utilities/colors.dart';
 import '../../../data/models/Word_model.dart';
 import '../../../data/repositories/word_repository.dart';
 import '../../../data/services/word_service.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class DictionaryScreen extends StatefulWidget {
   final String? searchWord;
@@ -85,7 +86,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
       child: Scaffold(
         backgroundColor: bgColor,
         appBar: AppBar(
-          title: Text('Dictionary'),
+          title: Text(AppLocalizations.of(context)!.dictionary),
           backgroundColor: bgColor,
           elevation: 0,
         ),
@@ -97,7 +98,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
               child: TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
-                  hintText: 'Search for a word...',
+                  hintText: AppLocalizations.of(context)!.hintTextForSearchWord,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
                     borderSide: BorderSide(color: borderColor),
@@ -120,7 +121,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'Recent Searches',
+                  AppLocalizations.of(context)!.recentSearches,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -175,7 +176,9 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                   } else if (snapshot.hasError) {
                     return SizedBox(
                       height: size.height * 0.3,
-                      child: Center(child: Text('Error fetching meaning')),
+                      child: Center(
+                          child: Text(AppLocalizations.of(context)!
+                              .errorFetchingMeaning)),
                     );
                   } else if (snapshot.hasData && snapshot.data != null) {
                     final wordDefinition = snapshot.data!;
@@ -225,7 +228,8 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                     return SizedBox(
                       height: size.height * 0.3,
                       child: Center(
-                          child: Text('No data found for "$_searchedWord"')),
+                          child: Text(
+                              '${AppLocalizations.of(context)!.noDataFound} "$_searchedWord"')),
                     );
                   }
                 },

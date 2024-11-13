@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LanguageSelector extends StatelessWidget {
   final String selectedLanguage;
@@ -16,15 +17,14 @@ class LanguageSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     // List of available language codes and names
     List<Map<String, String>> languageOptions = [
-      {'value': 'en', 'label': 'English'},
-      {'value': 'es', 'label': 'Spanish'},
-      {'value': 'fr', 'label': 'French)'},
-      {'value': 'de', 'label': 'German'},
+      {'value': 'en', 'label': AppLocalizations.of(context)!.english},
+      {'value': 'es', 'label': AppLocalizations.of(context)!.spanish},
+      {'value': 'fr', 'label': AppLocalizations.of(context)!.french},
+      {'value': 'it', 'label': AppLocalizations.of(context)!.italian},
+      {'value': 'de', 'label': AppLocalizations.of(context)!.german},
       {'value': 'nl', 'label': 'Dutch'},
-      {'value': 'cs', 'label': 'Czech'},
       {'value': 'hu', 'label': 'Hungarian'},
       {'value': 'ro', 'label': 'Romanian'},
-      {'value': 'sk', 'label': 'Slovak'},
       // Add more languages here
     ];
 

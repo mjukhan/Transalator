@@ -4,17 +4,18 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:translation_app/core/utilities/colors.dart';
-import 'package:translation_app/features/dictionary/screens/dictionary_screen.dart';
-import 'package:translation_app/features/translator/screens/save_translation_instance.dart';
-import 'package:translation_app/features/translator/screens/setting.dart';
+import 'package:translation_app/features/translator/screens/setting/setting.dart';
 import '../../../core/widgets/translator_provider.dart';
 import '../../../core/widgets/permission_handler.dart';
 import '../widgets/error_handler.dart';
 import '../widgets/input_field.dart';
 import '../widgets/language_selector.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TranslatorScreen extends StatefulWidget {
-  const TranslatorScreen({super.key});
+  TranslatorScreen({
+    super.key,
+  });
 
   @override
   _TranslatorScreenState createState() => _TranslatorScreenState();
@@ -84,7 +85,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     } catch (e) {
       ErrorHandler.handleTranslationError(context, e);
       setState(() {
-        _translatedText = 'Error in translation';
+        _translatedText = AppLocalizations.of(context)!.errorInTranslation;
       });
     }
   }
@@ -102,7 +103,8 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
       _savedTranslations.add(jsonEncode(instance)); // Save as JSON string
       print(_savedTranslations);
       // Update SharedPreferences with the new list
-      await prefs.setStringList('savedTranslations', _savedTranslations);
+      await prefs.setStringList(
+          AppLocalizations.of(context)!.savedTranslations, _savedTranslations);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Translation saved!')),
       );
@@ -117,7 +119,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   void _copyToClipboard() {
     Clipboard.setData(ClipboardData(text: _translatedText));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Copied to clipboard!')),
+      SnackBar(content: Text(AppLocalizations.of(context)!.copiedToClipboard)),
     );
     print("Copied: $_translatedText");
   }
@@ -140,7 +142,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: bgColor,
-        title: const Text('Translator'),
+        title: Text(AppLocalizations.of(context)!.translation),
         actions: [
           IconButton(
             icon: Image.asset(

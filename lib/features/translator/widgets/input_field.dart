@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:translation_app/core/utilities/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class InputField extends StatefulWidget {
   final ValueChanged<String> onChanged;
@@ -37,7 +38,7 @@ class _InputFieldState extends State<InputField> {
         Expanded(
           child: TextInputField(
             controller: _controller,
-            hintText: 'Enter or speak text here',
+            hintText: AppLocalizations.of(context)!.hintTextTranslation,
             onChanged: (text) {
               widget.onChanged(text); // Pass text to parent widget
             },
@@ -86,14 +87,16 @@ class TextInputField extends StatelessWidget {
       controller: controller,
       decoration: InputDecoration(
         hintText: hintText,
+        helperMaxLines: 1,
         hintStyle: TextStyle(
-          fontSize: 22,
+          fontSize: 18,
           color: Colors.grey.shade500,
         ),
         border: InputBorder.none,
-        contentPadding: EdgeInsets.fromLTRB(16, 20, 0, 16),
+        contentPadding: EdgeInsets.fromLTRB(16, 20, 16, 16),
       ),
       maxLines: null,
+
       style: TextStyle(fontSize: 24.0),
       onChanged: onChanged,
     );
@@ -131,7 +134,8 @@ class _VoiceInputButtonState extends State<VoiceInputButton> {
     bool hasPermission = await _checkMicrophonePermission();
     if (!hasPermission) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Microphone permission is required.')),
+        SnackBar(
+            content: Text(AppLocalizations.of(context)!.micPermissionRequired)),
       );
       return;
     }

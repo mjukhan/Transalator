@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../../core/utilities/colors.dart';
+import '../../home.dart';
 import '../../main.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
+  const SplashScreen({
+    super.key,
+  });
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -17,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // Navigate to HomeScreen after a 3-second delay
     Future.delayed(const Duration(seconds: 1), () {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
+        MaterialPageRoute(builder: (context) => HomeScreen()),
       );
     });
   }

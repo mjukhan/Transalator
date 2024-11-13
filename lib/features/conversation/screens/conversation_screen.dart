@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,7 +11,7 @@ import '../../translator/widgets/error_handler.dart';
 import '../../translator/widgets/language_selector.dart';
 
 class ConversationScreen extends StatefulWidget {
-  const ConversationScreen({super.key});
+  const ConversationScreen({super.key,});
 
   @override
   State<ConversationScreen> createState() => _ConversationScreenState();
@@ -80,10 +80,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
       } catch (e) {
         ErrorHandler.handleTranslationError(context, e);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error in translation')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorInTranslation)),
         );
         setState(() {
-          _translatedText = 'Error in translation';
+          _translatedText = AppLocalizations.of(context)!.errorInTranslation;
         });
       }
     });
@@ -181,7 +181,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
     return Scaffold(
       backgroundColor: bgColor,
       appBar: AppBar(
-        title: Text("Conversation"),
+        title: Text(AppLocalizations.of(context)!.conversation),
         backgroundColor: bgColor,
       ),
       body: Column(

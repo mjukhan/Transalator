@@ -1,116 +1,53 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:translation_app/core/utilities/colors.dart';
-import 'package:translation_app/core/widgets/language.dart';
-import 'core/widgets/app_localization.dart';
-import 'core/widgets/localization_provider.dart';
-import 'features/File/screens/upload_screen.dart';
 import 'features/splash/splash_screen.dart';
-import 'features/translator/screens/translation_screen.dart';
-import 'features/conversation/screens/conversation_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'features/dictionary/screens/dictionary_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() {
-  runApp(
-    ChangeNotifierProvider(
-      create: (_) => LocalizationProvider(),
-      child: TranslatorApp(),
-    ),
-  );
+  runApp(TranslatorApp());
 }
 
-class TranslatorApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    localizationsDelegates:
-    [
-      GlobalMaterialLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate,
-      GlobalCupertinoLocalizations.delegate,
-      // Custom localization delegate if created
-    ];
-    supportedLocales:
-    [
-      Locale('en', ''), // English
-      Locale('es', ''), // Spanish, add more as needed
-    ];
-    return MaterialApp(
-      home: SplashScreen(),
-    );
+class TranslatorApp extends StatefulWidget {
+  TranslatorApp({super.key});
+
+  static void setLocale(BuildContext context, Locale locale) {
+    _TranslatorAppState state =
+        context.findAncestorStateOfType<_TranslatorAppState>()!;
+    state.setLocale(locale);
   }
-}
-
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
 
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  State<TranslatorApp> createState() => _TranslatorAppState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 0;
+class _TranslatorAppState extends State<TranslatorApp> {
+  Locale _locale = const Locale('en'); // Default locale
 
-  final List<Widget> _pages = [
-    TranslatorScreen(),
-    ConversationScreen(),
-    FileScreen(),
-    DictionaryScreen(),
-  ];
-
-  void _onItemTapped(int index) {
+  // Function to update the locale
+  void setLocale(Locale locale) {
     setState(() {
-      _selectedIndex = index;
+      _locale = locale; // Update the locale
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: _buildBottomNavigationBar(),
-    );
-  }
-
-  Widget _buildBottomNavigationBar() {
-    return BottomNavigationBar(
-      backgroundColor: bgColor,
-      unselectedItemColor: unSelectedTebColor,
-      selectedItemColor: selectedTebColor,
-      type: BottomNavigationBarType.fixed,
-      currentIndex: _selectedIndex,
-      elevation: 0,
-      onTap: _onItemTapped,
-      items: [
-        BottomNavigationBarItem(
-          icon: Image.asset(
-            'assets/icons/translate.png',
-            scale: 24,
-          ),
-          label: 'Translator',
-        ),
-        BottomNavigationBarItem(
-          icon: Image.asset(
-            'assets/icons/chat (3).png',
-            scale: 24,
-          ),
-          label: 'Conversation',
-        ),
-        BottomNavigationBarItem(
-          icon: Image.asset(
-            'assets/icons/upload.png',
-            scale: 24,
-          ),
-          label: 'Upload',
-        ),
-        BottomNavigationBarItem(
-          icon: Image.asset(
-            'assets/icons/dictionary (1).png',
-            scale: 24,
-          ),
-          label: 'Dictionary',
-        ),
+    return MaterialApp(
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
       ],
+      locale: _locale, // Set the current locale here
+      supportedLocales: const [
+        Locale('en'), // English
+        Locale('es'), // Spanish
+        Locale('fr'), // French
+        Locale('de'), // German
+        Locale('it'), // Italian
+      ],
+      home: SplashScreen(),
     );
   }
 }

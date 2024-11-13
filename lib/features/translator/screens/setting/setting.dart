@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:translation_app/core/utilities/colors.dart';
-import 'package:translation_app/core/widgets/language.dart';
-import 'package:translation_app/core/widgets/premium.dart';
-import 'package:translation_app/core/widgets/privacy_policy.dart';
+import 'package:translation_app/features/translator/screens/setting/language.dart';
+import 'package:translation_app/features/translator/screens/setting/premium.dart';
+import 'package:translation_app/features/translator/screens/setting/privacy_policy.dart';
 import 'package:translation_app/features/translator/screens/save_translation_instance.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Setting extends StatefulWidget {
   final List<String> savedTranslation;
+
   const Setting({
     super.key,
     required this.savedTranslation,
@@ -21,104 +23,103 @@ class Setting extends StatefulWidget {
 class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
   final String appLink =
       'https://play.google.com/store/apps/details?id=com.example.yourapp';
-  final List<Map<String, String>> general = [
-    {
-      'icon': 'assets/icons/premium.png',
-      'title': 'Premium',
-      'subtitle': 'Upgrade to Pro',
-    },
-    {
-      'icon': 'assets/icons/language.png',
-      'title': 'App Language',
-      'subtitle': 'Change your app language',
-    },
-    {
-      'icon': 'assets/icons/manage.png',
-      'title': 'Manage Subscriptions',
-      'subtitle': 'Check your purchase & billing',
-    },
-    {
-      'icon': 'assets/icons/star.png',
-      'title': 'Favorite',
-      'subtitle': 'View all translations Favorites',
-    },
-    // {
-    //   'icon': 'assets/icons/history.png',
-    //   'title': 'History',
-    //   'subtitle': 'View all translation history',
-    // },
-  ];
-  final List<Map<String, String>> other = [
-    {
-      'icon': 'assets/icons/share.png',
-      'title': 'Share App',
-      'subtitle': 'Share with friends',
-    },
-    {
-      'icon': 'assets/icons/rate.png',
-      'title': 'Rate Us',
-      'subtitle': 'Share your suggestion, feedback',
-    },
-    {
-      'icon': 'assets/icons/privacy.png',
-      'title': 'Privacy Policy',
-      'subtitle': 'Read the apps privacy policy',
-    },
-  ];
+  final List<Map<String, String>> general = [];
+  final List<Map<String, String>> other = [];
+
+  void _initializeGeneralList(BuildContext context) {
+    general.clear();
+    other.clear();
+    general.addAll(
+      [
+        {
+          'icon': 'assets/icons/premium.png',
+          'title': AppLocalizations.of(context)!.premium,
+          'subtitle': AppLocalizations.of(context)!.upgradeToPro,
+        },
+        {
+          'icon': 'assets/icons/language.png',
+          'title': AppLocalizations.of(context)!.appLanguage,
+          'subtitle': AppLocalizations.of(context)!.changeAppLanguage,
+        },
+        {
+          'icon': 'assets/icons/manage.png',
+          'title': AppLocalizations.of(context)!.manageSubscriptions,
+          'subtitle': AppLocalizations.of(context)!.checkBilling,
+        },
+        {
+          'icon': 'assets/icons/star.png',
+          'title': AppLocalizations.of(context)!.favorite,
+          'subtitle': AppLocalizations.of(context)!.viewAllFavorites,
+        }
+      ],
+    );
+    other.addAll([
+      {
+        'icon': 'assets/icons/share.png',
+        'title': AppLocalizations.of(context)!.shareApp,
+        'subtitle': AppLocalizations.of(context)!.shareWithFriends,
+      },
+      {
+        'icon': 'assets/icons/rate.png',
+        'title': AppLocalizations.of(context)!.rateUs,
+        'subtitle': AppLocalizations.of(context)!.shareFeedback,
+      },
+      {
+        'icon': 'assets/icons/privacy.png',
+        'title': AppLocalizations.of(context)!.privacyPolicy,
+        'subtitle': AppLocalizations.of(context)!.readPrivacyPolicy,
+      },
+    ]);
+  }
 
   // Function to handle navigation to the next page
   void _navigateToPage(String title) {
-    print(widget.savedTranslation);
-    switch (title) {
-      case 'App Language':
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => AppLanguage(),
-          ),
-        );
-        break;
-      case 'Premium':
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PremiumSubscriptionScreen(),
-          ),
-        );
-        break;
-      case 'Privacy Policy':
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PrivacyPolicy(),
-          ),
-        );
-        break;
-      case 'Favorite':
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => SavedTranslationsPage(
-              savedTranslations: widget.savedTranslation,
-            ),
-          ),
-        );
+    final localizations = AppLocalizations.of(context)!;
 
-        break;
-      case 'Share App':
-        _shareApp();
-        break;
-      case 'Rate Us':
-        _rateApp(context);
-        break;
-      // Add more cases for other list items if necessary
-      default:
-        break;
+    // Print the saved translation for debugging
+    print(widget.savedTranslation);
+
+    // Use a switch statement based on localized strings
+    if (title == localizations.appLanguage) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AppLanguage(),
+        ),
+      );
+    } else if (title == localizations.premium) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PremiumSubscriptionScreen(),
+        ),
+      );
+    } else if (title == localizations.privacyPolicy) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PrivacyPolicy(),
+        ),
+      );
+    } else if (title == localizations.favorite) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SavedTranslationsPage(
+            savedTranslations: widget.savedTranslation,
+          ),
+        ),
+      );
+    } else if (title == localizations.shareApp) {
+      _shareApp();
+    } else if (title == localizations.rateUs) {
+      _rateApp(context);
     }
+    // Add more cases for other list items if necessary
   }
 
   void _shareApp() {
-    Share.share('Check out this amazing app: $appLink');
+    Share.share('${AppLocalizations.of(context)!.shareWithFriends} $appLink');
   }
 
   Future<void> _rateApp(BuildContext context) async {
@@ -126,7 +127,9 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
       await launchUrl(Uri.parse(appLink), mode: LaunchMode.externalApplication);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not open the app store.')),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.couldNotOpenAppStore),
+        ),
       );
     }
   }
@@ -173,10 +176,13 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+    _initializeGeneralList(context);
+
     return Scaffold(
       appBar: AppBar(
         scrolledUnderElevation: 0,
-        title: Text('Setting'),
+        title: Text(localizations.setting),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -195,7 +201,7 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 16, 0, 8),
                     child: Text(
-                      'General',
+                      localizations.general,
                       style: TextStyle(
                         color: Colors.grey,
                         fontWeight: FontWeight.bold,
@@ -254,7 +260,7 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 16, 0, 8),
                     child: Text(
-                      'Other',
+                      localizations.other,
                       style: TextStyle(
                         color: Colors.grey,
                         fontWeight: FontWeight.bold,

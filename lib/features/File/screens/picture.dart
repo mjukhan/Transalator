@@ -9,6 +9,7 @@ import '../../translator/widgets/error_handler.dart';
 import '../../translator/widgets/language_selector.dart';
 import '../widgets/OcrFile.dart';
 import '../widgets/upload.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PictureScreen extends StatefulWidget {
   final File? imageFile;
@@ -143,7 +144,7 @@ class _PictureScreenState extends State<PictureScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Text('Translate to:'),
+          Text(AppLocalizations.of(context)!.translateTo),
           _buildLanguageDropdown(
             size,
             _targetLanguage,
@@ -200,10 +201,11 @@ class _PictureScreenState extends State<PictureScreen> {
 
         translations.add(translation.isNotEmpty
             ? translation
-            : 'Translation result is empty.');
+            : AppLocalizations.of(context)!.translationResultEmpty);
       } catch (e) {
         ErrorHandler.handleTranslationError(context, e);
-        translations.add('Translation error occurred for line: $line');
+        translations.add(
+            '${AppLocalizations.of(context)!.translationErrorInLine} $line');
         _isTranslating = false;
       }
     }
