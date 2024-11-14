@@ -166,29 +166,23 @@ class _DictionaryScreenState extends State<DictionaryScreen>
           ],
         ),
 
-        // Bottom Sheet for word meaning
+        // Code snippet for bottomSheet update in DictionaryScreen
         bottomSheet: _searchedWord.isNotEmpty
-            ? Expanded(
+            ? Container(
+                height: size.height * 0.3,
                 child: FutureBuilder<WordDefinition?>(
                   future: _wordDefinition,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return SizedBox(
-                        height: size.height * 0.3,
-                        child: Center(child: CircularProgressIndicator()),
-                      );
+                      return Center(child: CircularProgressIndicator());
                     } else if (snapshot.hasError) {
-                      return SizedBox(
-                        height: size.height * 0.3,
-                        child: Center(
-                            child: Text(AppLocalizations.of(context)!
-                                .errorFetchingMeaning)),
-                      );
+                      return Center(
+                          child: Text(AppLocalizations.of(context)!
+                              .errorFetchingMeaning));
                     } else if (snapshot.hasData && snapshot.data != null) {
                       final wordDefinition = snapshot.data!;
                       return Container(
-                        height: size.height * 0.3,
-                        width: size.width,
+                        padding: const EdgeInsets.all(16.0),
                         decoration: BoxDecoration(
                           color: bgColor,
                           border: Border.all(color: borderColor),
@@ -197,50 +191,44 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                             topRight: Radius.circular(16),
                           ),
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '"${wordDefinition.word}" ',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '"${wordDefinition.word}" ',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
                               ),
-                              SizedBox(height: 10),
-                              Expanded(
-                                child: ListView(
-                                  children:
-                                      wordDefinition.meanings.map((meaning) {
-                                    return Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 8.0),
-                                      child: Text(
-                                        '${meaning.partOfSpeech}: ${meaning.definitions.first.definition}',
-                                        style: TextStyle(fontSize: 16),
-                                      ),
-                                    );
-                                  }).toList(),
-                                ),
+                            ),
+                            SizedBox(height: 10),
+                            Expanded(
+                              child: ListView(
+                                children:
+                                    wordDefinition.meanings.map((meaning) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 8.0),
+                                    child: Text(
+                                      '${meaning.partOfSpeech}: ${meaning.definitions.first.definition}',
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                  );
+                                }).toList(),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       );
                     } else {
-                      return SizedBox(
-                        height: size.height * 0.3,
-                        child: Center(
-                            child: Text(
-                                '${AppLocalizations.of(context)!.noDataFound} "$_searchedWord"')),
-                      );
+                      return Center(
+                          child: Text(
+                              '${AppLocalizations.of(context)!.noDataFound} "$_searchedWord"'));
                     }
                   },
                 ),
               )
             : SizedBox(), // Empty space if no word is searched
+        // Empty space if no word is searched
       ),
     );
   }

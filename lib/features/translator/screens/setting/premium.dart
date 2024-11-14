@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:translation_app/core/utilities/colors.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PremiumSubscriptionScreen extends StatelessWidget {
   const PremiumSubscriptionScreen({super.key});
@@ -26,7 +27,7 @@ class PremiumSubscriptionScreen extends StatelessWidget {
             ),
             SizedBox(height: 10),
             AutoSizeText(
-              "Upgrade to Premium",
+              AppLocalizations.of(context)!.upgradeToPremium,
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -35,25 +36,26 @@ class PremiumSubscriptionScreen extends StatelessWidget {
             ),
             SizedBox(height: 8),
             AutoSizeText(
-              "Remove ads and unlock all features",
+              AppLocalizations.of(context)!.removeAdsUnlockFeatures,
               style: TextStyle(fontSize: 14, color: Colors.black54),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 20),
             Column(
               children: [
-                _buildFeatureRow("Ads-free experience"),
-                _buildFeatureRow("Offline Translation"),
-                _buildFeatureRow("Phrase Book Access"),
-                _buildFeatureRow("Voice Conversation"),
-                _buildFeatureRow("Camera Translation"),
+                _buildFeatureRow(
+                    AppLocalizations.of(context)!.adsFreeExperience),
+                _buildFeatureRow(
+                    AppLocalizations.of(context)!.voiceConversation),
+                _buildFeatureRow(
+                    AppLocalizations.of(context)!.cameraTranslation),
               ],
             ),
             Spacer(),
             Column(
               children: [
                 AutoSizeText(
-                  "3 days free trial, PKR - Rs 7,500.00/Yearly",
+                  AppLocalizations.of(context)!.threeDaysFreeTrial,
                   style: TextStyle(fontSize: 16, color: Colors.black87),
                   textAlign: TextAlign.center,
                 ),
@@ -68,13 +70,13 @@ class PremiumSubscriptionScreen extends StatelessWidget {
                     ),
                   ),
                   child: AutoSizeText(
-                    "Continue",
+                    AppLocalizations.of(context)!.continueButton,
                     style: TextStyle(fontSize: 18),
                   ),
                 ),
                 SizedBox(height: 10),
                 AutoSizeText(
-                  "Cancel Anytime",
+                  AppLocalizations.of(context)!.cancelAnytime,
                   style: TextStyle(fontSize: 12, color: Colors.grey),
                   textAlign: TextAlign.center,
                 ),
@@ -84,19 +86,40 @@ class PremiumSubscriptionScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                TextButton(
-                  onPressed: () {
-                    _launchURL(
-                        'https://imaginationai.net/languagetranslator/terms-and-conditions');
-                  },
-                  child: AutoSizeText("Terms & Privacy"),
+                SizedBox(
+                  width: 150,
+                  child: TextButton(
+                    onPressed: () {
+                      _launchURL(
+                          'https://imaginationai.net/languagetranslator/terms-and-conditions');
+                    },
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        AppLocalizations.of(context)!.termsPrivacy,
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                      ),
+                    ),
+                  ),
                 ),
-                Text(" | "),
-                TextButton(
-                  onPressed: () {
-                    showSubscriptionDetailDialog(context);
-                  },
-                  child: AutoSizeText("Subscription Details"),
+                SizedBox(
+                  width: 150,
+                  child: TextButton(
+                    onPressed: () {
+                      showSubscriptionDetailDialog(context);
+                    },
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        AppLocalizations.of(context)!.subscriptionDetails,
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -143,7 +166,7 @@ class PremiumSubscriptionScreen extends StatelessWidget {
                 ),
               ),
               Text(
-                'Subscription Details',
+                AppLocalizations.of(context)!.subscriptionDetails,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
@@ -158,12 +181,12 @@ class PremiumSubscriptionScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: _buildSubscriptionPoints([
-                      'With a Language Translator VIP subscription, all ads will be removed.',
-                      'Once the purchase is confirmed, the subscription will be charged through the Google Play Store.',
-                      'After cancellation, the subscription will continue until the end of the current month or year billing period.',
-                      'Subscriptions will automatically renew unless auto-renew is turned off at least 24 hours before the end of the current period.',
-                      'You can manage your subscription or disable automatic renewal in the Google Play Store account settings.',
-                      'Subscriptions canceled during the trial period will not be charged.',
+                      AppLocalizations.of(context)!.subscriptionDetail1,
+                      AppLocalizations.of(context)!.subscriptionDetail2,
+                      AppLocalizations.of(context)!.subscriptionDetail3,
+                      AppLocalizations.of(context)!.subscriptionDetail4,
+                      AppLocalizations.of(context)!.subscriptionDetail5,
+                      AppLocalizations.of(context)!.subscriptionDetail6,
                     ]),
                   ),
                 ),
@@ -178,7 +201,7 @@ class PremiumSubscriptionScreen extends StatelessWidget {
                         Navigator.of(context).pop();
                       },
                       child: Text(
-                        "Cancel",
+                        AppLocalizations.of(context)!.cancelButton,
                         style: TextStyle(color: Colors.red),
                       ),
                     ),
@@ -187,7 +210,7 @@ class PremiumSubscriptionScreen extends StatelessWidget {
                         Navigator.of(context).pop();
                       },
                       child: Text(
-                        "Continue",
+                        AppLocalizations.of(context)!.continueButton,
                         style: TextStyle(color: Colors.blue),
                       ),
                     ),

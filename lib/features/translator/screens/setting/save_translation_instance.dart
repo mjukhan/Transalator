@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SavedTranslationsPage extends StatefulWidget {
   final List<String> savedTranslations; // Parameter for initial translations
@@ -50,33 +51,36 @@ class _SavedTranslationsPageState extends State<SavedTranslationsPage> {
     });
     await _saveTranslations();
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Translation removed!')),
+      SnackBar(content: Text(AppLocalizations.of(context)!.translationRemoved)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Saved Translations")),
+      appBar: AppBar(
+          title: Text(AppLocalizations.of(context)!.favoriteTranslations)),
       body: savedTranslations.isEmpty
-          ? const Center(child: Text("No saved translations"))
+          ? Center(
+              child: Text(AppLocalizations.of(context)!.noSavedTranslations))
           : ListView.builder(
               itemCount: savedTranslations.length,
               itemBuilder: (context, index) {
                 final instance = jsonDecode(savedTranslations[index]);
                 return ListTile(
                   title: Text(
-                    "${instance['input']}  ->  ${instance['translate']}",
+                    "${instance['source']} : ${instance['input']}",
                   ),
                   subtitle:
-                      Text('${instance['source']} -> ${instance['target']}'),
+                      Text('${instance['target']} : ${instance['translate']}'),
                   trailing: IconButton(
                     icon: Image.asset(
                       'assets/icons/bin.png',
                       scale: 14,
                     ),
                     onPressed: () => _removeTranslation(index),
-                    tooltip: 'Delete this translation',
+                    tooltip:
+                        AppLocalizations.of(context)!.deleteThisTranslation,
                   ),
                   style: ListTileStyle.drawer,
                   contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 4),

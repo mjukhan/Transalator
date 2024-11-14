@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:translation_app/main.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AppLanguage extends StatefulWidget {
   const AppLanguage({super.key});
@@ -59,7 +60,9 @@ class _AppLanguageState extends State<AppLanguage> {
     TranslatorApp.setLocale(context, Locale(languages[language]!));
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Language changed to $selectedLanguage')),
+      SnackBar(
+          content: Text(
+              '${AppLocalizations.of(context)!.languageChangedTo} $selectedLanguage')),
     );
   }
 
@@ -67,7 +70,7 @@ class _AppLanguageState extends State<AppLanguage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('App Languages'),
+        title: Text(AppLocalizations.of(context)!.appLanguages),
       ),
       body: ListView.builder(
         itemCount: languages.length,
