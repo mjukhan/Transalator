@@ -103,9 +103,12 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                     borderRadius: BorderRadius.circular(8.0),
                     borderSide: BorderSide(color: borderColor),
                   ),
-                  suffixIcon: Image.asset(
-                    'assets/icons/search.png',
-                    scale: 16,
+                  suffixIcon: IconButton(
+                    onPressed: () => _searchWord(_searchController.text),
+                    icon: Image.asset(
+                      'assets/icons/search.png',
+                      scale: 16,
+                    ),
                   ),
                 ),
                 onSubmitted: (text) {
@@ -123,8 +126,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                 child: Text(
                   AppLocalizations.of(context)!.recentSearches,
                   style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
                   ),
                 ),
               ),
@@ -154,10 +156,10 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                     ),
                   )
                 : Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: EdgeInsets.fromLTRB(0, 50, 0, 50),
                     child: Image.asset(
                       'assets/icons/empty.png',
-                      scale: 3,
+                      scale: 4,
                     ),
                   ),
           ],
@@ -165,74 +167,77 @@ class _DictionaryScreenState extends State<DictionaryScreen>
 
         // Bottom Sheet for word meaning
         bottomSheet: _searchedWord.isNotEmpty
-            ? FutureBuilder<WordDefinition?>(
-                future: _wordDefinition,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return SizedBox(
-                      height: size.height * 0.3,
-                      child: Center(child: CircularProgressIndicator()),
-                    );
-                  } else if (snapshot.hasError) {
-                    return SizedBox(
-                      height: size.height * 0.3,
-                      child: Center(
-                          child: Text(AppLocalizations.of(context)!
-                              .errorFetchingMeaning)),
-                    );
-                  } else if (snapshot.hasData && snapshot.data != null) {
-                    final wordDefinition = snapshot.data!;
-                    return Container(
-                      height: size.height * 0.3,
-                      width: size.width,
-                      decoration: BoxDecoration(
-                        color: bgColor,
-                        border: Border.all(color: borderColor),
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(16),
-                          topRight: Radius.circular(16),
+            ? Expanded(
+                child: FutureBuilder<WordDefinition?>(
+                  future: _wordDefinition,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return SizedBox(
+                        height: size.height * 0.3,
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    } else if (snapshot.hasError) {
+                      return SizedBox(
+                        height: size.height * 0.3,
+                        child: Center(
+                            child: Text(AppLocalizations.of(context)!
+                                .errorFetchingMeaning)),
+                      );
+                    } else if (snapshot.hasData && snapshot.data != null) {
+                      final wordDefinition = snapshot.data!;
+                      return Container(
+                        height: size.height * 0.3,
+                        width: size.width,
+                        decoration: BoxDecoration(
+                          color: bgColor,
+                          border: Border.all(color: borderColor),
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(16),
+                            topRight: Radius.circular(16),
+                          ),
                         ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '"${wordDefinition.word}" ',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '"${wordDefinition.word}" ',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                            SizedBox(height: 10),
-                            Expanded(
-                              child: ListView(
-                                children:
-                                    wordDefinition.meanings.map((meaning) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(bottom: 8.0),
-                                    child: Text(
-                                      '${meaning.partOfSpeech}: ${meaning.definitions.first.definition}',
-                                      style: TextStyle(fontSize: 16),
-                                    ),
-                                  );
-                                }).toList(),
+                              SizedBox(height: 10),
+                              Expanded(
+                                child: ListView(
+                                  children:
+                                      wordDefinition.meanings.map((meaning) {
+                                    return Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 8.0),
+                                      child: Text(
+                                        '${meaning.partOfSpeech}: ${meaning.definitions.first.definition}',
+                                        style: TextStyle(fontSize: 16),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  } else {
-                    return SizedBox(
-                      height: size.height * 0.3,
-                      child: Center(
-                          child: Text(
-                              '${AppLocalizations.of(context)!.noDataFound} "$_searchedWord"')),
-                    );
-                  }
-                },
+                      );
+                    } else {
+                      return SizedBox(
+                        height: size.height * 0.3,
+                        child: Center(
+                            child: Text(
+                                '${AppLocalizations.of(context)!.noDataFound} "$_searchedWord"')),
+                      );
+                    }
+                  },
+                ),
               )
             : SizedBox(), // Empty space if no word is searched
       ),

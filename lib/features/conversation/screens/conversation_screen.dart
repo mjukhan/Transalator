@@ -11,7 +11,9 @@ import '../../translator/widgets/error_handler.dart';
 import '../../translator/widgets/language_selector.dart';
 
 class ConversationScreen extends StatefulWidget {
-  const ConversationScreen({super.key,});
+  const ConversationScreen({
+    super.key,
+  });
 
   @override
   State<ConversationScreen> createState() => _ConversationScreenState();
@@ -80,7 +82,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
       } catch (e) {
         ErrorHandler.handleTranslationError(context, e);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.errorInTranslation)),
+          SnackBar(
+              content: Text(AppLocalizations.of(context)!.errorInTranslation)),
         );
         setState(() {
           _translatedText = AppLocalizations.of(context)!.errorInTranslation;
@@ -186,76 +189,78 @@ class _ConversationScreenState extends State<ConversationScreen> {
       ),
       body: Column(
         children: [
-          Container(
-            margin: EdgeInsets.fromLTRB(16, 4, 16, 0),
-            height: size.height * 0.6,
-            width: size.width,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(color: borderColor),
-              borderRadius: BorderRadius.circular(16),
-            ),
+          Expanded(
             child: Container(
-              margin: EdgeInsets.fromLTRB(16, 8, 16, 8),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: size.height * 0.25,
-                      width: size.width,
-                      //margin: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                      // decoration: BoxDecoration(
-                      //   border: Border.all(color: Colors.yellow),
-                      // ),
-                      child: AutoSizeText(
-                        _inputText,
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                          color: Colors.black87,
-                          fontSize: 32,
+              margin: EdgeInsets.fromLTRB(16, 4, 16, 0),
+              height: size.height * 0.6,
+              width: size.width,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: borderColor),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Container(
+                margin: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: size.height * 0.25,
+                        width: size.width,
+                        //margin: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                        // decoration: BoxDecoration(
+                        //   border: Border.all(color: Colors.yellow),
+                        // ),
+                        child: AutoSizeText(
+                          _inputText,
+                          textAlign: TextAlign.start,
+                          style: TextStyle(
+                            color: Colors.black87,
+                            fontSize: 32,
+                          ),
+                          maxFontSize: 32,
+                          minFontSize: 24,
+                          maxLines: null,
                         ),
-                        maxFontSize: 32,
-                        minFontSize: 24,
-                        maxLines: null,
                       ),
-                    ),
-                    Divider(
-                      thickness: 2,
-                      color: dividerColor.withOpacity(0.5),
-                    ),
-                    // Translated Text Container
-                    SizedBox(
-                      height: size.height * 0.25,
-                      width: size.width,
-                      //margin: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                      child: AutoSizeText(
-                        _translatedText, // Display the translated text here
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                          color: Colors.black87,
+                      Divider(
+                        thickness: 2,
+                        color: dividerColor.withOpacity(0.5),
+                      ),
+                      // Translated Text Container
+                      SizedBox(
+                        height: size.height * 0.25,
+                        width: size.width,
+                        //margin: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                        child: AutoSizeText(
+                          _translatedText, // Display the translated text here
+                          textAlign: TextAlign.start,
+                          style: TextStyle(
+                            color: Colors.black87,
+                          ),
+                          maxFontSize: 32,
+                          minFontSize: 24,
+                          maxLines: null,
                         ),
-                        maxFontSize: 32,
-                        minFontSize: 24,
-                        maxLines: null,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
           SizedBox(
-            height: size.height * 0.2,
-            width: size.width,
+            height: 200,
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Container(
-                      height: size.height * 0.05,
-                      width: size.width * 0.4,
+                      height: 50,
+                      width: 120,
                       margin: EdgeInsets.fromLTRB(16, 16, 16, 8),
                       padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                       decoration: BoxDecoration(
@@ -302,8 +307,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Container(
-                      height: size.height * 0.05,
-                      width: size.width * 0.4,
+                      height: 50,
+                      width: 120,
                       margin: EdgeInsets.fromLTRB(16, 16, 16, 8),
                       padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                       decoration: BoxDecoration(

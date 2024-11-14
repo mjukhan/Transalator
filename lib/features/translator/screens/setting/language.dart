@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:translation_app/features/splash/splash_screen.dart';
 import 'package:translation_app/home.dart';
 import 'package:translation_app/main.dart';
 
@@ -38,12 +39,6 @@ class _AppLanguageState extends State<AppLanguage> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Language changed to $selectedLanguage')),
-    );
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => HomeScreen(),
-      ),
     );
   }
 
