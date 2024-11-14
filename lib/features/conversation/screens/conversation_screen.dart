@@ -186,6 +186,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.conversation),
         backgroundColor: bgColor,
+        scrolledUnderElevation: 0,
+        elevation: 0,
       ),
       body: Column(
         children: [

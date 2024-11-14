@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:translation_app/features/splash/splash_screen.dart';
-import 'package:translation_app/home.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:translation_app/main.dart';
 
 class AppLanguage extends StatefulWidget {
@@ -27,27 +26,41 @@ class _AppLanguageState extends State<AppLanguage> {
     'assets/icons/italian.png',
   ];
 
-  String? selectedLanguage = 'English';
+  String? selectedLanguage;
 
-  void _onLanguageChanged(String language) {
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedLanguage(); // Load saved language on initialization
+  }
+
+  Future<void> _loadSavedLanguage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? languageCode = prefs.getString('locale');
+    if (languageCode != null) {
+      setState(() {
+        selectedLanguage = languages.entries
+            .firstWhere((entry) => entry.value == languageCode)
+            .key;
+      });
+    }
+  }
+
+  void _onLanguageChanged(String language) async {
     setState(() {
       selectedLanguage = language;
     });
 
-    // Call the function to change locale globally
-    changeLocale(language);
+    // Save the selected language to SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('locale', languages[language]!);
+
+    // Update the app’s locale globally
+    TranslatorApp.setLocale(context, Locale(languages[language]!));
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Language changed to $selectedLanguage')),
     );
-  }
-
-  // Function to update locale and notify the app
-  void changeLocale(String language) {
-    Locale locale = Locale(languages[language]!);
-
-    // Update the locale globally
-    TranslatorApp.setLocale(context, locale);
   }
 
   @override

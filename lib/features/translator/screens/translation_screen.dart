@@ -22,8 +22,8 @@ class TranslatorScreen extends StatefulWidget {
 }
 
 class _TranslatorScreenState extends State<TranslatorScreen> {
-  String _sourceLanguage = 'auto';
-  String _targetLanguage = 'auto';
+  String _sourceLanguage = '';
+  String _targetLanguage = '';
   String _inputText = '';
   String _translatedText = '';
   bool _isSaved = false; // Toggle for changing the icon
@@ -35,15 +35,15 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   void initState() {
     super.initState();
     _loadLanguagePreferences();
-    //_loadSavedTranslations();
+    _loadSavedTranslations();
   }
 
   // Load the previously selected languages from SharedPreferences
   void _loadLanguagePreferences() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _sourceLanguage = prefs.getString('sourceLanguage') ?? 'auto';
-      _targetLanguage = prefs.getString('targetLanguage') ?? 'auto';
+      _sourceLanguage = prefs.getString('sourceLanguage') ?? '';
+      _targetLanguage = prefs.getString('targetLanguage') ?? '';
     });
   }
 
@@ -54,12 +54,13 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     prefs.setString('targetLanguage', _targetLanguage);
   }
 
-  // void _loadSavedTranslations() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   setState(() {
-  //     _savedTranslations = prefs.getStringList('savedTranslations') ?? [];
-  //   });
-  // }
+  // Load saved translations from SharedPreferences
+  void _loadSavedTranslations() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _savedTranslations = prefs.getStringList('savedTranslations') ?? [];
+    });
+  }
 
   void _translateText(String inputText) async {
     if (!await PermissionHelper().checkMicrophonePermission()) return;
@@ -143,6 +144,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         elevation: 0,
         backgroundColor: bgColor,
         title: Text(AppLocalizations.of(context)!.translation),
+        scrolledUnderElevation: 0,
         actions: [
           IconButton(
             icon: Image.asset(

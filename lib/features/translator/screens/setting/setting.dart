@@ -4,7 +4,7 @@ import 'package:translation_app/core/utilities/colors.dart';
 import 'package:translation_app/features/translator/screens/setting/language.dart';
 import 'package:translation_app/features/translator/screens/setting/premium.dart';
 import 'package:translation_app/features/translator/screens/setting/privacy_policy.dart';
-import 'package:translation_app/features/translator/screens/save_translation_instance.dart';
+import 'package:translation_app/features/translator/screens/setting/save_translation_instance.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 

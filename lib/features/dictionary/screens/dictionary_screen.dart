@@ -89,6 +89,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
           title: Text(AppLocalizations.of(context)!.dictionary),
           backgroundColor: bgColor,
           elevation: 0,
+          scrolledUnderElevation: 0,
         ),
         body: Column(
           children: [

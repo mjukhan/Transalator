@@ -14,7 +14,7 @@ class TranslationService {
     try {
       final translation = await _translator.translate(
         text,
-        from: from ?? 'auto',
+        from: from ?? 'en',
         to: to,
       );
       return translation.text; // Return the translated text

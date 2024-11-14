@@ -111,6 +111,8 @@ class _FileScreenState extends State<FileScreen> {
       appBar: AppBar(
         backgroundColor: bgColor,
         title: Text(AppLocalizations.of(context)!.file),
+        scrolledUnderElevation: 0,
+        elevation: 0,
       ),
       body: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {

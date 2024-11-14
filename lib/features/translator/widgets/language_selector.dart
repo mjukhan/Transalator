@@ -22,9 +22,9 @@ class LanguageSelector extends StatelessWidget {
       {'value': 'fr', 'label': AppLocalizations.of(context)!.french},
       {'value': 'it', 'label': AppLocalizations.of(context)!.italian},
       {'value': 'de', 'label': AppLocalizations.of(context)!.german},
-      {'value': 'nl', 'label': 'Dutch'},
-      {'value': 'hu', 'label': 'Hungarian'},
-      {'value': 'ro', 'label': 'Romanian'},
+      {'value': 'nl', 'label': AppLocalizations.of(context)!.dutch},
+      {'value': 'hu', 'label': AppLocalizations.of(context)!.hungarian},
+      {'value': 'ro', 'label': AppLocalizations.of(context)!.romanian},
       // Add more languages here
     ];
 

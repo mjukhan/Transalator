@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
-import 'features/splash/splash_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'features/splash/splash_screen.dart';
 
-void main() {
-  runApp(TranslatorApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  Locale? savedLocale =
+      await loadSavedLocale(); // Load saved locale during startup
+  runApp(TranslatorApp(savedLocale: savedLocale));
 }
 
 class TranslatorApp extends StatefulWidget {
-  TranslatorApp({super.key});
+  final Locale? savedLocale;
+
+  const TranslatorApp({Key? key, this.savedLocale}) : super(key: key);
 
   static void setLocale(BuildContext context, Locale locale) {
-    _TranslatorAppState state =
-        context.findAncestorStateOfType<_TranslatorAppState>()!;
-    state.setLocale(locale);
+    _TranslatorAppState? state =
+        context.findAncestorStateOfType<_TranslatorAppState>();
+    state?.setLocale(locale);
   }
 
   @override
@@ -23,10 +29,17 @@ class TranslatorApp extends StatefulWidget {
 class _TranslatorAppState extends State<TranslatorApp> {
   Locale _locale = const Locale('en'); // Default locale
 
-  // Function to update the locale
+  @override
+  void initState() {
+    super.initState();
+    if (widget.savedLocale != null) {
+      _locale = widget.savedLocale!; // Set saved locale at app start
+    }
+  }
+
   void setLocale(Locale locale) {
     setState(() {
-      _locale = locale; // Update the locale
+      _locale = locale;
     });
   }
 
@@ -39,15 +52,25 @@ class _TranslatorAppState extends State<TranslatorApp> {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      locale: _locale, // Set the current locale here
+      locale: _locale, // Current locale for the app
       supportedLocales: const [
-        Locale('en'), // English
-        Locale('es'), // Spanish
-        Locale('fr'), // French
-        Locale('de'), // German
-        Locale('it'), // Italian
+        Locale('en'),
+        Locale('es'),
+        Locale('fr'),
+        Locale('de'),
+        Locale('it'),
       ],
       home: SplashScreen(),
     );
   }
+}
+
+// Function to load saved locale from SharedPreferences
+Future<Locale?> loadSavedLocale() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? languageCode = prefs.getString('locale');
+  if (languageCode != null) {
+    return Locale(languageCode);
+  }
+  return null;
 }
