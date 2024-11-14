@@ -14,7 +14,7 @@ void main() async {
 class TranslatorApp extends StatefulWidget {
   final Locale? savedLocale;
 
-  const TranslatorApp({Key? key, this.savedLocale}) : super(key: key);
+  const TranslatorApp({super.key, this.savedLocale});
 
   static void setLocale(BuildContext context, Locale locale) {
     _TranslatorAppState? state =

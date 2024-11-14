@@ -239,7 +239,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                           _translatedText, // Display the translated text here
                           textAlign: TextAlign.start,
                           style: TextStyle(
-                            color: Colors.black87,
+                            color: translatedTextColor,
                           ),
                           maxFontSize: 32,
                           minFontSize: 24,

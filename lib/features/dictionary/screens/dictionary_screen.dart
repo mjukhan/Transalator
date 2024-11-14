@@ -168,7 +168,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
 
         // Code snippet for bottomSheet update in DictionaryScreen
         bottomSheet: _searchedWord.isNotEmpty
-            ? Container(
+            ? SizedBox(
                 height: size.height * 0.3,
                 child: FutureBuilder<WordDefinition?>(
                   future: _wordDefinition,

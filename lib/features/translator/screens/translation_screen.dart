@@ -13,7 +13,7 @@ import '../widgets/language_selector.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TranslatorScreen extends StatefulWidget {
-  TranslatorScreen({
+  const TranslatorScreen({
     super.key,
   });
 
@@ -22,7 +22,7 @@ class TranslatorScreen extends StatefulWidget {
 }
 
 class _TranslatorScreenState extends State<TranslatorScreen> {
-  String _sourceLanguage = '';
+  String _sourceLanguage = 'en';
   String _targetLanguage = '';
   String _inputText = '';
   String _translatedText = '';
@@ -42,7 +42,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   void _loadLanguagePreferences() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _sourceLanguage = prefs.getString('sourceLanguage') ?? '';
+      _sourceLanguage = prefs.getString('sourceLanguage') ?? 'en';
       _targetLanguage = prefs.getString('targetLanguage') ?? '';
     });
   }
@@ -124,17 +124,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     );
     print("Copied: $_translatedText");
   }
-
-  // void _showSavedTranslationsPage() {
-  //   Navigator.push(
-  //     context,
-  //     MaterialPageRoute(
-  //       builder: (context) => SavedTranslationsPage(
-  //         savedTranslations: _savedTranslations,
-  //       ),
-  //     ),
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -286,7 +275,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
           child: AutoSizeText(
             _translatedText,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.black87),
+            style: TextStyle(color: translatedTextColor),
             maxFontSize: 32,
             minFontSize: 24,
             maxLines: null,
