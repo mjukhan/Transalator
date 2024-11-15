@@ -276,8 +276,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
                           setState(() {
                             // Update source language
                             _person1Language = newLang;
-                            print('person 1 lang : $_person1Language');
-                            print('person 2 lang : $_person2Language');
                           });
                           _saveLanguagePreferences();
                           if (_inputText.isNotEmpty) {
@@ -324,8 +322,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
                           setState(() {
                             // Update target language
                             _person2Language = newLang;
-                            print('person 1 lang : $_person1Language');
-                            print('person 2 lang : $_person2Language');
                           });
                           _saveLanguagePreferences();
                           if (_inputText.isNotEmpty) {

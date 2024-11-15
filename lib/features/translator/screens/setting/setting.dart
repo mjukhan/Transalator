@@ -76,9 +76,6 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
   void _navigateToPage(String title) {
     final localizations = AppLocalizations.of(context)!;
 
-    // Print the saved translation for debugging
-    print(widget.savedTranslation);
-
     // Use a switch statement based on localized strings
     if (title == localizations.appLanguage) {
       Navigator.push(
@@ -115,7 +112,6 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
     } else if (title == localizations.rateUs) {
       _rateApp(context);
     }
-    // Add more cases for other list items if necessary
   }
 
   void _shareApp() {
@@ -134,46 +130,6 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
     }
   }
 
-  void showPosterDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          contentPadding: EdgeInsets.all(0),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Poster image
-              Image.asset(
-                'assets/icons/premium.png',
-                fit: BoxFit.cover,
-              ),
-              // Continue and Cancel buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      // Handle continue action
-                      Navigator.of(context).pop();
-                    },
-                    child: Text("Continue"),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text("Cancel"),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
@@ -182,10 +138,16 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
     return Scaffold(
       appBar: AppBar(
         scrolledUnderElevation: 0,
-        title: Text(localizations.setting),
+        title: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            localizations.setting,
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               height: 340,
@@ -200,11 +162,15 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
                 children: [
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 16, 0, 8),
-                    child: Text(
-                      localizations.general,
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontWeight: FontWeight.bold,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        localizations.general,
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -219,16 +185,24 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
                             general[index]['icon']!,
                             scale: 24,
                           ),
-                          title: Text(
-                            general[index]['title']!,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
+                          title: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              general[index]['title']!,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
-                          subtitle: Text(
-                            general[index]['subtitle']!,
-                            style: TextStyle(
-                              fontSize: 12,
+                          subtitle: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              general[index]['subtitle']!,
+                              style: TextStyle(
+                                fontSize: 12,
+                              ),
                             ),
                           ),
                           trailing: Icon(
@@ -259,11 +233,15 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
                 children: [
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 16, 0, 8),
-                    child: Text(
-                      localizations.other,
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontWeight: FontWeight.bold,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        localizations.other,
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -278,16 +256,24 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
                             other[index]['icon']!,
                             scale: 24,
                           ),
-                          title: Text(
-                            other[index]['title']!,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
+                          title: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              other[index]['title']!,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
-                          subtitle: Text(
-                            other[index]['subtitle']!,
-                            style: TextStyle(
-                              fontSize: 12,
+                          subtitle: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              other[index]['subtitle']!,
+                              style: TextStyle(
+                                fontSize: 12,
+                              ),
                             ),
                           ),
                           trailing: Icon(

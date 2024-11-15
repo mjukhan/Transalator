@@ -29,8 +29,6 @@ class Upload {
       // Copy the file to the app's storage directory
       File savedFile = await imageFile!.copy(newFilePath);
 
-      final fileExtension = p.extension(savedFile.path);
-      print('File extension: $fileExtension');
 
       // Update the saved file path and reset upload status
       _savedFilePath = savedFile.path;

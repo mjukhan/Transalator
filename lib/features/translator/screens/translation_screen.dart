@@ -102,14 +102,12 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         'translate': _translatedText,
       };
       _savedTranslations.add(jsonEncode(instance)); // Save as JSON string
-      print(_savedTranslations);
       // Update SharedPreferences with the new list
       await prefs.setStringList(
           AppLocalizations.of(context)!.savedTranslations, _savedTranslations);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Translation saved!')),
       );
-      print("Instance saved: $_inputText -> $_translatedText");
       setState(() {
         _isSaved = true;
       });
@@ -122,7 +120,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(AppLocalizations.of(context)!.copiedToClipboard)),
     );
-    print("Copied: $_translatedText");
   }
 
   @override
@@ -191,16 +188,12 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             child: IconButton(
               icon: Icon(Icons.swap_horiz, color: micColor),
               onPressed: () {
-                print("source language before : $_sourceLanguage");
-                print("target language before : $_targetLanguage");
                 setState(() {
                   final temp = _sourceLanguage;
                   _sourceLanguage = _targetLanguage;
                   _targetLanguage = temp;
                 });
                 _saveLanguagePreferences();
-                print("source language after : $_sourceLanguage");
-                print("target language after : $_targetLanguage");
                 if (_inputText.isNotEmpty) _translateText(_inputText);
               },
             ),

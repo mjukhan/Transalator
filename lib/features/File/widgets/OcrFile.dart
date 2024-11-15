@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:flutter/material.dart';
+
 import '../../../data/models/ocr_model.dart';
 import '../../../data/repositories/ocr_repository.dart';
 
@@ -24,10 +26,11 @@ class OCR {
               .join('\n'))
           .join('\n\n');
 
-      print('Text Extracted: $_extractedText');
       return _extractedText;
     } catch (e) {
-      print('Error: $e');
+      SnackBar(
+        content: Text('Error: $e'),
+      );
       return '';
     } finally {
       _isExtractingText = false;
@@ -67,31 +70,11 @@ class OCR {
       }
     } catch (e) {
       // Log the error message and stack trace to help with debugging
-      print('Error fetching lines with attributes: $e');
+      SnackBar(
+        content: Text('Error fetching lines with attributes: $e'),
+      );
     }
 
     return linesWithAttributes;
-  }
-
-  // Function to get each word with its Left, Top, Height, and Width
-  Future<List<Map<String, dynamic>>> getWordsWithAttributes(File file) async {
-    try {
-      OcrModel result = await _ocrRepository.uploadFile(file);
-      List<Map<String, dynamic>> wordsWithAttributes = result.parsedResults!
-          .expand((parsedResult) => parsedResult.textOverlay!.lines!
-              .expand((line) => line.words!.map((word) => {
-                    "text": word.wordText,
-                    "left": word.left,
-                    "top": word.top,
-                    "height": word.height,
-                    "width": word.width,
-                  })))
-          .toList();
-
-      return wordsWithAttributes;
-    } catch (e) {
-      print('Error fetching words with attributes: $e');
-      return [];
-    }
   }
 }

@@ -25,22 +25,29 @@ class PremiumSubscriptionScreen extends StatelessWidget {
               height: size.height * 0.15,
             ),
             SizedBox(height: 10),
-            AutoSizeText(
-              AppLocalizations.of(context)!.upgradeToPremium,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.orange,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                AppLocalizations.of(context)!.upgradeToPremium,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.orange,
+                ),
               ),
             ),
             SizedBox(height: 8),
-            AutoSizeText(
-              AppLocalizations.of(context)!.removeAdsUnlockFeatures,
-              style: TextStyle(fontSize: 14, color: Colors.black54),
-              textAlign: TextAlign.center,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                AppLocalizations.of(context)!.removeAdsUnlockFeatures,
+                style: TextStyle(fontSize: 12, color: Colors.black54),
+                textAlign: TextAlign.center,
+              ),
             ),
             SizedBox(height: 20),
             Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildFeatureRow(
                     AppLocalizations.of(context)!.adsFreeExperience),
@@ -53,31 +60,44 @@ class PremiumSubscriptionScreen extends StatelessWidget {
             Spacer(),
             Column(
               children: [
-                AutoSizeText(
-                  AppLocalizations.of(context)!.threeDaysFreeTrial,
-                  style: TextStyle(fontSize: 16, color: Colors.black87),
-                  textAlign: TextAlign.center,
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    AppLocalizations.of(context)!.threeDaysFreeTrial,
+                    style: TextStyle(fontSize: 14, color: Colors.black87),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
                 SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                    ),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        AppLocalizations.of(context)!.continueButton,
+                        style: TextStyle(fontSize: 18),
+                      ),
                     ),
                   ),
-                  child: AutoSizeText(
-                    AppLocalizations.of(context)!.continueButton,
-                    style: TextStyle(fontSize: 18),
-                  ),
                 ),
                 SizedBox(height: 10),
-                AutoSizeText(
-                  AppLocalizations.of(context)!.cancelAnytime,
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
-                  textAlign: TextAlign.center,
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: AutoSizeText(
+                    AppLocalizations.of(context)!.cancelAnytime,
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ],
             ),
@@ -135,9 +155,13 @@ class PremiumSubscriptionScreen extends StatelessWidget {
         children: [
           Icon(Icons.check_circle, color: Colors.green),
           SizedBox(width: 10),
-          Text(
-            feature,
-            style: TextStyle(fontSize: 16),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              feature,
+              style: TextStyle(fontSize: 16),
+            ),
           ),
         ],
       ),
@@ -164,13 +188,16 @@ class PremiumSubscriptionScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              Text(
-                AppLocalizations.of(context)!.subscriptionDetails,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  AppLocalizations.of(context)!.subscriptionDetails,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
               ),
               SizedBox(
                 height: 10,
