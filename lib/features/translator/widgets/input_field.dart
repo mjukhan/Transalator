@@ -96,8 +96,7 @@ class TextInputField extends StatelessWidget {
         contentPadding: EdgeInsets.fromLTRB(16, 20, 16, 16),
       ),
       maxLines: null,
-
-      style: TextStyle(fontSize: 24.0),
+      //style: TextStyle(fontSize: 12.0),
       onChanged: onChanged,
     );
   }

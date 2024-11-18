@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-
+import 'package:liquid_progress_indicator_v2/liquid_progress_indicator.dart';
+import 'dart:async';
 import '../../core/utilities/colors.dart';
 import '../../home.dart';
 
@@ -13,15 +14,36 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  double _progress = 0.0;
+  void _startProgress() {
+    setState(() {
+      _progress = 0.0; // Reset progress
+    });
+
+    Future.doWhile(() async {
+      if (_progress >= 1.0) {
+        // Navigate to the home page when progress completes
+        Navigator.pushReplacementNamed(context, '/home');
+        return false; // Stop updating progress
+      }
+      await Future.delayed(Duration(milliseconds: 100));
+      setState(() {
+        _progress += 0.05; // Increment progress
+      });
+      return true;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    // Navigate to HomeScreen after a 3-second delay
-    Future.delayed(const Duration(seconds: 3), () {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => HomeScreen()),
-      );
-    });
+    _startProgress();
+    // // Navigate to HomeScreen after a 3-second delay
+    // Future.delayed(const Duration(seconds: 3), () {
+    //   Navigator.of(context).pushReplacement(
+    //     MaterialPageRoute(builder: (context) => HomeScreen()),
+    //   );
+    // });
   }
 
   @override
@@ -39,10 +61,29 @@ class _SplashScreenState extends State<SplashScreen> {
               height: 100,
             ),
             SizedBox(height: size.height * 0.3),
-            Image.asset(
-              'assets/files/loading/loading.gif',
-              width: 50, // Adjust width as needed
-              height: 50, // Adjust height as needed
+            // Image.asset(
+            //   'assets/files/loading/loading.gif',
+            //   width: 50, // Adjust width as needed
+            //   height: 50, // Adjust height as needed
+            // ),
+            Text('Loading...'),
+            Container(
+              width: 200,
+              height: 20,
+              padding: EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Colors.yellow,
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: LinearProgressIndicator(
+                borderRadius: BorderRadius.circular(8),
+                minHeight: 5,
+                value: _progress, // Progress value (0.0 to 1.0)
+                backgroundColor: bgColor,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+              ),
             ),
           ],
         ),

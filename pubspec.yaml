@@ -51,6 +51,7 @@ dependencies:
   url_launcher: ^6.3.1
   share_plus: ^10.1.2
   http: any
+  liquid_progress_indicator_v2: ^0.5.0
 
 
 dev_dependencies:
@@ -82,7 +83,7 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets:
     - assets/appicon/translate.png
-    - assets/files/loading/loading.gif
+    - assets/files/loading/
     - assets/icons/translate.png
     - assets/icons/
 

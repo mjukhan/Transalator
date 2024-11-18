@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:translation_app/home.dart';
 import 'features/splash/splash_screen.dart';
 
 void main() async {
@@ -60,7 +61,11 @@ class _TranslatorAppState extends State<TranslatorApp> {
         Locale('de'),
         Locale('it'),
       ],
-      home: SplashScreen(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => SplashScreen(),
+        '/home': (context) => HomeScreen()
+      },
     );
   }
 }

@@ -67,7 +67,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     if (!await PermissionHelper().checkWifiConnection(context)) return;
     if (inputText.isEmpty) {
       setState(() {
-        _translatedText = ''; // Clear translated text if input is empty
+        _translatedText = '';
       });
       return;
     }
@@ -131,32 +131,25 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         backgroundColor: bgColor,
         title: Text(AppLocalizations.of(context)!.translation),
         scrolledUnderElevation: 0,
-        actions: [
-          IconButton(
-            icon: Image.asset(
-              'assets/icons/menu.png',
-              scale: 24,
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Setting(
-                    savedTranslation: _savedTranslations,
-                  ),
+        leading: IconButton(
+          icon: Icon(Icons.menu),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Setting(
+                  savedTranslation: _savedTranslations,
                 ),
-              );
-            },
-          ),
-        ],
+              ),
+            );
+          },
+        ),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           _buildLanguageSelector(),
-          Expanded(
-            child: _buildTranslationContainer(),
-          ),
+          _buildTranslationContainer(),
         ],
       ),
     );
@@ -231,30 +224,33 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   }
 
   Widget _buildTranslationContainer() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: borderColor),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            InputField(
-              onChanged: (text) {
-                setState(() {
-                  _inputText = text;
-                  _translatedText = '';
-                  _isSaved = false;
-                });
-                _translateText(_inputText);
-              },
-              sourceLanguage: '',
-            ),
-            if (_inputText.isNotEmpty) _buildTranslatedText()
-          ],
+    return Expanded(
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.5,
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        // decoration: BoxDecoration(
+        //   color: Colors.white,
+        //   border: Border.all(color: borderColor),
+        //   borderRadius: BorderRadius.circular(16),
+        // ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              InputField(
+                onChanged: (text) {
+                  setState(() {
+                    _inputText = text;
+                    _translatedText = '';
+                    _isSaved = false;
+                  });
+                  _translateText(_inputText);
+                },
+                sourceLanguage: '',
+              ),
+              if (_inputText.isNotEmpty) _buildTranslatedText()
+            ],
+          ),
         ),
       ),
     );
@@ -269,17 +265,17 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             _translatedText,
             textAlign: TextAlign.center,
             style: TextStyle(color: translatedTextColor),
-            maxFontSize: 32,
-            minFontSize: 24,
+            maxFontSize: 18,
+            minFontSize: 4,
             maxLines: null,
           ),
         ),
-        Divider(
-          thickness: 2,
-          color: dividerColor,
-          indent: 16,
-          endIndent: 16,
-        ),
+        // Divider(
+        //   thickness: 2,
+        //   color: dividerColor,
+        //   indent: 16,
+        //   endIndent: 16,
+        // ),
         _buildActionButtons(),
       ],
     );
