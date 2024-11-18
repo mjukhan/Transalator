@@ -124,33 +124,35 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: bgColor,
-      appBar: AppBar(
-        elevation: 0,
+    return SafeArea(
+      child: Scaffold(
         backgroundColor: bgColor,
-        title: Text(AppLocalizations.of(context)!.translation),
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.menu),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Setting(
-                  savedTranslation: _savedTranslations,
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: bgColor,
+          title: Text(AppLocalizations.of(context)!.translation),
+          scrolledUnderElevation: 0,
+          leading: IconButton(
+            icon: Icon(Icons.menu),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Setting(
+                    savedTranslation: _savedTranslations,
+                  ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          _buildLanguageSelector(),
-          _buildTranslationContainer(),
-        ],
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            _buildLanguageSelector(),
+            _buildTranslationContainer(),
+          ],
+        ),
       ),
     );
   }

@@ -30,15 +30,15 @@ android {
         versionName = flutter.versionName
     }
 
-//    buildTypes {
-//        release {
-//            minifyEnabled true
-//            shrinkResources true
-//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-//            // Signing with the debug keys for now, so `flutter run --release` works.
-//            signingConfig = signingConfigs.debug
-//        }
-//    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            // Signing with the debug keys for now, so `flutter run --release` works.
+            signingConfig = signingConfigs.debug
+        }
+    }
 //    splits {
 //        abi {
 //            enable true
