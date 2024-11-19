@@ -1,106 +1,61 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:translation_app/core/utilities/colors.dart';
 import 'package:translation_app/features/File/screens/picture.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../widgets/imagePickerUtility.dart';
+
 class FileScreen extends StatefulWidget {
-  const FileScreen({
-    super.key,
-  });
+  const FileScreen({super.key});
 
   @override
   State<FileScreen> createState() => _FileScreenState();
 }
 
 class _FileScreenState extends State<FileScreen> {
-  File? imageFile; // Store the picked image file
-  File? _selectedFile; // Store the picked PDF file
+  File? imageFile;
 
   void _getFromCamera() async {
-    try {
-      XFile? pickedFile = await ImagePicker().pickImage(
-        source: ImageSource.camera,
-        preferredCameraDevice: CameraDevice.rear,
-        maxHeight: 1000,
-        maxWidth: 1000,
-      );
-      if (pickedFile != null) {
-        setState(() {
-          imageFile = File(pickedFile.path);
-        });
+    File? file = await ImagePickerUtility.pickImageFromCamera(context);
+    if (file != null) {
+      setState(() {
+        imageFile = file;
+      });
 
-        // Navigate to PictureScreen if an image is captured
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PictureScreen(
-              imageFile: imageFile!,
-            ),
-          ),
-        ).then((value) {
-          setState(() {
-            imageFile = null; // Clear the image if needed
-          });
-        });
-      }
-    } catch (e) {
-      _logException(
-          "${AppLocalizations.of(context)!.errorInPickImageFromCamera} ${e.toString()}");
-    }
-  }
-
-  void _getFromUpload() {
-    _pickImage();
-    //_showFileTypeDialog();
-  }
-
-  void _pickImage() async {
-    try {
-      XFile? pickedFile = await ImagePicker().pickImage(
-        source: ImageSource.gallery,
-        maxHeight: 1000,
-        maxWidth: 1000,
-      );
-      if (pickedFile != null) {
-        setState(() {
-          imageFile = File(pickedFile.path);
-        });
-
-        // Navigate to PictureScreen if an image is captured
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PictureScreen(
-              imageFile: imageFile!,
-            ),
-          ),
-        ).then((value) {
-          setState(() {
-            imageFile = null; // Clear the image if needed
-          });
-        });
-      }
-    } catch (e) {
-      _logException(
-          "${AppLocalizations.of(context)!.errorInPickImageFromGallery} ${e.toString()}");
-    }
-  }
-
-  void _logException(String message) {
-    print(message);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: const TextStyle(
-            color: Colors.white,
-          ),
+      // Navigate to PictureScreen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PictureScreen(imageFile: imageFile!),
         ),
-        backgroundColor: borderColor,
-      ),
-    );
+      ).then((value) {
+        setState(() {
+          imageFile = null; // Clear the image
+        });
+      });
+    }
+  }
+
+  void _getFromGallery() async {
+    File? file = await ImagePickerUtility.pickImageFromGallery(context);
+    if (file != null) {
+      setState(() {
+        imageFile = file;
+      });
+
+      // Navigate to PictureScreen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PictureScreen(imageFile: imageFile!),
+        ),
+      ).then((value) {
+        setState(() {
+          imageFile = null; // Clear the image
+        });
+      });
+    }
   }
 
   @override
@@ -119,10 +74,9 @@ class _FileScreenState extends State<FileScreen> {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 GestureDetector(
-                  onTap: _getFromUpload,
+                  onTap: _getFromGallery,
                   child: SizedBox(
                     height: size.height * 0.15,
                     width: size.width * 0.5,
@@ -141,9 +95,7 @@ class _FileScreenState extends State<FileScreen> {
                     ),
                   ),
                 ),
-                SizedBox(
-                  height: 10,
-                ),
+                const SizedBox(height: 10),
                 GestureDetector(
                   onTap: _getFromCamera,
                   child: SizedBox(

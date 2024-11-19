@@ -7,9 +7,16 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class InputField extends StatefulWidget {
   final ValueChanged<String> onChanged;
   final String sourceLanguage;
+  final bool isVoiceInput;
+  final bool isTextInput;
 
-  const InputField(
-      {super.key, required this.onChanged, required this.sourceLanguage});
+  const InputField({
+    super.key,
+    required this.onChanged,
+    required this.sourceLanguage,
+    required this.isVoiceInput,
+    required this.isTextInput,
+  });
 
   @override
   _InputFieldState createState() => _InputFieldState();
@@ -24,10 +31,37 @@ class _InputFieldState extends State<InputField> {
     super.dispose();
   }
 
-  // Function to clear the input field
+  // Function to clear input text
   void _clearInput() {
     _controller.clear();
-    widget.onChanged(''); // Notify parent with empty string
+    widget.onChanged(''); // Notify parent with an empty string
+  }
+
+  // Function for text input logic
+  Widget buildTextInput() {
+    return TextInputField(
+      controller: _controller,
+      hintText: AppLocalizations.of(context)!.hintTextTranslation,
+      onChanged: (text) {
+        setState(() {
+          _controller.text = text; // Ensure text is updated in the controller
+        });
+        widget.onChanged(text); // Pass text to the parent widget
+      },
+    );
+  }
+
+  // Function for voice input logic
+  Widget buildVoiceInput() {
+    return VoiceInputButton(
+      onResult: (text) {
+        setState(() {
+          _controller.text = text; // Update text input field with voice result
+        });
+        widget.onChanged(text); // Notify parent widget with recognized text
+      },
+      languageCode: widget.sourceLanguage,
+    );
   }
 
   @override
@@ -35,34 +69,16 @@ class _InputFieldState extends State<InputField> {
     return Row(
       children: [
         // Text Input Widget
-        Expanded(
-          child: TextInputField(
-            controller: _controller,
-            hintText: AppLocalizations.of(context)!.hintTextTranslation,
-            onChanged: (text) {
-              widget.onChanged(text); // Pass text to parent widget
-            },
-          ),
-        ),
-        // Show clear button only when there is text
-        if (_controller.text.isNotEmpty) ...[
+        widget.isTextInput
+            ? Expanded(child: buildTextInput())
+            : buildVoiceInput(),
+        // Clear or Voice Input Button
+        if (_controller.text.isNotEmpty)
           IconButton(
             icon: Icon(Icons.clear),
             onPressed: _clearInput,
             tooltip: 'Clear',
-          ),
-        ],
-        if (_controller.text.isEmpty) ...[
-          // Voice Input Widget
-          VoiceInputButton(
-            onResult: (text) {
-              _controller.text = text; // Update the text field with voice input
-              widget
-                  .onChanged(text); // Notify parent widget with recognized text
-            },
-            languageCode: widget.sourceLanguage,
-          ),
-        ],
+          )
       ],
     );
   }
@@ -96,7 +112,6 @@ class TextInputField extends StatelessWidget {
         contentPadding: EdgeInsets.fromLTRB(16, 20, 16, 16),
       ),
       maxLines: null,
-      //style: TextStyle(fontSize: 12.0),
       onChanged: onChanged,
     );
   }
@@ -105,10 +120,13 @@ class TextInputField extends StatelessWidget {
 // Separate widget for Voice Input Button
 class VoiceInputButton extends StatefulWidget {
   final ValueChanged<String> onResult;
-  final String languageCode; // Language code for speech recognition
+  final String languageCode;
 
-  const VoiceInputButton(
-      {super.key, required this.onResult, required this.languageCode});
+  const VoiceInputButton({
+    super.key,
+    required this.onResult,
+    required this.languageCode,
+  });
 
   @override
   _VoiceInputButtonState createState() => _VoiceInputButtonState();
@@ -116,7 +134,6 @@ class VoiceInputButton extends StatefulWidget {
 
 class _VoiceInputButtonState extends State<VoiceInputButton> {
   final stt.SpeechToText _speech = stt.SpeechToText();
-
   String _text = "";
 
   // Check microphone permission
@@ -134,38 +151,36 @@ class _VoiceInputButtonState extends State<VoiceInputButton> {
     if (!hasPermission) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(AppLocalizations.of(context)!.micPermissionRequired)),
+          content: Text(AppLocalizations.of(context)!.micPermissionRequired),
+        ),
       );
       return;
     }
 
     if (_speech.isNotListening) {
-      bool available = await _speech.initialize(onError: (val) {
-        setState(() {}); // Reset on error
-      });
-
+      bool available =
+          await _speech.initialize(onError: (_) => setState(() {}));
       if (available) {
         _speech.listen(
-            localeId: widget.languageCode,
-            onResult: (val) {
-              setState(() {
-                _text = val.recognizedWords;
-                // Trigger callback with recognized text
-                widget.onResult(_text);
-              });
-
-              // Stop listening if the speech is complete
-              if (val.hasConfidenceRating && val.confidence > 0.5) {
-                _stopListening();
-              }
+          localeId: widget.languageCode,
+          onResult: (val) {
+            setState(() {
+              _text = val.recognizedWords;
+              //widget.onResult(_text);
             });
+
+            if (val.hasConfidenceRating && val.confidence > 0.5) {
+              _stopListening();
+            }
+          },
+        );
       }
     } else {
       _stopListening();
     }
   }
 
-  // Helper function to stop listening
+  // Stop listening
   void _stopListening() async {
     await _speech.stop();
     setState(() {});

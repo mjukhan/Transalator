@@ -56,7 +56,7 @@ class LanguageSelector extends StatelessWidget {
       },
       isExpanded: true,
       underline: SizedBox.shrink(),
-      icon: SizedBox.shrink(),
+      //icon: SizedBox.shrink(),
       style: TextStyle(
         color: Colors.black,
         fontSize: fontSize,

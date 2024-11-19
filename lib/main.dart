@@ -69,7 +69,7 @@ class _TranslatorAppState extends State<TranslatorApp> {
         Locale('de'),
         Locale('it'),
       ],
-      initialRoute: '/home',
+      initialRoute: '/',
       routes: {
         '/': (context) => SplashScreen(),
         //'/welcome': (context) => WelcomePage(),

@@ -1,12 +1,15 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:translation_app/core/utilities/colors.dart';
+import 'package:translation_app/features/File/widgets/imagePickerUtility.dart';
 import 'package:translation_app/features/translator/screens/setting/setting.dart';
 import '../../../core/widgets/translator_provider.dart';
 import '../../../core/widgets/permission_handler.dart';
+import '../../File/screens/picture.dart';
 import '../widgets/error_handler.dart';
 import '../widgets/input_field.dart';
 import '../widgets/language_selector.dart';
@@ -124,9 +127,10 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return SafeArea(
       child: Scaffold(
-        backgroundColor: bgColor,
+        backgroundColor: Colors.grey.shade300,
         appBar: AppBar(
           elevation: 0,
           backgroundColor: bgColor,
@@ -146,12 +150,24 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             },
           ),
         ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            _buildLanguageSelector(),
-            _buildTranslationContainer(),
-          ],
+        body: Container(
+          height: (_inputText.isEmpty) ? size.height * 0.7 : size.height,
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: (_inputText.isEmpty)
+                ? BorderRadius.only(
+                    bottomLeft: Radius.circular(36),
+                    bottomRight: Radius.circular(36),
+                  )
+                : null,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              _buildLanguageSelector(),
+              _buildTranslationContainer(),
+            ],
+          ),
         ),
       ),
     );
@@ -179,6 +195,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: changeLangColor,
+              //3border: Border.all(color: Colors.grey)
             ),
             child: IconButton(
               icon: Icon(Icons.swap_horiz, color: micColor),
@@ -214,7 +231,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
       padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
       decoration: BoxDecoration(
         color: langSelectorColor,
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: borderColor),
       ),
       child: LanguageSelector(
@@ -228,31 +245,61 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   Widget _buildTranslationContainer() {
     return Expanded(
       child: Container(
-        height: MediaQuery.of(context).size.height * 0.5,
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        // decoration: BoxDecoration(
-        //   color: Colors.white,
-        //   border: Border.all(color: borderColor),
-        //   borderRadius: BorderRadius.circular(16),
-        // ),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              InputField(
-                onChanged: (text) {
-                  setState(() {
-                    _inputText = text;
-                    _translatedText = '';
-                    _isSaved = false;
-                  });
-                  _translateText(_inputText);
-                },
-                sourceLanguage: '',
-              ),
-              if (_inputText.isNotEmpty) _buildTranslatedText()
-            ],
-          ),
+        child: Stack(
+          children: [
+            // Main Content (Translation and Input)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Text Input Field at the Top
+                InputField(
+                  onChanged: (text) {
+                    setState(() {
+                      _inputText = text;
+                      _translatedText = '';
+                      _isSaved = false;
+                    });
+                    _translateText(_inputText);
+                  },
+                  sourceLanguage: '',
+                  isVoiceInput: false,
+                  isTextInput: true,
+                ),
+                const SizedBox(height: 16),
+                // Translated Text or Empty State
+                Expanded(
+                  child: _inputText.isNotEmpty
+                      ? _buildTranslatedText()
+                      : SizedBox.shrink(),
+                ),
+              ],
+            ),
+
+            _inputText.isEmpty
+                ? // Voice Input Icon at the Bottom Right
+                Positioned(
+                    bottom: 16,
+                    right: 16,
+                    child: Row(
+                      children: [
+                        _cameraButton(),
+                        VoiceInputButton(
+                          onResult: (text) {
+                            setState(() {
+                              _inputText = text;
+                              _translatedText = '';
+                              _isSaved = false;
+                            });
+                            _translateText(_inputText);
+                          },
+                          languageCode: '', // Provide the correct language code
+                        ),
+                      ],
+                    ),
+                  )
+                : SizedBox.shrink(),
+          ],
         ),
       ),
     );
@@ -304,5 +351,45 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         ),
       ],
     );
+  }
+
+  _cameraButton() {
+    return Container(
+      decoration: BoxDecoration(shape: BoxShape.circle, color: micColor),
+      margin: EdgeInsets.fromLTRB(0, 16, 16, 0),
+      height: 40,
+      width: 40,
+      child: Center(
+        child: IconButton(
+          onPressed: () => _getFromCamera(),
+          icon: Icon(
+            Icons.camera_alt,
+            color: bgColor,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _getFromCamera() async {
+    File? imageFile;
+    File? file = await ImagePickerUtility.pickImageFromCamera(context);
+    if (file != null) {
+      setState(() {
+        imageFile = file;
+      });
+
+      // Navigate to PictureScreen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PictureScreen(imageFile: imageFile!),
+        ),
+      ).then((value) {
+        setState(() {
+          imageFile = null; // Clear the image
+        });
+      });
+    }
   }
 }
