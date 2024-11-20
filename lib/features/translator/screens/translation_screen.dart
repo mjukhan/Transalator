@@ -292,6 +292,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                     sourceLanguage: '',
                     isVoiceInput: false,
                     isTextInput: true,
+                    onSubmit: (_) => _translateText(_inputText),
                   ),
                   _inputText.isNotEmpty && _translatedText.isNotEmpty
                       ? _buildActionButtons(

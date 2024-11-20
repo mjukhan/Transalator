@@ -10,6 +10,7 @@ class InputField extends StatefulWidget {
   final String sourceLanguage;
   final bool isVoiceInput;
   final bool isTextInput;
+  final dynamic Function(String) onSubmit;
 
   const InputField({
     super.key,
@@ -17,6 +18,7 @@ class InputField extends StatefulWidget {
     required this.sourceLanguage,
     required this.isVoiceInput,
     required this.isTextInput,
+    required this.onSubmit,
   });
 
   @override
@@ -51,6 +53,7 @@ class _InputFieldState extends State<InputField> {
           });
           widget.onChanged(text); // Pass text to the parent widget
         },
+        onSubmit: widget.onSubmit,
       ),
     );
   }
@@ -85,7 +88,7 @@ class _InputFieldState extends State<InputField> {
         if (_controller.text.isNotEmpty)
           Positioned(
             top: 16,
-            right:0,
+            right: 0,
             child: IconButton(
               icon: Icon(Icons.clear),
               onPressed: _clearInput,
@@ -102,18 +105,22 @@ class TextInputField extends StatelessWidget {
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
   final String hintText;
+  final dynamic Function(String) onSubmit;
 
   const TextInputField({
     super.key,
     required this.controller,
     required this.hintText,
     required this.onChanged,
+    required this.onSubmit,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
+      textInputAction: TextInputAction.done,
+      keyboardType: TextInputType.text,
       decoration: InputDecoration(
         hintText: hintText,
         helperMaxLines: 1,
@@ -126,7 +133,9 @@ class TextInputField extends StatelessWidget {
       ),
       maxLines: null,
       onChanged: onChanged,
-
+      onSubmitted: (value) {
+        onSubmit(value);
+      },
     );
   }
 }
