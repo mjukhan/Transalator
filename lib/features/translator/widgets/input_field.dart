@@ -40,15 +40,18 @@ class _InputFieldState extends State<InputField> {
 
   // Function for text input logic
   Widget buildTextInput() {
-    return TextInputField(
-      controller: _controller,
-      hintText: AppLocalizations.of(context)!.hintTextTranslation,
-      onChanged: (text) {
-        setState(() {
-          _controller.text = text; // Ensure text is updated in the controller
-        });
-        widget.onChanged(text); // Pass text to the parent widget
-      },
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 0, 36, 0),
+      child: TextInputField(
+        controller: _controller,
+        hintText: AppLocalizations.of(context)!.hintTextTranslation,
+        onChanged: (text) {
+          setState(() {
+            _controller.text = text; // Ensure text is updated in the controller
+          });
+          widget.onChanged(text); // Pass text to the parent widget
+        },
+      ),
     );
   }
 
@@ -67,19 +70,28 @@ class _InputFieldState extends State<InputField> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Stack(
       children: [
-        // Text Input Widget
-        widget.isTextInput
-            ? Expanded(child: buildTextInput())
-            : buildVoiceInput(),
-        // Clear or Voice Input Button
+        // Main Row with Text Input or Voice Input
+        Row(
+          children: [
+            // Text Input Widget
+            widget.isTextInput
+                ? Expanded(child: buildTextInput())
+                : buildVoiceInput(),
+          ],
+        ),
+        // Clear Button Positioned in the Top Right
         if (_controller.text.isNotEmpty)
-          IconButton(
-            icon: Icon(Icons.clear),
-            onPressed: _clearInput,
-            tooltip: 'Clear',
-          )
+          Positioned(
+            top: 16,
+            right:0,
+            child: IconButton(
+              icon: Icon(Icons.clear),
+              onPressed: _clearInput,
+              tooltip: 'Clear',
+            ),
+          ),
       ],
     );
   }
@@ -114,6 +126,7 @@ class TextInputField extends StatelessWidget {
       ),
       maxLines: null,
       onChanged: onChanged,
+
     );
   }
 }

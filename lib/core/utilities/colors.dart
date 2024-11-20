@@ -32,4 +32,6 @@ Color translatedTextColor = Color.fromARGB(255, 33, 150, 243);
 
 Color pasteButtonColor = Color.fromARGB(255, 227, 242, 253);
 
+Color translateButtonColor = Color.fromARGB(255, 25, 118, 210);
+
 

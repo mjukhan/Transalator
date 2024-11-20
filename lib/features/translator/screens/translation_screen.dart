@@ -146,6 +146,16 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     final size = MediaQuery.of(context).size;
     return SafeArea(
       child: Scaffold(
+        floatingActionButton: _inputText.isNotEmpty && _translatedText.isEmpty
+            ? FloatingActionButton.extended(
+                onPressed: () => _translateText(_inputText),
+                backgroundColor: translateButtonColor,
+                label: Text(
+                  'Translatetr',
+                  style: TextStyle(color: bgColor),
+                ),
+              )
+            : SizedBox.shrink(),
         backgroundColor: Colors.grey.shade300,
         appBar: AppBar(
           elevation: 0,
@@ -265,43 +275,42 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         child: Stack(
           children: [
             // Main Content (Translation and Input)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Text Input Field at the Top
-                InputField(
-                  onChanged: (text) {
-                    setState(() {
-                      _inputText = text;
-                      _translatedText = '';
-                      _isSaved = false;
-                    });
-                    _translateText(_inputText);
-                  },
-                  sourceLanguage: '',
-                  isVoiceInput: false,
-                  isTextInput: true,
-                ),
-                _inputText.isEmpty
-                    ? TextButton.icon(
-                        onPressed: () => _pasteFromClipboard(),
-                        statesController: WidgetStatesController(),
-                        label: Text('Paste'),
-                        icon: Icon(Icons.paste),
-                        style: ButtonStyle(
-                          backgroundColor:
-                              WidgetStatePropertyAll(pasteButtonColor),
-                        ),
-                      )
-                    : SizedBox.shrink(),
-                const SizedBox(height: 16),
-                // Translated Text or Empty State
-                Expanded(
-                  child: _inputText.isNotEmpty
+            SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Text Input Field at the Top
+                  InputField(
+                    onChanged: (text) {
+                      setState(() {
+                        _inputText = text;
+                        _translatedText = '';
+                        _isSaved = false;
+                      });
+                      //_translateText(_inputText);
+                    },
+                    sourceLanguage: '',
+                    isVoiceInput: false,
+                    isTextInput: true,
+                  ),
+                  _inputText.isEmpty
+                      ? TextButton.icon(
+                          onPressed: () => _pasteFromClipboard(),
+                          statesController: WidgetStatesController(),
+                          label: Text('Paste'),
+                          icon: Icon(Icons.paste),
+                          style: ButtonStyle(
+                            backgroundColor:
+                                WidgetStatePropertyAll(pasteButtonColor),
+                          ),
+                        )
+                      : SizedBox.shrink(),
+                  const SizedBox(height: 16),
+                  (_translatedText.isNotEmpty)
                       ? _buildTranslatedText()
                       : SizedBox.shrink(),
-                ),
-              ],
+                ],
+              ),
             ),
 
             _inputText.isEmpty
@@ -336,23 +345,20 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   Widget _buildTranslatedText() {
     return Column(
       children: [
+        Divider(),
         Container(
           margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-          child: AutoSizeText(
-            _translatedText,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: translatedTextColor),
-            maxFontSize: 18,
-            minFontSize: 4,
-            maxLines: null,
+          child: FittedBox(
+            child: AutoSizeText(
+              _translatedText,
+              textAlign: TextAlign.start,
+              style: TextStyle(color: translatedTextColor),
+              maxFontSize: 18,
+              minFontSize: 12,
+              maxLines: null,
+            ),
           ),
         ),
-        // Divider(
-        //   thickness: 2,
-        //   color: dividerColor,
-        //   indent: 16,
-        //   endIndent: 16,
-        // ),
         _buildActionButtons(),
       ],
     );
