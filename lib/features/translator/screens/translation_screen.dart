@@ -117,12 +117,28 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     }
   }
 
-  // Copy the translated text to clipboard
-  void _copyToClipboard() {
-    Clipboard.setData(ClipboardData(text: _translatedText));
+  // Function to copy text to the clipboard
+  void _copyToClipboard(String text) {
+    Clipboard.setData(ClipboardData(text: text));
+    print(text);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(AppLocalizations.of(context)!.copiedToClipboard)),
+      SnackBar(content: Text('Text copied to clipboard')),
     );
+  }
+
+  // Function to paste the last copied text into the input field (_inputText)
+  void _pasteFromClipboard() async {
+    ClipboardData? clipboardData = await Clipboard.getData('text/plain');
+    if (clipboardData != null && clipboardData.text != null) {
+      setState(() {
+        _inputText = clipboardData.text!; // Set pasted text into _inputText
+      });
+      print("input text after paster : ${_inputText}");
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Clipboard is empty')),
+      );
+    }
   }
 
   @override
@@ -266,6 +282,18 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                   isVoiceInput: false,
                   isTextInput: true,
                 ),
+                _inputText.isEmpty
+                    ? TextButton.icon(
+                        onPressed: () => _pasteFromClipboard(),
+                        statesController: WidgetStatesController(),
+                        label: Text('Paste'),
+                        icon: Icon(Icons.paste),
+                        style: ButtonStyle(
+                          backgroundColor:
+                              WidgetStatePropertyAll(pasteButtonColor),
+                        ),
+                      )
+                    : SizedBox.shrink(),
                 const SizedBox(height: 16),
                 // Translated Text or Empty State
                 Expanded(
@@ -345,8 +373,8 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
           tooltip: 'Save Instance',
         ),
         IconButton(
-          icon: const Icon(Icons.copy),
-          onPressed: _copyToClipboard,
+          icon: Icon(Icons.copy),
+          onPressed: () => _copyToClipboard(_translatedText),
           tooltip: 'Copy',
         ),
       ],

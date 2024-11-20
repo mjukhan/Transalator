@@ -96,7 +96,8 @@
     "changesToPrivacyPolicyDetails": "I may update our Privacy Policy from time to time. Therefore, I advise you to review this page periodically for any changes. I will notify you of any changes by posting the new Privacy Policy on this page. These changes are effective immediately after they are posted on this page.",
     "contactUs": "Contact Us",
     "contactUsDetails": "If you have any questions or suggestions about our Privacy Policy, do not hesitate to contact us at ",
-    "contactEmail": "apps@imaginationai.net"
+    "contactEmail": "apps@imaginationai.net",
+    "clipboardEmpty": "Clip board is Empty"
 
 
 }

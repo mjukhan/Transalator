@@ -30,4 +30,6 @@ Color listTileColor = Color.fromARGB(255, 187, 222, 251);
 
 Color translatedTextColor = Color.fromARGB(255, 33, 150, 243);
 
+Color pasteButtonColor = Color.fromARGB(255, 227, 242, 253);
+
 
