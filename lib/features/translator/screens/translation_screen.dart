@@ -293,6 +293,10 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                     isVoiceInput: false,
                     isTextInput: true,
                   ),
+                  _inputText.isNotEmpty && _translatedText.isNotEmpty
+                      ? _buildActionButtons(
+                          true, false, false, true, _inputText)
+                      : SizedBox.shrink(),
                   _inputText.isEmpty
                       ? TextButton.icon(
                           onPressed: () => _pasteFromClipboard(),
@@ -351,7 +355,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
           child: FittedBox(
             child: AutoSizeText(
               _translatedText,
-              textAlign: TextAlign.start,
+              //textAlign: TextAlign.start,
               style: TextStyle(color: translatedTextColor),
               maxFontSize: 18,
               minFontSize: 12,
@@ -359,12 +363,13 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             ),
           ),
         ),
-        _buildActionButtons(),
+        _buildActionButtons(true, true, true, true, _translatedText),
       ],
     );
   }
 
-  Widget _buildActionButtons() {
+  Widget _buildActionButtons(
+      bool copy, bool favorite, bool share, bool speak, String textToCopy) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
@@ -373,16 +378,33 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         //   onPressed: _findInDictionary,
         //   tooltip: 'Find in Dictionary',
         // ),
-        IconButton(
-          icon: Icon(_isSaved ? Icons.star : Icons.star_border),
-          onPressed: _saveInstance,
-          tooltip: 'Save Instance',
-        ),
-        IconButton(
-          icon: Icon(Icons.copy),
-          onPressed: () => _copyToClipboard(_translatedText),
-          tooltip: 'Copy',
-        ),
+        share
+            ? IconButton(
+                onPressed: () {},
+                icon: Icon(Icons.share),
+              )
+            : SizedBox.shrink(),
+        favorite
+            ? IconButton(
+                icon: Icon(_isSaved ? Icons.star : Icons.star_border),
+                onPressed: _saveInstance,
+                tooltip: 'Save Instance',
+              )
+            : SizedBox.shrink(),
+        copy
+            ? IconButton(
+                icon: Icon(Icons.copy),
+                onPressed: () => _copyToClipboard(textToCopy),
+                tooltip: 'Copy',
+              )
+            : SizedBox.shrink(),
+        speak
+            ? IconButton(
+                icon: Icon(Icons.volume_up),
+                onPressed: () {},
+                tooltip: 'Copy',
+              )
+            : SizedBox.shrink(),
       ],
     );
   }
