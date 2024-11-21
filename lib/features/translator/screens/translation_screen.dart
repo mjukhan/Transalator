@@ -26,7 +26,7 @@ class TranslatorScreen extends StatefulWidget {
 
 class _TranslatorScreenState extends State<TranslatorScreen> {
   String _sourceLanguage = 'en';
-  String _targetLanguage = '';
+  String _targetLanguage = 'es';
   String _inputText = '';
   String _translatedText = '';
   bool _isSaved = false; // Toggle for changing the icon
@@ -46,7 +46,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _sourceLanguage = prefs.getString('sourceLanguage') ?? 'en';
-      _targetLanguage = prefs.getString('targetLanguage') ?? '';
+      _targetLanguage = prefs.getString('targetLanguage') ?? 'es';
     });
   }
 
@@ -66,8 +66,10 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   }
 
   void _translateText(String inputText) async {
-    if (!await PermissionHelper().checkMicrophonePermission()) return;
-    if (!await PermissionHelper().checkWifiConnection(context)) return;
+    //if (!await PermissionHelper().checkMicrophonePermission()) return;
+    if (!await PermissionHelper().checkWifiConnection(context)) {
+      CircularProgressIndicator();
+    }
     if (inputText.isEmpty) {
       setState(() {
         _translatedText = '';
@@ -326,16 +328,19 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                     child: Row(
                       children: [
                         _cameraButton(),
-                        VoiceInputButton(
-                          onResult: (text) {
+                        InputField(
+                          onChanged: (text) {
                             setState(() {
                               _inputText = text;
                               _translatedText = '';
                               _isSaved = false;
                             });
-                            _translateText(_inputText);
+                            //_translateText(_inputText);
                           },
-                          languageCode: '', // Provide the correct language code
+                          sourceLanguage: '',
+                          isVoiceInput: true,
+                          isTextInput: false,
+                          onSubmit: (_) => _translateText(_inputText),
                         ),
                       ],
                     ),
