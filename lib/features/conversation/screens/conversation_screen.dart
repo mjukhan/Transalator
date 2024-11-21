@@ -299,10 +299,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     IconButton(
-                                      icon: Icon(Icons.star_border),
-                                      onPressed: () {},
-                                    ),
-                                    IconButton(
                                       onPressed: () => _handleTextToSpeech(
                                           _translations[index]["translated"]
                                               .toString(),
