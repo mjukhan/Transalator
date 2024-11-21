@@ -9,6 +9,7 @@ import 'package:translation_app/core/widgets/permission_handler.dart';
 import '../../../core/widgets/translator_provider.dart';
 import '../../translator/widgets/error_handler.dart';
 import '../../translator/widgets/language_selector.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 class ConversationScreen extends StatefulWidget {
   const ConversationScreen({
@@ -20,19 +21,22 @@ class ConversationScreen extends StatefulWidget {
 }
 
 class _ConversationScreenState extends State<ConversationScreen> {
-  String _person1Language = 'auto';
-  String _person2Language = 'auto';
+  String _person1Language = 'en';
+  String _person2Language = 'es';
   String _inputText = '';
   String _translatedText = '';
   bool speaker1 = false;
   bool speaker2 = false;
   bool _isListeningPerson1 = false;
   bool _isListeningPerson2 = false;
+  bool _isSpeaking = false;
   StreamSubscription? _connectivitySubscription;
   final TextEditingController _controller = TextEditingController();
   final stt.SpeechToText _speech = stt.SpeechToText();
   final TranslationService _translationService = TranslationService();
   Timer? _debounce; // Timer for debounce mechanism
+  final List<Map<String, String>> _translations = [];
+  final FlutterTts _flutterTts = FlutterTts();
 
   @override
   void initState() {
@@ -44,8 +48,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
   void _loadLanguagePreferences() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _person1Language = prefs.getString('person1Language') ?? 'auto';
-      _person2Language = prefs.getString('person2Language') ?? 'auto';
+      _person1Language = prefs.getString('person1Language') ?? 'en';
+      _person2Language = prefs.getString('person2Language') ?? 'es';
     });
   }
 
@@ -57,9 +61,11 @@ class _ConversationScreenState extends State<ConversationScreen> {
   }
 
   // Debounced text translation
-  void _translateText(String inputText, bool speaker1, bool speaker2) async {
-    if (!await PermissionHelper().checkMicrophonePermission()) return;
+  void _translateText(
+      String inputText, bool isSpeaker1, bool isSpeaker2) async {
+    //if (!await PermissionHelper().checkMicrophonePermission()) return;
     if (!await PermissionHelper().checkWifiConnection(context)) return;
+
     if (inputText.isEmpty) {
       setState(() {
         _translatedText = '';
@@ -69,21 +75,31 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
     // Debounce the translation to avoid multiple calls
     _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () async {
+    _debounce = Timer(const Duration(milliseconds: 2000), () async {
       try {
         final translation = await _translationService.translate(
           text: inputText,
-          from: speaker1 ? _person1Language : _person2Language,
-          to: speaker1 ? _person2Language : _person1Language,
+          from: isSpeaker1 ? _person1Language : _person2Language,
+          to: isSpeaker1 ? _person2Language : _person1Language,
         );
+
         setState(() {
           _translatedText = translation;
+
+          // Add the new translation to the list
+          _translations.add({
+            "input": inputText,
+            "translated": translation,
+            "person": isSpeaker1 ? "1" : "2",
+          });
+          print(_translations);
         });
       } catch (e) {
         ErrorHandlerTranslating.handleTranslationError(context, e);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(AppLocalizations.of(context)!.errorInTranslation)),
+            content: Text(AppLocalizations.of(context)!.errorInTranslation),
+          ),
         );
         setState(() {
           _translatedText = AppLocalizations.of(context)!.errorInTranslation;
@@ -115,7 +131,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
             _speech.stop();
             setState(() {
               _isListeningPerson1 = false;
-              _isListeningPerson2 = false;
             });
           }
         });
@@ -124,7 +139,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
       _speech.stop();
       setState(() {
         _isListeningPerson1 = false;
-        _isListeningPerson2 = false;
       });
     }
   }
@@ -152,7 +166,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
             _speech.stop();
             setState(() {
               _isListeningPerson2 = false;
-              _isListeningPerson1 = false;
             });
           }
         });
@@ -161,7 +174,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
       _speech.stop();
       setState(() {
         _isListeningPerson2 = false;
-        _isListeningPerson1 = false;
       });
     }
   }
@@ -194,66 +206,121 @@ class _ConversationScreenState extends State<ConversationScreen> {
           Expanded(
             child: Container(
               margin: EdgeInsets.fromLTRB(16, 4, 16, 0),
-              height: size.height * 0.6,
+              height: size.height * 0.7,
               width: size.width,
               decoration: BoxDecoration(
                 color: Colors.white,
                 border: Border.all(color: borderColor),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Container(
-                margin: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height: size.height * 0.25,
-                        width: size.width,
-                        //margin: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                        // decoration: BoxDecoration(
-                        //   border: Border.all(color: Colors.yellow),
-                        // ),
-                        child: AutoSizeText(
-                          _inputText,
-                          textAlign: TextAlign.start,
-                          style: TextStyle(
-                            color: Colors.black87,
-                            fontSize: 32,
-                          ),
-                          maxFontSize: 32,
-                          minFontSize: 24,
-                          maxLines: null,
+              child: _translations.isEmpty
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          'assets/icons/empty_conversation.png',
+                          scale: 4,
                         ),
-                      ),
-                      Divider(
-                        thickness: 2,
-                        color: dividerColor.withOpacity(0.5),
-                      ),
-                      // Translated Text Container
-                      SizedBox(
-                        height: size.height * 0.25,
-                        width: size.width,
-                        //margin: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                        child: AutoSizeText(
-                          _translatedText, // Display the translated text here
-                          textAlign: TextAlign.start,
-                          style: TextStyle(
-                            color: translatedTextColor,
-                          ),
-                          maxFontSize: 32,
-                          minFontSize: 24,
-                          maxLines: null,
+                        SizedBox(height: 20),
+                        Text(
+                          "Start Conversation",
+                          style: TextStyle(color: Colors.grey),
                         ),
+                      ],
+                    )
+                  : Container(
+                      margin: EdgeInsets.fromLTRB(8, 8, 8, 8),
+                      // decoration: BoxDecoration(
+                      //   border: Border.all(color: Colors.yellow),
+                      // ),
+                      child: ListView.builder(
+                        itemCount: _translations.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Container(
+                            margin: EdgeInsets.fromLTRB(
+                                (_translations[index]["person"] == '1')
+                                    ? 0
+                                    : 50,
+                                0,
+                                (_translations[index]["person"] == '1')
+                                    ? 50
+                                    : 0,
+                                8),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade200,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                                  child: AutoSizeText(
+                                    _translations[index]["input"].toString(),
+                                    maxLines: null,
+                                    maxFontSize: 24,
+                                    minFontSize: 16,
+                                  ),
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    IconButton(
+                                      onPressed: () => _handleTextToSpeech(
+                                          _translations[index]["input"]
+                                              .toString(),
+                                          _person1Language),
+                                      icon: Icon(Icons.volume_up),
+                                    ),
+                                  ],
+                                ),
+                                _translations.isNotEmpty
+                                    ? Divider(
+                                        indent: 32,
+                                        endIndent: 32,
+                                      )
+                                    : SizedBox.shrink(),
+                                // Translated Text Container
+                                _translations.isNotEmpty
+                                    ? Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: AutoSizeText(
+                                          _translations[index]['translated']
+                                              .toString(),
+                                          maxLines: null,
+                                          maxFontSize: 24,
+                                          minFontSize: 16,
+                                        ),
+                                      )
+                                    : SizedBox.shrink(),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    IconButton(
+                                      icon: Icon(Icons.star_border),
+                                      onPressed: () {},
+                                    ),
+                                    IconButton(
+                                      onPressed: () => _handleTextToSpeech(
+                                          _translations[index]["translated"]
+                                              .toString(),
+                                          _person2Language),
+                                      icon: Icon(Icons.volume_up),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
-                    ],
-                  ),
-                ),
-              ),
+                    ),
             ),
           ),
           SizedBox(
-            height: 200,
+            height: 150,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -276,11 +343,9 @@ class _ConversationScreenState extends State<ConversationScreen> {
                           setState(() {
                             // Update source language
                             _person1Language = newLang;
+                            _translations.clear();
                           });
                           _saveLanguagePreferences();
-                          if (_inputText.isNotEmpty) {
-                            _translateText(_inputText, speaker1, speaker2);
-                          }
                         },
                         fontSize: 14,
                       ),
@@ -322,11 +387,9 @@ class _ConversationScreenState extends State<ConversationScreen> {
                           setState(() {
                             // Update target language
                             _person2Language = newLang;
+                            _translations.clear();
                           });
                           _saveLanguagePreferences();
-                          if (_inputText.isNotEmpty) {
-                            _translateText(_inputText, speaker1, speaker2);
-                          }
                         },
                         fontSize: 14,
                       ),
@@ -355,5 +418,46 @@ class _ConversationScreenState extends State<ConversationScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _handleTextToSpeech(String text, String languageCode) async {
+    if (_isSpeaking) {
+      await _flutterTts.stop(); // Stop speaking if already speaking
+      setState(() {
+        _isSpeaking = false;
+      });
+      return;
+    }
+
+    if (text.isNotEmpty) {
+      setState(() {
+        _isSpeaking = true; // Start speaking state
+      });
+
+      await _flutterTts.setLanguage(languageCode);
+      await _flutterTts.setPitch(1.0);
+      await _flutterTts.setSpeechRate(0.5);
+
+      // Speak the text and handle completion
+      await _flutterTts.speak(text);
+
+      _flutterTts.setCompletionHandler(() {
+        setState(() {
+          _isSpeaking = false; // Reset to original icon when speech completes
+        });
+      });
+
+      _flutterTts.setErrorHandler((error) {
+        setState(() {
+          _isSpeaking = false; // Reset on error
+        });
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Please enter some text to speak."),
+        ),
+      );
+    }
   }
 }

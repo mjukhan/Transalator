@@ -29,20 +29,17 @@ class _TranslationInstanceState extends State<TranslationInstance> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Container(
-      height: size.height*0.35,
+      height: size.height * 0.35,
       width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.grey,
       ),
       child: Column(
-        children: [
-
-        ],
+        children: [],
       ),
     );
   }

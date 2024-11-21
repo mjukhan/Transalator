@@ -157,7 +157,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                 onPressed: () => _translateText(_inputText),
                 backgroundColor: translateButtonColor,
                 label: Text(
-                  'Translatetr',
+                  'Translate',
                   style: TextStyle(color: bgColor),
                 ),
               )
