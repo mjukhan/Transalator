@@ -34,7 +34,7 @@ class Upload {
       _isUploading = false;
 
       // Show success dialog
-      ReFunctions().showSuccessDialog(context, fileName);
+      //ReFunctions().showSuccessDialog(context, fileName);
       // Print file path in console
       print(_savedFilePath);
       return savedFile;

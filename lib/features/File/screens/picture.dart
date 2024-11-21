@@ -39,7 +39,7 @@ class _PictureScreenState extends State<PictureScreen> {
   void _loadLanguagePreferences() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _targetLanguage = prefs.getString('targetLanguage') ?? 'auto';
+      _targetLanguage = prefs.getString('targetLanguage') ?? 'es';
     });
   }
 

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:translation_app/core/utilities/colors.dart';
 import 'package:translation_app/features/File/screens/picture.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -15,27 +16,6 @@ class FileScreen extends StatefulWidget {
 
 class _FileScreenState extends State<FileScreen> {
   File? imageFile;
-
-  void _getFromCamera() async {
-    File? file = await ImagePickerUtility.pickImageFromCamera(context);
-    if (file != null) {
-      setState(() {
-        imageFile = file;
-      });
-
-      // Navigate to PictureScreen
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PictureScreen(imageFile: imageFile!),
-        ),
-      ).then((value) {
-        setState(() {
-          imageFile = null; // Clear the image
-        });
-      });
-    }
-  }
 
   void _getFromGallery() async {
     File? file = await ImagePickerUtility.pickImageFromGallery(context);
@@ -69,57 +49,58 @@ class _FileScreenState extends State<FileScreen> {
         scrolledUnderElevation: 0,
         elevation: 0,
       ),
-      body: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                GestureDetector(
+      body: Center(
+        child: Container(
+          height: size.height * 0.4,
+          width: size.width * 0.8,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            children: <Widget>[
+              Flexible(
+                flex: 2,
+                child: Image.asset(
+                  'assets/icons/upload.png',
+                  scale: 4,
+                ),
+              ),
+              Flexible(
+                child: Text(
+                  'Select Document',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+              Flexible(
+                child: Text(
+                  'Upload file .png, .jpg, .jpeg',
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+              ),
+              SizedBox(
+                height: 50,
+              ),
+              Flexible(
+                flex: 1,
+                child: GestureDetector(
                   onTap: _getFromGallery,
-                  child: SizedBox(
-                    height: size.height * 0.15,
-                    width: size.width * 0.5,
-                    child: Card(
-                      color: langSelectorColor,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            'assets/icons/upload.png',
-                            scale: 10,
-                          ),
-                          Text(AppLocalizations.of(context)!.uploadImage),
-                        ],
-                      ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    height: 50,
+                    width: 150,
+                    child: Center(
+                      child: Text("Upload"),
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
-                GestureDetector(
-                  onTap: _getFromCamera,
-                  child: SizedBox(
-                    height: size.height * 0.15,
-                    width: size.width * 0.5,
-                    child: Card(
-                      color: langSelectorColor,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            'assets/icons/camera.png',
-                            scale: 10,
-                          ),
-                          Text(AppLocalizations.of(context)!.takePicture),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
