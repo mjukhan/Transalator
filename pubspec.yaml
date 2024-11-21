@@ -51,7 +51,7 @@ dependencies:
   url_launcher: ^6.3.1
   share_plus: ^10.1.2
   http: any
-  liquid_progress_indicator_v2: ^0.5.0
+  flutter_tts: ^4.2.0
 
 
 dev_dependencies:

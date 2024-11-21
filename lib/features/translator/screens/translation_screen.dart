@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:translation_app/core/utilities/colors.dart';
 import 'package:translation_app/features/File/widgets/imagePickerUtility.dart';
@@ -13,6 +14,7 @@ import '../../File/screens/picture.dart';
 import '../widgets/error_handler.dart';
 import '../widgets/input_field.dart';
 import '../widgets/language_selector.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TranslatorScreen extends StatefulWidget {
@@ -31,6 +33,9 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   String _translatedText = '';
   bool _isSaved = false; // Toggle for changing the icon
   List<String> _savedTranslations = []; // List of saved translations
+  final FlutterTts _flutterTts = FlutterTts();
+  bool _isSpeaking = false;
+  bool _isLoadingSpeech = false;
 
   final TranslationService _translationService = TranslationService();
 
@@ -89,7 +94,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         _translatedText = translation; // Update translated text
       });
     } catch (e) {
-      ErrorHandler.handleTranslationError(context, e);
+      ErrorHandlerTranslating.handleTranslationError(context, e);
       setState(() {
         _translatedText = AppLocalizations.of(context)!.errorInTranslation;
       });
@@ -298,7 +303,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                   ),
                   _inputText.isNotEmpty && _translatedText.isNotEmpty
                       ? _buildActionButtons(
-                          true, false, false, true, _inputText)
+                          true, false, false, true, _inputText, _sourceLanguage)
                       : SizedBox.shrink(),
                   _inputText.isEmpty
                       ? TextButton.icon(
@@ -354,14 +359,16 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
 
   Widget _buildTranslatedText() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Divider(),
         Container(
-          margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          //decoration: BoxDecoration(border: Border.all(color: Colors.yellow)),
+          margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
           child: FittedBox(
             child: AutoSizeText(
               _translatedText,
-              //textAlign: TextAlign.start,
+              textAlign: TextAlign.start,
               style: TextStyle(color: translatedTextColor),
               maxFontSize: 18,
               minFontSize: 12,
@@ -369,13 +376,14 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             ),
           ),
         ),
-        _buildActionButtons(true, true, true, true, _translatedText),
+        _buildActionButtons(
+            true, true, true, true, _translatedText, _targetLanguage),
       ],
     );
   }
 
-  Widget _buildActionButtons(
-      bool copy, bool favorite, bool share, bool speak, String textToCopy) {
+  Widget _buildActionButtons(bool copy, bool favorite, bool share, bool speak,
+      String textToCopy, String languageCode) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
@@ -386,7 +394,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         // ),
         share
             ? IconButton(
-                onPressed: () {},
+                onPressed: () => shareTranslatedText(textToCopy),
                 icon: Icon(Icons.share),
               )
             : SizedBox.shrink(),
@@ -406,9 +414,11 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             : SizedBox.shrink(),
         speak
             ? IconButton(
-                icon: Icon(Icons.volume_up),
-                onPressed: () {},
-                tooltip: 'Copy',
+                icon: _isLoadingSpeech
+                    ? CircularProgressIndicator()
+                    : Icon(Icons.volume_up),
+                onPressed: () => _handleTextToSpeech(textToCopy, languageCode),
+                tooltip: 'Speak',
               )
             : SizedBox.shrink(),
       ],
@@ -447,11 +457,72 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         MaterialPageRoute(
           builder: (context) => PictureScreen(imageFile: imageFile!),
         ),
-      ).then((value) {
+      ).then((result) {
+        if (result != null) {
+          setState(() {
+            _inputText = result;
+          });
+        }
+      });
+    }
+  }
+
+  Future<void> _handleTextToSpeech(String text, String languageCode) async {
+    _isLoadingSpeech = true;
+    if (_isSpeaking) {
+      await _flutterTts.stop(); // Stop speaking if already speaking
+      setState(() {
+        _isSpeaking = false;
+        _isLoadingSpeech = false;
+      });
+      return;
+    }
+
+    if (text.isNotEmpty) {
+      setState(() {
+        _isLoadingSpeech = false;
+        _isSpeaking = true; // Start speaking state
+      });
+
+      await _flutterTts.setLanguage(languageCode);
+      await _flutterTts.setPitch(1.0);
+      await _flutterTts.setSpeechRate(0.5);
+
+      // Speak the text and handle completion
+      await _flutterTts.speak(text);
+
+      _flutterTts.setCompletionHandler(() {
         setState(() {
-          imageFile = null; // Clear the image
+          _isLoadingSpeech = false;
+          _isSpeaking = false; // Reset to original icon when speech completes
         });
       });
+
+      _flutterTts.setErrorHandler((error) {
+        setState(() {
+          _isLoadingSpeech = false;
+          _isSpeaking = false; // Reset on error
+        });
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Please enter some text to speak."),
+        ),
+      );
+    }
+  }
+
+  Future<void> shareTranslatedText(String translation) async {
+    if (translation.isNotEmpty) {
+      Share.share(translation); // Share the text
+    } else {
+      // Handle case when text is empty
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("No text to share."),
+        ),
+      );
     }
   }
 }

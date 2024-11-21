@@ -203,7 +203,7 @@ class _PictureScreenState extends State<PictureScreen> {
             ? translation
             : AppLocalizations.of(context)!.translationResultEmpty);
       } catch (e) {
-        ErrorHandler.handleTranslationError(context, e);
+        ErrorHandlerTranslating.handleTranslationError(context, e);
         translations.add(
             '${AppLocalizations.of(context)!.translationErrorInLine} $line');
         _isTranslating = false;

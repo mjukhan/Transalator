@@ -80,7 +80,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
           _translatedText = translation;
         });
       } catch (e) {
-        ErrorHandler.handleTranslationError(context, e);
+        ErrorHandlerTranslating.handleTranslationError(context, e);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(AppLocalizations.of(context)!.errorInTranslation)),

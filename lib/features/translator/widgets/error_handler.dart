@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class ErrorHandler {
+class ErrorHandlerTranslating {
   static void handleTranslationError(BuildContext context, Object error) {
     final String errorMessage;
 

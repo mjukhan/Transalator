@@ -32,9 +32,11 @@ class LanguageSelector extends StatelessWidget {
     List<DropdownMenuItem<String>> dropdownItems = languageOptions.map((lang) {
       return DropdownMenuItem<String>(
         value: lang['value'], // This is how you're getting the value
-        child: Text(
-          lang['label']!,
-          textAlign: TextAlign.center,
+        child: FittedBox(
+          child: Text(
+            lang['label']!,
+            textAlign: TextAlign.center,
+          ),
         ), // This is the display text
       );
     }).toList();
