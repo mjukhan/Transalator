@@ -35,7 +35,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   List<String> _savedTranslations = []; // List of saved translations
   final FlutterTts _flutterTts = FlutterTts();
   bool _isSpeaking = false;
-  bool _isLoadingSpeech = false;
 
   final TranslationService _translationService = TranslationService();
 
@@ -414,9 +413,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             : SizedBox.shrink(),
         speak
             ? IconButton(
-                icon: _isLoadingSpeech
-                    ? CircularProgressIndicator()
-                    : Icon(Icons.volume_up),
+                icon: Icon(Icons.volume_up),
                 onPressed: () => _handleTextToSpeech(textToCopy, languageCode),
                 tooltip: 'Speak',
               )
@@ -468,19 +465,16 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   }
 
   Future<void> _handleTextToSpeech(String text, String languageCode) async {
-    _isLoadingSpeech = true;
     if (_isSpeaking) {
       await _flutterTts.stop(); // Stop speaking if already speaking
       setState(() {
         _isSpeaking = false;
-        _isLoadingSpeech = false;
       });
       return;
     }
 
     if (text.isNotEmpty) {
       setState(() {
-        _isLoadingSpeech = false;
         _isSpeaking = true; // Start speaking state
       });
 
@@ -493,14 +487,12 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
 
       _flutterTts.setCompletionHandler(() {
         setState(() {
-          _isLoadingSpeech = false;
           _isSpeaking = false; // Reset to original icon when speech completes
         });
       });
 
       _flutterTts.setErrorHandler((error) {
         setState(() {
-          _isLoadingSpeech = false;
           _isSpeaking = false; // Reset on error
         });
       });
