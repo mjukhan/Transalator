@@ -79,9 +79,18 @@ class _InputFieldState extends State<InputField> {
         Row(
           children: [
             // Text Input Widget
-            widget.isTextInput
-                ? Expanded(child: buildTextInput())
-                : buildVoiceInput(),
+            if (widget.isTextInput && !widget.isVoiceInput)
+              Expanded(
+                child: buildTextInput(),
+              ),
+            if (widget.isVoiceInput && !widget.isTextInput) buildVoiceInput(),
+            if (widget.isTextInput && widget.isVoiceInput)
+              Row(
+                children: [
+                  buildTextInput(),
+                  buildVoiceInput(),
+                ],
+              ),
           ],
         ),
         // Clear Button Positioned in the Top Right

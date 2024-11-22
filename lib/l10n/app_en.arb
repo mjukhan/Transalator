@@ -20,7 +20,7 @@
     "translateTo": "Translate to:",
     "translationResultEmpty": "Translation result is empty.",
     "translationErrorInLine" : "Translation error occurred for line:",
-    "recentSearches" : "recent_searches",
+    "recentSearches" : "Recent Searched Words",
     "hintTextForSearchWord": "Search for a word...",
     "errorFetchingMeaning": "Error fetching meaning",
     "noDataFound": "No data found for",

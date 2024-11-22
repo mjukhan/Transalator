@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:translation_app/core/utilities/colors.dart';
+import 'package:translation_app/features/dictionary/screens/view_search.dart';
 import '../../../data/models/Word_model.dart';
 import '../../../data/repositories/word_repository.dart';
 import '../../../data/services/word_service.dart';
@@ -41,14 +42,24 @@ class _DictionaryScreenState extends State<DictionaryScreen>
   Future<void> _loadRecentSearches() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _recentSearches = prefs.getStringList('recent_searches') ?? [];
+      _recentSearches = prefs.getStringList('Recent Searched Words') ?? [];
     });
   }
 
   // Save recent searches to SharedPreferences
   Future<void> _saveRecentSearches() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setStringList('recent_searches', _recentSearches);
+    prefs.setStringList('Recent Searched Words', _recentSearches);
+  }
+
+  // Function to clear all recent searches
+  Future<void> _clearRecentWords() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _recentSearches.clear(); // Clear the in-memory list
+    });
+    await prefs
+        .remove('Recent Searched Words'); // Remove from SharedPreferences
   }
 
   // Function to fetch word meaning and update recent searches
@@ -113,122 +124,83 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                   ),
                 ),
                 onSubmitted: (text) {
-                  _searchWord(text); // Perform search on submit
-                  _searchController.clear(); // Clear input after search
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          ViewSearch(wordDefinition: _wordDefinition),
+                    ),
+                  );
+                  _searchWord(text);
+                  _searchController.clear();
                 },
               ),
             ),
 
             // Recent Searches List
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  AppLocalizations.of(context)!.recentSearches,
-                  style: TextStyle(
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ),
-            _recentSearches.isNotEmpty
-                ? Expanded(
-                    child: NotificationListener<ScrollNotification>(
-                      onNotification: (scrollNotification) {
-                        if (scrollNotification is ScrollStartNotification) {
-                          _hideKeyboard(
-                              context); // Hide the keyboard when scrolling starts
-                        }
-                        return false;
-                      },
-                      child: ListView.builder(
-                        itemCount: _recentSearches.length,
-                        itemBuilder: (context, index) {
-                          final word = _recentSearches[index];
-                          return ListTile(
-                            title: Text(word),
-                            onTap: () {
-                              _searchWord(word); // Search the word when tapped
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                  )
-                : Padding(
-                    padding: EdgeInsets.fromLTRB(0, 50, 0, 50),
-                    child: Image.asset(
-                      'assets/icons/empty.png',
-                      scale: 4,
-                    ),
-                  ),
+            // Padding(
+            //   padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //     children: [
+            //       Text(
+            //         AppLocalizations.of(context)!.recentSearches,
+            //         style: TextStyle(
+            //           fontSize: 14,
+            //           color: Colors.grey,
+            //         ),
+            //       ),
+            //       (_recentSearches.isNotEmpty)
+            //           ? TextButton(
+            //               onPressed: _clearRecentWords,
+            //               child: Text('Clear all'),
+            //             )
+            //           : SizedBox.shrink(),
+            //     ],
+            //   ),
+            // ),
+            // _recentSearches.isNotEmpty
+            //     ? Expanded(
+            //         child: NotificationListener<ScrollNotification>(
+            //           onNotification: (scrollNotification) {
+            //             if (scrollNotification is ScrollStartNotification) {
+            //               _hideKeyboard(context);
+            //             }
+            //             return false;
+            //           },
+            //           child: ListView.builder(
+            //             itemCount: _recentSearches.length,
+            //             itemBuilder: (context, index) {
+            //               final word = _recentSearches[index];
+            //               return ListTile(
+            //                 leading: Icon(
+            //                   Icons.access_time_rounded,
+            //                   color: Colors.grey,
+            //                 ),
+            //                 title: Text(word),
+            //                 onTap: () => Navigator.push(
+            //                   context,
+            //                   MaterialPageRoute(
+            //                     builder: (context) =>
+            //                         ViewSearch(wordDefinition: _wordDefinition),
+            //                   ),
+            //                 ),
+            //                 trailing: Icon(
+            //                   Icons.arrow_forward_ios,
+            //                   size: 16,
+            //                   color: Colors.grey,
+            //                 ),
+            //               );
+            //             },
+            //           ),
+            //         ),
+            //       )
+            //     : Padding(
+            //         padding: EdgeInsets.fromLTRB(0, 100, 0, 50),
+            //         child: Text('Fine word by using the search'),
+            //       ),
           ],
         ),
-
-        // Code snippet for bottomSheet update in DictionaryScreen
-        bottomSheet: _searchedWord.isNotEmpty
-            ? SizedBox(
-                height: size.height * 0.3,
-                child: FutureBuilder<WordDefinition?>(
-                  future: _wordDefinition,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(
-                          child: Text(AppLocalizations.of(context)!
-                              .errorFetchingMeaning));
-                    } else if (snapshot.hasData && snapshot.data != null) {
-                      final wordDefinition = snapshot.data!;
-                      return Container(
-                        padding: const EdgeInsets.all(16.0),
-                        decoration: BoxDecoration(
-                          color: bgColor,
-                          border: Border.all(color: borderColor),
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(16),
-                            topRight: Radius.circular(16),
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '"${wordDefinition.word}" ',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Expanded(
-                              child: ListView(
-                                children:
-                                    wordDefinition.meanings.map((meaning) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(bottom: 8.0),
-                                    child: Text(
-                                      '${meaning.partOfSpeech}: ${meaning.definitions.first.definition}',
-                                      style: TextStyle(fontSize: 16),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    } else {
-                      return Center(
-                          child: Text(
-                              '${AppLocalizations.of(context)!.noDataFound} "$_searchedWord"'));
-                    }
-                  },
-                ),
-              )
-            : SizedBox(), // Empty space if no word is searched
-        // Empty space if no word is searched
       ),
     );
   }
