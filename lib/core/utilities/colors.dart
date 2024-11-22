@@ -34,4 +34,6 @@ Color pasteButtonColor = Color.fromARGB(255, 227, 242, 253);
 
 Color translateButtonColor = Color.fromARGB(255, 25, 118, 210);
 
+Color wordPOSColor = Color.fromARGB(255, 25, 118, 210);
+
 

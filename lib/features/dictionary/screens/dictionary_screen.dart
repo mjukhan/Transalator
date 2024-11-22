@@ -115,13 +115,13 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                     borderRadius: BorderRadius.circular(8.0),
                     borderSide: BorderSide(color: borderColor),
                   ),
-                  suffixIcon: IconButton(
-                    onPressed: () => _searchWord(_searchController.text),
-                    icon: Image.asset(
-                      'assets/icons/search.png',
-                      scale: 16,
-                    ),
-                  ),
+                  // suffixIcon: IconButton(
+                  //   onPressed: () => _searchWord(_searchController.text),
+                  //   icon: Image.asset(
+                  //     'assets/icons/search.png',
+                  //     scale: 16,
+                  //   ),
+                  // ),
                 ),
                 onSubmitted: (text) {
                   Navigator.push(
@@ -132,7 +132,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                     ),
                   );
                   _searchWord(text);
-                  _searchController.clear();
+                  //_searchController.clear();
                 },
               ),
             ),
