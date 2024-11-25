@@ -5,6 +5,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:translation_app/core/utilities/colors.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../../../core/widgets/permission_handler.dart';
+
 class InputField extends StatefulWidget {
   final ValueChanged<String> onChanged;
   final String sourceLanguage;
@@ -62,12 +64,8 @@ class _InputFieldState extends State<InputField> {
   Widget buildVoiceInput() {
     return VoiceInputButton(
       onResult: (text) {
-        setState(() {
-          _controller.text = text; // Update text input field with voice result
-          _controller.selection = TextSelection.fromPosition(
-            TextPosition(offset: _controller.text.length),
-          );
-        });
+        _controller.text = text;
+        print('voice controller.text = ${_controller.text}');
         widget.onChanged(text); // Notify parent widget with recognized text
       },
       languageCode: widget.sourceLanguage,
@@ -80,6 +78,7 @@ class _InputFieldState extends State<InputField> {
     if (clipboardData != null && clipboardData.text != null) {
       setState(() {
         _controller.text = clipboardData.text!;
+        print('paste controller.text = ${_controller.text}');
       });
       widget.onChanged(_controller.text);
       print("input text after paster : ${_controller.text}");
@@ -178,28 +177,11 @@ class VoiceInputButton extends StatefulWidget {
 
 class _VoiceInputButtonState extends State<VoiceInputButton> {
   final stt.SpeechToText _speech = stt.SpeechToText();
-  String _text = "";
-
-  // Check microphone permission
-  Future<bool> _checkMicrophonePermission() async {
-    var status = await Permission.microphone.status;
-    if (!status.isGranted) {
-      status = await Permission.microphone.request();
-    }
-    return status.isGranted;
-  }
+  String _text = " ";
 
   // Function to handle speech recognition
   void _listen() async {
-    bool hasPermission = await _checkMicrophonePermission();
-    if (!hasPermission) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context)!.micPermissionRequired),
-        ),
-      );
-      return;
-    }
+    //if (!await PermissionHelper().checkMicrophonePermission()) return;
 
     if (_speech.isNotListening) {
       bool available = await _speech.initialize(
@@ -211,14 +193,17 @@ class _VoiceInputButtonState extends State<VoiceInputButton> {
           onResult: (val) {
             setState(() {
               _text = val.recognizedWords;
-              widget.onResult(_text);
-              //widget.onResult(_text);
+              print('at time of speech = $_text');
             });
+            // Triggering the parent widget's callback
+            if (widget.onResult != null) {
+              print('Passing Result to Parent: $_text'); // Debugging log
+              widget.onResult(_text); // Notify parent
+            }
 
             if (val.hasConfidenceRating && val.confidence > 0.5) {
               _stopListening();
             }
-            widget.onResult(_text);
           },
         );
       }
