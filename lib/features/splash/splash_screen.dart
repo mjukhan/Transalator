@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import '../../core/utilities/colors.dart';
-import '../../home.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({

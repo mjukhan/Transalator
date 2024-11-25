@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'input_field.dart';
-import 'language_selector.dart';
 
 class TranslationInstance extends StatefulWidget {
   //final Function onNext; // Callback to add a new translation instance
 
-  TranslationInstance();
+  const TranslationInstance({super.key});
 
   @override
   _TranslationInstanceState createState() => _TranslationInstanceState();
@@ -17,7 +15,7 @@ class _TranslationInstanceState extends State<TranslationInstance> {
   final String _inputText = '';
   String _translatedText = '';
   bool _isExpanded = false;
-  bool _isTranslated = false;
+  final bool _isTranslated = false;
 
   // Mock translation function
   void _translateText() {

@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:translation_app/core/utilities/colors.dart';
 import 'package:translation_app/features/File/screens/picture.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';

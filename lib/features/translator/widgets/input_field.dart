@@ -37,7 +37,7 @@ class _InputFieldState extends State<InputField> {
   // Function to clear input text
   void _clearInput() {
     _controller.clear();
-    widget.onChanged(''); // Notify parent with an empty string
+    widget.onChanged(_controller.text); // Notify parent with an empty string
   }
 
   // Function for text input logic
@@ -64,6 +64,9 @@ class _InputFieldState extends State<InputField> {
       onResult: (text) {
         setState(() {
           _controller.text = text; // Update text input field with voice result
+          _controller.selection = TextSelection.fromPosition(
+            TextPosition(offset: _controller.text.length),
+          );
         });
         widget.onChanged(text); // Notify parent widget with recognized text
       },
@@ -71,28 +74,40 @@ class _InputFieldState extends State<InputField> {
     );
   }
 
+  // Function to paste the last copied text into the input field (_inputText)
+  void _pasteFromClipboard() async {
+    final clipboardData = await Clipboard.getData('text/plain');
+    if (clipboardData != null && clipboardData.text != null) {
+      setState(() {
+        _controller.text = clipboardData.text!;
+      });
+      widget.onChanged(_controller.text);
+      print("input text after paster : ${_controller.text}");
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Clipboard is empty')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         // Main Row with Text Input or Voice Input
-        Row(
-          children: [
-            // Text Input Widget
-            if (widget.isTextInput && !widget.isVoiceInput)
-              Expanded(
-                child: buildTextInput(),
+        widget.isTextInput ? buildTextInput() : buildVoiceInput(),
+        if (_controller.text.isEmpty && !widget.isVoiceInput)
+          Positioned(
+            top: 16,
+            right: 0,
+            child: IconButton(
+              onPressed: () => _pasteFromClipboard(),
+              icon: Icon(Icons.paste),
+              style: ButtonStyle(
+                backgroundColor: WidgetStatePropertyAll(pasteButtonColor),
               ),
-            if (widget.isVoiceInput && !widget.isTextInput) buildVoiceInput(),
-            if (widget.isTextInput && widget.isVoiceInput)
-              Row(
-                children: [
-                  buildTextInput(),
-                  buildVoiceInput(),
-                ],
-              ),
-          ],
-        ),
+            ),
+          ),
         // Clear Button Positioned in the Top Right
         if (_controller.text.isNotEmpty)
           Positioned(
@@ -133,10 +148,7 @@ class TextInputField extends StatelessWidget {
       decoration: InputDecoration(
         hintText: hintText,
         helperMaxLines: 1,
-        hintStyle: TextStyle(
-          fontSize: 18,
-          color: Colors.grey.shade500,
-        ),
+        hintStyle: TextStyle(fontSize: 18, color: Colors.grey.shade500),
         border: InputBorder.none,
         contentPadding: EdgeInsets.fromLTRB(16, 20, 16, 16),
       ),
@@ -190,20 +202,23 @@ class _VoiceInputButtonState extends State<VoiceInputButton> {
     }
 
     if (_speech.isNotListening) {
-      bool available =
-          await _speech.initialize(onError: (_) => setState(() {}));
+      bool available = await _speech.initialize(
+        onError: (_) => setState(() {}),
+      );
       if (available) {
         _speech.listen(
           localeId: widget.languageCode,
           onResult: (val) {
             setState(() {
               _text = val.recognizedWords;
+              widget.onResult(_text);
               //widget.onResult(_text);
             });
 
             if (val.hasConfidenceRating && val.confidence > 0.5) {
               _stopListening();
             }
+            widget.onResult(_text);
           },
         );
       }

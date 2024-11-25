@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import '../../../core/widgets/widgets.dart';
 
 class Upload {
   bool _isUploading = false;

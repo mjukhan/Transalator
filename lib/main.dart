@@ -1,30 +1,22 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:translation_app/features/dictionary/screens/view_search.dart';
 import 'package:translation_app/home.dart';
 import 'features/splash/splash_screen.dart';
-import 'features/welcome/welcome.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Locale? savedLocale =
       await loadSavedLocale(); // Load saved locale during startup
-  runApp(
-    TranslatorApp(
-      savedLocale: savedLocale,
-    ),
-  );
+  runApp(TranslatorApp(savedLocale: savedLocale));
 }
 
 class TranslatorApp extends StatefulWidget {
   final Locale? savedLocale;
 
-  const TranslatorApp({
-    super.key,
-    this.savedLocale,
-  });
+  const TranslatorApp({super.key, this.savedLocale});
 
   static void setLocale(BuildContext context, Locale locale) {
     _TranslatorAppState? state =

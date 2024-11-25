@@ -18,9 +18,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TranslatorScreen extends StatefulWidget {
-  const TranslatorScreen({
-    super.key,
-  });
+  const TranslatorScreen({super.key});
 
   @override
   _TranslatorScreenState createState() => _TranslatorScreenState();
@@ -113,10 +111,12 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
       _savedTranslations.add(jsonEncode(instance)); // Save as JSON string
       // Update SharedPreferences with the new list
       await prefs.setStringList(
-          AppLocalizations.of(context)!.savedTranslations, _savedTranslations);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Translation saved!')),
+        AppLocalizations.of(context)!.savedTranslations,
+        _savedTranslations,
       );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Translation saved!')));
       setState(() {
         _isSaved = true;
       });
@@ -127,24 +127,9 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   void _copyToClipboard(String text) {
     Clipboard.setData(ClipboardData(text: text));
     print(text);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Text copied to clipboard')),
-    );
-  }
-
-  // Function to paste the last copied text into the input field (_inputText)
-  void _pasteFromClipboard() async {
-    ClipboardData? clipboardData = await Clipboard.getData('text/plain');
-    if (clipboardData != null && clipboardData.text != null) {
-      setState(() {
-        _inputText = clipboardData.text!; // Set pasted text into _inputText
-      });
-      print("input text after paster : ${_inputText}");
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Clipboard is empty')),
-      );
-    }
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Text copied to clipboard')));
   }
 
   @override
@@ -152,16 +137,14 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     final size = MediaQuery.of(context).size;
     return SafeArea(
       child: Scaffold(
-        floatingActionButton: _inputText.isNotEmpty && _translatedText.isEmpty
-            ? FloatingActionButton.extended(
-                onPressed: () => _translateText(_inputText),
-                backgroundColor: translateButtonColor,
-                label: Text(
-                  'Translate',
-                  style: TextStyle(color: bgColor),
-                ),
-              )
-            : SizedBox.shrink(),
+        floatingActionButton:
+            _inputText.isNotEmpty && _translatedText.isEmpty
+                ? FloatingActionButton.extended(
+                  onPressed: () => _translateText(_inputText),
+                  backgroundColor: translateButtonColor,
+                  label: Text('Translate', style: TextStyle(color: bgColor)),
+                )
+                : SizedBox.shrink(),
         backgroundColor: Colors.grey.shade300,
         appBar: AppBar(
           elevation: 0,
@@ -174,9 +157,9 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => Setting(
-                    savedTranslation: _savedTranslations,
-                  ),
+                  builder:
+                      (context) =>
+                          Setting(savedTranslation: _savedTranslations),
                 ),
               );
             },
@@ -186,19 +169,17 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
           height: (_inputText.isEmpty) ? size.height * 0.7 : size.height,
           decoration: BoxDecoration(
             color: bgColor,
-            borderRadius: (_inputText.isEmpty)
-                ? BorderRadius.only(
-                    bottomLeft: Radius.circular(36),
-                    bottomRight: Radius.circular(36),
-                  )
-                : null,
+            borderRadius:
+                (_inputText.isEmpty)
+                    ? BorderRadius.only(
+                      bottomLeft: Radius.circular(36),
+                      bottomRight: Radius.circular(36),
+                    )
+                    : null,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              _buildLanguageSelector(),
-              _buildTranslationContainer(),
-            ],
+            children: [_buildLanguageSelector(), _buildTranslationContainer()],
           ),
         ),
       ),
@@ -255,7 +236,9 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   }
 
   Widget _buildLanguageDropdown(
-      String selectedLanguage, Function(String) onChanged) {
+    String selectedLanguage,
+    Function(String) onChanged,
+  ) {
     return Container(
       height: 50,
       width: 120,
@@ -302,19 +285,13 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                   ),
                   _inputText.isNotEmpty && _translatedText.isNotEmpty
                       ? _buildActionButtons(
-                          true, false, false, true, _inputText, _sourceLanguage)
-                      : SizedBox.shrink(),
-                  _inputText.isEmpty
-                      ? TextButton.icon(
-                          onPressed: () => _pasteFromClipboard(),
-                          statesController: WidgetStatesController(),
-                          label: Text('Paste'),
-                          icon: Icon(Icons.paste),
-                          style: ButtonStyle(
-                            backgroundColor:
-                                WidgetStatePropertyAll(pasteButtonColor),
-                          ),
-                        )
+                        true,
+                        false,
+                        false,
+                        true,
+                        _inputText,
+                        _sourceLanguage,
+                      )
                       : SizedBox.shrink(),
                   const SizedBox(height: 16),
                   (_translatedText.isNotEmpty)
@@ -327,28 +304,28 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             _inputText.isEmpty
                 ? // Voice Input Icon at the Bottom Right
                 Positioned(
-                    bottom: 16,
-                    right: 16,
-                    child: Row(
-                      children: [
-                        _cameraButton(),
-                        InputField(
-                          onChanged: (text) {
-                            setState(() {
-                              _inputText = text;
-                              _translatedText = '';
-                              _isSaved = false;
-                            });
-                            //_translateText(_inputText);
-                          },
-                          sourceLanguage: '',
-                          isVoiceInput: true,
-                          isTextInput: false,
-                          onSubmit: (_) => _translateText(_inputText),
-                        ),
-                      ],
-                    ),
-                  )
+                  bottom: 16,
+                  right: 16,
+                  child: Row(
+                    children: [
+                      _cameraButton(),
+                      InputField(
+                        onChanged: (text) {
+                          setState(() {
+                            _inputText = text;
+                            _translatedText = '';
+                            _isSaved = false;
+                          });
+                          //_translateText(_inputText);
+                        },
+                        sourceLanguage: '',
+                        isVoiceInput: true,
+                        isTextInput: false,
+                        onSubmit: (_) => _translateText(_inputText),
+                      ),
+                    ],
+                  ),
+                )
                 : SizedBox.shrink(),
           ],
         ),
@@ -376,13 +353,25 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
           ),
         ),
         _buildActionButtons(
-            true, true, true, true, _translatedText, _targetLanguage),
+          true,
+          true,
+          true,
+          true,
+          _translatedText,
+          _targetLanguage,
+        ),
       ],
     );
   }
 
-  Widget _buildActionButtons(bool copy, bool favorite, bool share, bool speak,
-      String textToCopy, String languageCode) {
+  Widget _buildActionButtons(
+    bool copy,
+    bool favorite,
+    bool share,
+    bool speak,
+    String textToCopy,
+    String languageCode,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
@@ -393,30 +382,30 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         // ),
         share
             ? IconButton(
-                onPressed: () => shareTranslatedText(textToCopy),
-                icon: Icon(Icons.share),
-              )
+              onPressed: () => shareTranslatedText(textToCopy),
+              icon: Icon(Icons.share),
+            )
             : SizedBox.shrink(),
         favorite
             ? IconButton(
-                icon: Icon(_isSaved ? Icons.star : Icons.star_border),
-                onPressed: _saveInstance,
-                tooltip: 'Save Instance',
-              )
+              icon: Icon(_isSaved ? Icons.star : Icons.star_border),
+              onPressed: _saveInstance,
+              tooltip: 'Save Instance',
+            )
             : SizedBox.shrink(),
         copy
             ? IconButton(
-                icon: Icon(Icons.copy),
-                onPressed: () => _copyToClipboard(textToCopy),
-                tooltip: 'Copy',
-              )
+              icon: Icon(Icons.copy),
+              onPressed: () => _copyToClipboard(textToCopy),
+              tooltip: 'Copy',
+            )
             : SizedBox.shrink(),
         speak
             ? IconButton(
-                icon: Icon(Icons.volume_up),
-                onPressed: () => _handleTextToSpeech(textToCopy, languageCode),
-                tooltip: 'Speak',
-              )
+              icon: Icon(Icons.volume_up),
+              onPressed: () => _handleTextToSpeech(textToCopy, languageCode),
+              tooltip: 'Speak',
+            )
             : SizedBox.shrink(),
       ],
     );
@@ -431,10 +420,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
       child: Center(
         child: IconButton(
           onPressed: () => _getFromCamera(),
-          icon: Icon(
-            Icons.camera_alt,
-            color: bgColor,
-          ),
+          icon: Icon(Icons.camera_alt, color: bgColor),
         ),
       ),
     );
@@ -498,9 +484,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Please enter some text to speak."),
-        ),
+        SnackBar(content: Text("Please enter some text to speak.")),
       );
     }
   }
@@ -510,11 +494,9 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
       Share.share(translation); // Share the text
     } else {
       // Handle case when text is empty
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("No text to share."),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("No text to share.")));
     }
   }
 }
