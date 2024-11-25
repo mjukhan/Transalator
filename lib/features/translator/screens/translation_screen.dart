@@ -16,6 +16,7 @@ import '../widgets/input_field.dart';
 import '../widgets/language_selector.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class TranslatorScreen extends StatefulWidget {
   const TranslatorScreen({super.key});
@@ -33,6 +34,8 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   List<String> _savedTranslations = []; // List of saved translations
   final FlutterTts _flutterTts = FlutterTts();
   bool _isSpeaking = false;
+  bool _isListening = false;
+  final stt.SpeechToText _speech = stt.SpeechToText();
 
   final TranslationService _translationService = TranslationService();
 
@@ -130,6 +133,38 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Text copied to clipboard')));
+  }
+
+  // Method to handle speech recognition for Person 1
+  void _listen() async {
+    if (!await PermissionHelper().checkMicrophonePermission()) return;
+
+    if (!_isListening) {
+      if (await _speech.initialize()) {
+        setState(() {
+          _isListening = true;
+        });
+        _speech.listen(
+          onResult: (val) {
+            setState(() {
+              _inputText = val.recognizedWords;
+            });
+
+            if (val.hasConfidenceRating && val.confidence > 0.5) {
+              _speech.stop();
+              setState(() {
+                _isListening = false;
+              });
+            }
+          },
+        );
+      }
+    } else {
+      _speech.stop();
+      setState(() {
+        _isListening = false;
+      });
+    }
   }
 
   @override
@@ -309,20 +344,25 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                   child: Row(
                     children: [
                       _cameraButton(),
-                      InputField(
-                        onChanged: (text) {
-                          setState(() {
-                            _inputText = text;
-                            _translatedText = '';
-                            _isSaved = false;
-                          });
-                          //_translateText(_inputText);
-                        },
-                        sourceLanguage: '',
-                        isVoiceInput: true,
-                        isTextInput: false,
-                        onSubmit: (_) => _translateText(_inputText),
+                      IconButton(
+                        onPressed: _listen,
+                        icon: Icon(Icons.mic_none),
+
                       ),
+                      // InputField(
+                      //   onChanged: (text) {
+                      //     setState(() {
+                      //       _inputText = text;
+                      //       _translatedText = '';
+                      //       _isSaved = false;
+                      //     });
+                      //     //_translateText(_inputText);
+                      //   },
+                      //   sourceLanguage: '',
+                      //   isVoiceInput: true,
+                      //   isTextInput: false,
+                      //   onSubmit: (_) => _translateText(_inputText),
+                      // ),
                     ],
                   ),
                 )
