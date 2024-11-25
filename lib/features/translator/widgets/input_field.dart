@@ -29,6 +29,7 @@ class InputField extends StatefulWidget {
 
 class _InputFieldState extends State<InputField> {
   final TextEditingController _controller = TextEditingController();
+  final stt.SpeechToText _speech = stt.SpeechToText();
 
   @override
   void dispose() {
@@ -62,13 +63,19 @@ class _InputFieldState extends State<InputField> {
 
   // Function for voice input logic
   Widget buildVoiceInput() {
-    return VoiceInputButton(
-      onResult: (text) {
-        _controller.text = text;
-        print('voice controller.text = ${_controller.text}');
-        widget.onChanged(text); // Notify parent widget with recognized text
-      },
-      languageCode: widget.sourceLanguage,
+    return Container(
+      margin: EdgeInsets.fromLTRB(0, 16, 16, 0),
+      height: 40,
+      width: 40,
+      decoration: BoxDecoration(shape: BoxShape.circle, color: micColor),
+      child: IconButton(
+        onPressed: _speech.isNotListening ? _listen : _stopListening,
+        icon: Icon(
+          _speech.isNotListening ? Icons.mic_none : Icons.mic,
+          color: Colors.white,
+        ),
+        tooltip: 'Listen',
+      ),
     );
   }
 
@@ -87,6 +94,39 @@ class _InputFieldState extends State<InputField> {
         context,
       ).showSnackBar(SnackBar(content: Text('Clipboard is empty')));
     }
+  }
+
+  // Function to handle speech recognition
+  void _listen() async {
+    //if (!await PermissionHelper().checkMicrophonePermission()) return;
+
+    if (_speech.isNotListening) {
+      bool available = await _speech.initialize(
+        onError: (_) => setState(() {}),
+      );
+      if (available) {
+        _speech.listen(
+          onResult: (val) {
+            setState(() {
+              _controller.text = val.recognizedWords;
+              print('at time of speech = ${_controller.text}');
+            });
+
+            if (val.hasConfidenceRating && val.confidence > 0.5) {
+              _stopListening();
+            }
+          },
+        );
+      }
+    } else {
+      _stopListening();
+    }
+  }
+
+  // Stop listening
+  void _stopListening() async {
+    await _speech.stop();
+    setState(() {});
   }
 
   @override
@@ -160,79 +200,79 @@ class TextInputField extends StatelessWidget {
   }
 }
 
-// Separate widget for Voice Input Button
-class VoiceInputButton extends StatefulWidget {
-  final ValueChanged<String> onResult;
-  final String languageCode;
-
-  const VoiceInputButton({
-    super.key,
-    required this.onResult,
-    required this.languageCode,
-  });
-
-  @override
-  _VoiceInputButtonState createState() => _VoiceInputButtonState();
-}
-
-class _VoiceInputButtonState extends State<VoiceInputButton> {
-  final stt.SpeechToText _speech = stt.SpeechToText();
-  String _text = " ";
-
-  // Function to handle speech recognition
-  void _listen() async {
-    //if (!await PermissionHelper().checkMicrophonePermission()) return;
-
-    if (_speech.isNotListening) {
-      bool available = await _speech.initialize(
-        onError: (_) => setState(() {}),
-      );
-      if (available) {
-        _speech.listen(
-          localeId: widget.languageCode,
-          onResult: (val) {
-            setState(() {
-              _text = val.recognizedWords;
-              print('at time of speech = $_text');
-            });
-            // Triggering the parent widget's callback
-            if (widget.onResult != null) {
-              print('Passing Result to Parent: $_text'); // Debugging log
-              widget.onResult(_text); // Notify parent
-            }
-
-            if (val.hasConfidenceRating && val.confidence > 0.5) {
-              _stopListening();
-            }
-          },
-        );
-      }
-    } else {
-      _stopListening();
-    }
-  }
-
-  // Stop listening
-  void _stopListening() async {
-    await _speech.stop();
-    setState(() {});
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.fromLTRB(0, 16, 16, 0),
-      height: 40,
-      width: 40,
-      decoration: BoxDecoration(shape: BoxShape.circle, color: micColor),
-      child: IconButton(
-        onPressed: _speech.isNotListening ? _listen : _stopListening,
-        icon: Icon(
-          _speech.isNotListening ? Icons.mic_none : Icons.mic,
-          color: Colors.white,
-        ),
-        tooltip: 'Listen',
-      ),
-    );
-  }
-}
+// // Separate widget for Voice Input Button
+// class VoiceInputButton extends StatefulWidget {
+//   final ValueChanged<String> onResult;
+//   final String languageCode;
+//
+//   const VoiceInputButton({
+//     super.key,
+//     required this.onResult,
+//     required this.languageCode,
+//   });
+//
+//   @override
+//   _VoiceInputButtonState createState() => _VoiceInputButtonState();
+// }
+//
+// class _VoiceInputButtonState extends State<VoiceInputButton> {
+//   final stt.SpeechToText _speech = stt.SpeechToText();
+//   String _text = " ";
+//
+//   // Function to handle speech recognition
+//   void _listen() async {
+//     //if (!await PermissionHelper().checkMicrophonePermission()) return;
+//
+//     if (_speech.isNotListening) {
+//       bool available = await _speech.initialize(
+//         onError: (_) => setState(() {}),
+//       );
+//       if (available) {
+//         _speech.listen(
+//           localeId: widget.languageCode,
+//           onResult: (val) {
+//             setState(() {
+//               _text = val.recognizedWords;
+//               print('at time of speech = $_text');
+//             });
+//             // Triggering the parent widget's callback
+//             if (widget.onResult != null) {
+//               print('Passing Result to Parent: $_text'); // Debugging log
+//               widget.onResult(_text); // Notify parent
+//             }
+//
+//             if (val.hasConfidenceRating && val.confidence > 0.5) {
+//               _stopListening();
+//             }
+//           },
+//         );
+//       }
+//     } else {
+//       _stopListening();
+//     }
+//   }
+//
+//   // Stop listening
+//   void _stopListening() async {
+//     await _speech.stop();
+//     setState(() {});
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       margin: EdgeInsets.fromLTRB(0, 16, 16, 0),
+//       height: 40,
+//       width: 40,
+//       decoration: BoxDecoration(shape: BoxShape.circle, color: micColor),
+//       child: IconButton(
+//         onPressed: _speech.isNotListening ? _listen : _stopListening,
+//         icon: Icon(
+//           _speech.isNotListening ? Icons.mic_none : Icons.mic,
+//           color: Colors.white,
+//         ),
+//         tooltip: 'Listen',
+//       ),
+//     );
+//   }
+// }

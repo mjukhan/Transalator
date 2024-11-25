@@ -344,25 +344,20 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                   child: Row(
                     children: [
                       _cameraButton(),
-                      IconButton(
-                        onPressed: _listen,
-                        icon: Icon(Icons.mic_none),
-
+                      InputField(
+                        onChanged: (text) {
+                          setState(() {
+                            _inputText = text;
+                            _translatedText = '';
+                            _isSaved = false;
+                          });
+                          //_translateText(_inputText);
+                        },
+                        sourceLanguage: '',
+                        isVoiceInput: true,
+                        isTextInput: false,
+                        onSubmit: (_) => _translateText(_inputText),
                       ),
-                      // InputField(
-                      //   onChanged: (text) {
-                      //     setState(() {
-                      //       _inputText = text;
-                      //       _translatedText = '';
-                      //       _isSaved = false;
-                      //     });
-                      //     //_translateText(_inputText);
-                      //   },
-                      //   sourceLanguage: '',
-                      //   isVoiceInput: true,
-                      //   isTextInput: false,
-                      //   onSubmit: (_) => _translateText(_inputText),
-                      // ),
                     ],
                   ),
                 )

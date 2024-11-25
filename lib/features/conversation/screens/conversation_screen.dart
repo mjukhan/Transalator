@@ -12,9 +12,7 @@ import '../../translator/widgets/language_selector.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
 class ConversationScreen extends StatefulWidget {
-  const ConversationScreen({
-    super.key,
-  });
+  const ConversationScreen({super.key});
 
   @override
   State<ConversationScreen> createState() => _ConversationScreenState();
@@ -62,7 +60,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
   // Debounced text translation
   void _translateText(
-      String inputText, bool isSpeaker1, bool isSpeaker2) async {
+    String inputText,
+    bool isSpeaker1,
+    bool isSpeaker2,
+  ) async {
     //if (!await PermissionHelper().checkMicrophonePermission()) return;
     if (!await PermissionHelper().checkWifiConnection(context)) return;
 
@@ -118,22 +119,24 @@ class _ConversationScreenState extends State<ConversationScreen> {
           _isListeningPerson1 = true;
           _isListeningPerson2 = false;
         });
-        _speech.listen(onResult: (val) {
-          setState(() {
-            _inputText = val.recognizedWords;
-            _controller.text = _inputText;
-            speaker1 = true;
-            speaker2 = false;
-            _translateText(_inputText, speaker1, speaker2);
-          });
-
-          if (val.hasConfidenceRating && val.confidence > 0.5) {
-            _speech.stop();
+        _speech.listen(
+          onResult: (val) {
             setState(() {
-              _isListeningPerson1 = false;
+              _inputText = val.recognizedWords;
+              _controller.text = _inputText;
+              speaker1 = true;
+              speaker2 = false;
+              _translateText(_inputText, speaker1, speaker2);
             });
-          }
-        });
+
+            if (val.hasConfidenceRating && val.confidence > 0.5) {
+              _speech.stop();
+              setState(() {
+                _isListeningPerson1 = false;
+              });
+            }
+          },
+        );
       }
     } else {
       _speech.stop();
@@ -153,22 +156,24 @@ class _ConversationScreenState extends State<ConversationScreen> {
           _isListeningPerson2 = true;
           _isListeningPerson1 = false;
         });
-        _speech.listen(onResult: (val) {
-          setState(() {
-            _inputText = val.recognizedWords;
-            _controller.text = _inputText;
-            speaker1 = false;
-            speaker2 = true;
-            _translateText(_inputText, speaker1, speaker2);
-          });
-
-          if (val.hasConfidenceRating && val.confidence > 0.5) {
-            _speech.stop();
+        _speech.listen(
+          onResult: (val) {
             setState(() {
-              _isListeningPerson2 = false;
+              _inputText = val.recognizedWords;
+              _controller.text = _inputText;
+              speaker1 = false;
+              speaker2 = true;
+              _translateText(_inputText, speaker1, speaker2);
             });
-          }
-        });
+
+            if (val.hasConfidenceRating && val.confidence > 0.5) {
+              _speech.stop();
+              setState(() {
+                _isListeningPerson2 = false;
+              });
+            }
+          },
+        );
       }
     } else {
       _speech.stop();
@@ -213,32 +218,33 @@ class _ConversationScreenState extends State<ConversationScreen> {
                 border: Border.all(color: borderColor),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: _translations.isEmpty
-                  ? Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          'assets/icons/empty_conversation.png',
-                          scale: 4,
-                        ),
-                        SizedBox(height: 20),
-                        Text(
-                          "Start Conversation",
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                      ],
-                    )
-                  : Container(
-                      margin: EdgeInsets.fromLTRB(8, 8, 8, 8),
-                      // decoration: BoxDecoration(
-                      //   border: Border.all(color: Colors.yellow),
-                      // ),
-                      child: ListView.builder(
-                        itemCount: _translations.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return Container(
-                            margin: EdgeInsets.fromLTRB(
+              child:
+                  _translations.isEmpty
+                      ? Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            'assets/icons/empty_conversation.png',
+                            scale: 4,
+                          ),
+                          SizedBox(height: 20),
+                          Text(
+                            "Start Conversation",
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ],
+                      )
+                      : Container(
+                        margin: EdgeInsets.fromLTRB(8, 8, 8, 8),
+                        // decoration: BoxDecoration(
+                        //   border: Border.all(color: Colors.yellow),
+                        // ),
+                        child: ListView.builder(
+                          itemCount: _translations.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Container(
+                              margin: EdgeInsets.fromLTRB(
                                 (_translations[index]["person"] == '1')
                                     ? 0
                                     : 50,
@@ -246,45 +252,49 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                 (_translations[index]["person"] == '1')
                                     ? 50
                                     : 0,
-                                8),
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade200,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(8, 8, 8, 0),
-                                  child: AutoSizeText(
-                                    _translations[index]["input"].toString(),
-                                    maxLines: null,
-                                    maxFontSize: 24,
-                                    minFontSize: 16,
-                                  ),
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    IconButton(
-                                      onPressed: () => _handleTextToSpeech(
-                                          _translations[index]["input"]
-                                              .toString(),
-                                          _person1Language),
-                                      icon: Icon(Icons.volume_up),
+                                8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade200,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                      8,
+                                      8,
+                                      8,
+                                      0,
                                     ),
-                                  ],
-                                ),
-                                _translations.isNotEmpty
-                                    ? Divider(
-                                        indent: 32,
-                                        endIndent: 32,
-                                      )
-                                    : SizedBox.shrink(),
-                                // Translated Text Container
-                                _translations.isNotEmpty
-                                    ? Padding(
+                                    child: AutoSizeText(
+                                      _translations[index]["input"].toString(),
+                                      maxLines: null,
+                                      maxFontSize: 24,
+                                      minFontSize: 16,
+                                    ),
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      IconButton(
+                                        onPressed:
+                                            () => _handleTextToSpeech(
+                                              _translations[index]["input"]
+                                                  .toString(),
+                                              _person1Language,
+                                            ),
+                                        icon: Icon(Icons.volume_up),
+                                      ),
+                                    ],
+                                  ),
+                                  _translations.isNotEmpty
+                                      ? Divider(indent: 32, endIndent: 32)
+                                      : SizedBox.shrink(),
+                                  // Translated Text Container
+                                  _translations.isNotEmpty
+                                      ? Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: AutoSizeText(
                                           _translations[index]['translated']
@@ -294,25 +304,27 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                           minFontSize: 16,
                                         ),
                                       )
-                                    : SizedBox.shrink(),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    IconButton(
-                                      onPressed: () => _handleTextToSpeech(
-                                          _translations[index]["translated"]
-                                              .toString(),
-                                          _person2Language),
-                                      icon: Icon(Icons.volume_up),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          );
-                        },
+                                      : SizedBox.shrink(),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      IconButton(
+                                        onPressed:
+                                            () => _handleTextToSpeech(
+                                              _translations[index]["translated"]
+                                                  .toString(),
+                                              _person2Language,
+                                            ),
+                                        icon: Icon(Icons.volume_up),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
                       ),
-                    ),
             ),
           ),
           SizedBox(
@@ -397,9 +409,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
                         height: 60,
                         width: 60,
                         decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: borderColor),
-                            color: micColor),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: borderColor),
+                          color: micColor,
+                        ),
                         child: Icon(
                           _isListeningPerson2 ? Icons.mic : Icons.mic_none,
                           color: Colors.white,
@@ -450,9 +463,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Please enter some text to speak."),
-        ),
+        SnackBar(content: Text("Please enter some text to speak.")),
       );
     }
   }
