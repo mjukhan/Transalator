@@ -34,6 +34,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   List<String> _savedTranslations = []; // List of saved translations
   final FlutterTts _flutterTts = FlutterTts();
   bool _isSpeaking = false;
+  bool _isTranslating = false;
 
   final TranslationService _translationService = TranslationService();
 
@@ -69,7 +70,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   }
 
   void _translateText(String inputText) async {
-    //if (!await PermissionHelper().checkMicrophonePermission()) return;
     if (!await PermissionHelper().checkWifiConnection(context)) {
       CircularProgressIndicator();
     }
@@ -81,6 +81,9 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     }
 
     try {
+      setState(() {
+        _isTranslating = true;
+      });
       // Call the translation service
       final translation = await _translationService.translate(
         text: inputText,
@@ -89,6 +92,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
       );
 
       setState(() {
+        _isTranslating = false;
         _translatedText = translation; // Update translated text
       });
     } catch (e) {
@@ -139,7 +143,21 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                 ? FloatingActionButton.extended(
                   onPressed: () => _translateText(_inputText),
                   backgroundColor: translateButtonColor,
-                  label: Text('Translate', style: TextStyle(color: bgColor)),
+                  label:
+                      (!_isTranslating)
+                          ? Text('Translate', style: TextStyle(color: bgColor))
+                          : Row(
+                            children: [
+                              Text(
+                                'Translating...  ',
+                                style: TextStyle(color: bgColor),
+                              ),
+                              CircularProgressIndicator(
+                                color: bgColor,
+                                strokeWidth: 2,
+                              ),
+                            ],
+                          ),
                 )
                 : SizedBox.shrink(),
         backgroundColor: Colors.grey.shade300,
@@ -280,7 +298,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                     true,
                     false,
                     false,
-                    true,
+                    false,
                     _inputText,
                     _sourceLanguage,
                   )
@@ -363,7 +381,10 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             : SizedBox.shrink(),
         speak
             ? IconButton(
-              icon: Icon(Icons.volume_up),
+              icon:
+                  (!_isSpeaking)
+                      ? Icon(Icons.volume_up)
+                      : CircularProgressIndicator(),
               onPressed: () => _handleTextToSpeech(textToCopy, languageCode),
               tooltip: 'Speak',
             )
@@ -373,35 +394,37 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   }
 
   Future<void> _handleTextToSpeech(String text, String languageCode) async {
-    if (_isSpeaking) {
-      await _flutterTts.stop(); // Stop speaking if already speaking
-      setState(() {
-        _isSpeaking = false;
-      });
-      return;
-    }
+    // if (_isSpeaking) {
+    //   await _flutterTts.stop(); // Stop speaking if already speaking
+    //   setState(() {
+    //     _isSpeaking = false;
+    //   });
+    //   return;
+    // }
+    setState(() {
+      _isSpeaking = false;
+    });
 
     if (text.isNotEmpty) {
-      setState(() {
-        _isSpeaking = true; // Start speaking state
-      });
-
       await _flutterTts.setLanguage(languageCode);
       await _flutterTts.setPitch(1.0);
       await _flutterTts.setSpeechRate(0.5);
+      setState(() {
+        _isSpeaking = true; // Start speaking state
+      });
 
       // Speak the text and handle completion
       await _flutterTts.speak(text);
 
       _flutterTts.setCompletionHandler(() {
         setState(() {
-          _isSpeaking = false; // Reset to original icon when speech completes
+          _isSpeaking = false;
         });
       });
 
       _flutterTts.setErrorHandler((error) {
         setState(() {
-          _isSpeaking = false; // Reset on error
+          _isSpeaking = false;
         });
       });
     } else {

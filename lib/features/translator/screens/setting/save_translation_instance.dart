@@ -4,8 +4,6 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:translation_app/core/utilities/colors.dart';
-import 'package:translation_app/features/translator/screens/setting/view_favorite_translation/view_favorite_translation.dart';
-import 'package:translation_app/features/translator/screens/translation_screen.dart';
 
 class SavedTranslationsPage extends StatefulWidget {
   final List<String> savedTranslations; // Parameter for initial translations
@@ -120,39 +118,6 @@ class _SavedTranslationsPageState extends State<SavedTranslationsPage> {
                       ],
                     ),
                   );
-                  // return ListTile(
-                  //   title: Text(
-                  //     "${instance['input']}",
-                  //     style: TextStyle(overflow: TextOverflow.fade),
-                  //     maxLines: 1,
-                  //   ),
-                  //   subtitle: Text(
-                  //     '${instance['translate']}',
-                  //     style: TextStyle(overflow: TextOverflow.fade),
-                  //     maxLines: 1,
-                  //   ),
-                  //   trailing: IconButton(
-                  //     icon: Image.asset('assets/icons/bin.png', scale: 14),
-                  //     onPressed: () => _removeTranslation(index),
-                  //     tooltip:
-                  //         AppLocalizations.of(context)!.deleteThisTranslation,
-                  //   ),
-                  //   style: ListTileStyle.drawer,
-                  //   contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-                  //   horizontalTitleGap: 16,
-                  //   onTap: () {
-                  //     Navigator.push(
-                  //       context,
-                  //       MaterialPageRoute(
-                  //         builder:
-                  //             (context) => ViewFavoriteTranslation(
-                  //               text1: instance['input'],
-                  //               text2: instance['translate'],
-                  //             ),
-                  //       ),
-                  //     );
-                  //   },
-                  // );
                 },
               ),
     );
