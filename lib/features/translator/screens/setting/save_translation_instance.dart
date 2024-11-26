@@ -58,7 +58,11 @@ class _SavedTranslationsPageState extends State<SavedTranslationsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: bgColor,
       appBar: AppBar(
+        backgroundColor: bgColor,
+        scrolledUnderElevation: 0,
+        elevation: 0,
         title: Text(AppLocalizations.of(context)!.favoriteTranslations),
       ),
       body:
@@ -75,7 +79,7 @@ class _SavedTranslationsPageState extends State<SavedTranslationsPage> {
                     margin: EdgeInsets.all(16),
                     padding: EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: bgColor,
+                      color: Colors.white,
                       border: Border.all(color: borderColor),
                       borderRadius: BorderRadius.circular(16),
                     ),

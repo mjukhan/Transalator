@@ -58,16 +58,16 @@ class _SplashScreenState extends State<SplashScreen> {
             // ),
             Text('Loading...'),
             Container(
-              width: size.width * 0.8,
-              height: 20,
-              padding: EdgeInsets.all(4),
+              width: size.width * 0.7,
+              height: 10,
+              padding: EdgeInsets.all(1),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.yellow),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: LinearProgressIndicator(
                 borderRadius: BorderRadius.circular(8),
-                minHeight: 5,
+
                 value: _progress, // Progress value (0.0 to 1.0)
                 backgroundColor: bgColor,
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),

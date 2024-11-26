@@ -159,7 +159,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                           ),
                 )
                 : SizedBox.shrink(),
-        backgroundColor: Colors.grey.shade300,
+        backgroundColor: langSelectorColor,
         appBar: AppBar(
           elevation: 0,
           backgroundColor: bgColor,

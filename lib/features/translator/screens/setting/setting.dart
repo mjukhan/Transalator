@@ -11,10 +11,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class Setting extends StatefulWidget {
   final List<String> savedTranslation;
 
-  const Setting({
-    super.key,
-    required this.savedTranslation,
-  });
+  const Setting({super.key, required this.savedTranslation});
 
   @override
   _SettingState createState() => _SettingState();
@@ -29,30 +26,28 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
   void _initializeGeneralList(BuildContext context) {
     general.clear();
     other.clear();
-    general.addAll(
-      [
-        {
-          'icon': 'assets/icons/premium.png',
-          'title': AppLocalizations.of(context)!.premium,
-          'subtitle': AppLocalizations.of(context)!.upgradeToPro,
-        },
-        {
-          'icon': 'assets/icons/language.png',
-          'title': AppLocalizations.of(context)!.appLanguage,
-          'subtitle': AppLocalizations.of(context)!.changeAppLanguage,
-        },
-        {
-          'icon': 'assets/icons/manage.png',
-          'title': AppLocalizations.of(context)!.manageSubscriptions,
-          'subtitle': AppLocalizations.of(context)!.checkBilling,
-        },
-        {
-          'icon': 'assets/icons/star.png',
-          'title': AppLocalizations.of(context)!.favorite,
-          'subtitle': AppLocalizations.of(context)!.viewAllFavorites,
-        }
-      ],
-    );
+    general.addAll([
+      {
+        'icon': 'assets/icons/premium.png',
+        'title': AppLocalizations.of(context)!.premium,
+        'subtitle': AppLocalizations.of(context)!.upgradeToPro,
+      },
+      {
+        'icon': 'assets/icons/language.png',
+        'title': AppLocalizations.of(context)!.appLanguage,
+        'subtitle': AppLocalizations.of(context)!.changeAppLanguage,
+      },
+      {
+        'icon': 'assets/icons/manage.png',
+        'title': AppLocalizations.of(context)!.manageSubscriptions,
+        'subtitle': AppLocalizations.of(context)!.checkBilling,
+      },
+      {
+        'icon': 'assets/icons/star.png',
+        'title': AppLocalizations.of(context)!.favorite,
+        'subtitle': AppLocalizations.of(context)!.viewAllFavorites,
+      },
+    ]);
     other.addAll([
       {
         'icon': 'assets/icons/share.png',
@@ -80,31 +75,26 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
     if (title == localizations.appLanguage) {
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (context) => AppLanguage(),
-        ),
+        MaterialPageRoute(builder: (context) => AppLanguage()),
       );
     } else if (title == localizations.premium) {
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (context) => PremiumSubscriptionScreen(),
-        ),
+        MaterialPageRoute(builder: (context) => PremiumSubscriptionScreen()),
       );
     } else if (title == localizations.privacyPolicy) {
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (context) => PrivacyPolicy(),
-        ),
+        MaterialPageRoute(builder: (context) => PrivacyPolicy()),
       );
     } else if (title == localizations.favorite) {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => SavedTranslationsPage(
-            savedTranslations: widget.savedTranslation,
-          ),
+          builder:
+              (context) => SavedTranslationsPage(
+                savedTranslations: widget.savedTranslation,
+              ),
         ),
       );
     } else if (title == localizations.shareApp) {
@@ -136,13 +126,14 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
     _initializeGeneralList(context);
 
     return Scaffold(
+      backgroundColor: bgColor,
       appBar: AppBar(
+        backgroundColor: bgColor,
+        elevation: 0,
         scrolledUnderElevation: 0,
         title: FittedBox(
           fit: BoxFit.scaleDown,
-          child: Text(
-            localizations.setting,
-          ),
+          child: Text(localizations.setting),
         ),
       ),
       body: SingleChildScrollView(
@@ -190,9 +181,7 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               general[index]['title']!,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ),
                           subtitle: FittedBox(
@@ -200,9 +189,7 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               general[index]['subtitle']!,
-                              style: TextStyle(
-                                fontSize: 12,
-                              ),
+                              style: TextStyle(fontSize: 12),
                             ),
                           ),
                           trailing: Icon(
@@ -261,9 +248,7 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               other[index]['title']!,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ),
                           subtitle: FittedBox(
@@ -271,9 +256,7 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               other[index]['subtitle']!,
-                              style: TextStyle(
-                                fontSize: 12,
-                              ),
+                              style: TextStyle(fontSize: 12),
                             ),
                           ),
                           trailing: Icon(
