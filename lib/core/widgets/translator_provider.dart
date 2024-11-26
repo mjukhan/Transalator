@@ -19,8 +19,7 @@ class TranslationService {
       );
       return translation.text; // Return the translated text
     } catch (e) {
-      print("Translation Error: $e");
-      return "Error translating text."; // Provide a fallback message
+      return ""; // Provide a fallback message
     }
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Upload {
   bool _isUploading = false;
@@ -40,7 +41,7 @@ class Upload {
     } catch (e) {
       _isUploading = false;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error uploading file: $e")),
+        SnackBar(content: Text("${AppLocalizations.of(context)!.errorUploadingFile}$e")),
       );
       return null;
     }

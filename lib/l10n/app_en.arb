@@ -97,7 +97,19 @@
     "contactUs": "Contact Us",
     "contactUsDetails": "If you have any questions or suggestions about our Privacy Policy, do not hesitate to contact us at ",
     "contactEmail": "apps@imaginationai.net",
-    "clipboardEmpty": "Clip board is Empty"
+    "clipboardEmpty": "Clip board is Empty",
+    "permissionRequired": "Permission Required",
+    "uploadSuccessful": "Upload Successful",
+    "fileHasBeenUploaded": "File has been uploaded successfully.",
+    "ok": "OK",
+    "startConvo": "Start Conversation",
+    "searchResult": "Search Results",
+    "errorFatchingLine":"Error fetching lines with attributes: ",
+    "errorUploadingFile": "Error uploading file: ",
+    "trnslationSaved": "Translation saved!",
+    "textCopied": "Text copied",
+    "translate": "Translate",
+    "translating": "Translating... "
 
 
 }

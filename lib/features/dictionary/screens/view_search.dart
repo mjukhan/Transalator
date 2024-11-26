@@ -17,7 +17,7 @@ class _ViewSearchState extends State<ViewSearch> {
     return Scaffold(
       backgroundColor: bgColor,
       appBar: AppBar(
-        title: Text('Search Results'),
+        title: Text(AppLocalizations.of(context)!.searchResult),
         backgroundColor: bgColor,
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -42,9 +42,7 @@ class _ViewSearchState extends State<ViewSearch> {
                   margin: const EdgeInsets.only(bottom: 16.0),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    border: Border.all(
-                      color: borderColor,
-                    ),
+                    border: Border.all(color: borderColor),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Padding(
@@ -82,8 +80,9 @@ class _ViewSearchState extends State<ViewSearch> {
                           itemCount: meaning.definitions.length,
                           itemBuilder: (context, defIndex) {
                             return Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 4.0),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 4.0,
+                              ),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [

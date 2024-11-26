@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../../data/models/ocr_model.dart';
 import '../../../data/repositories/ocr_repository.dart';
 
@@ -71,7 +71,7 @@ class OCR {
     } catch (e) {
       // Log the error message and stack trace to help with debugging
       SnackBar(
-        content: Text('Error fetching lines with attributes: $e'),
+        content: Text('$e'),
       );
     }
 

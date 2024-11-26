@@ -34,12 +34,6 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     _startProgress();
-    // // Navigate to HomeScreen after a 3-second delay
-    // Future.delayed(const Duration(seconds: 3), () {
-    //   Navigator.of(context).pushReplacement(
-    //     MaterialPageRoute(builder: (context) => HomeScreen()),
-    //   );
-    // });
   }
 
   @override

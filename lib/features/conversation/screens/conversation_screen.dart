@@ -230,7 +230,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                           ),
                           SizedBox(height: 20),
                           Text(
-                            "Start Conversation",
+                            AppLocalizations.of(context)!.startConvo,
                             style: TextStyle(color: Colors.grey),
                           ),
                         ],
@@ -462,9 +462,9 @@ class _ConversationScreenState extends State<ConversationScreen> {
         });
       });
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Please enter some text to speak.")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("No Text to Speak")));
     }
   }
 }

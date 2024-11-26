@@ -92,7 +92,7 @@ class _FileScreenState extends State<FileScreen> {
                     height: 50,
                     width: 150,
                     child: Center(
-                      child: Text("Upload"),
+                      child: Text(AppLocalizations.of(context)!.upload),
                     ),
                   ),
                 ),

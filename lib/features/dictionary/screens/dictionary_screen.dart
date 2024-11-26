@@ -17,8 +17,9 @@ class DictionaryScreen extends StatefulWidget {
 
 class _DictionaryScreenState extends State<DictionaryScreen>
     with AutomaticKeepAliveClientMixin {
-  final DictionaryService _dictionaryService =
-      DictionaryService(DictionaryRepository());
+  final DictionaryService _dictionaryService = DictionaryService(
+    DictionaryRepository(),
+  );
   Future<WordDefinition?>? _wordDefinition;
   final TextEditingController _searchController = TextEditingController();
 
@@ -58,8 +59,9 @@ class _DictionaryScreenState extends State<DictionaryScreen>
     setState(() {
       _recentSearches.clear(); // Clear the in-memory list
     });
-    await prefs
-        .remove('Recent Searched Words'); // Remove from SharedPreferences
+    await prefs.remove(
+      'Recent Searched Words',
+    ); // Remove from SharedPreferences
   }
 
   // Function to fetch word meaning and update recent searches
@@ -127,8 +129,9 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          ViewSearch(wordDefinition: _wordDefinition),
+                      builder:
+                          (context) =>
+                              ViewSearch(wordDefinition: _wordDefinition),
                     ),
                   );
                   _searchWord(text);
@@ -136,69 +139,6 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                 },
               ),
             ),
-
-            // Recent Searches List
-            // Padding(
-            //   padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
-            //   child: Row(
-            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //     children: [
-            //       Text(
-            //         AppLocalizations.of(context)!.recentSearches,
-            //         style: TextStyle(
-            //           fontSize: 14,
-            //           color: Colors.grey,
-            //         ),
-            //       ),
-            //       (_recentSearches.isNotEmpty)
-            //           ? TextButton(
-            //               onPressed: _clearRecentWords,
-            //               child: Text('Clear all'),
-            //             )
-            //           : SizedBox.shrink(),
-            //     ],
-            //   ),
-            // ),
-            // _recentSearches.isNotEmpty
-            //     ? Expanded(
-            //         child: NotificationListener<ScrollNotification>(
-            //           onNotification: (scrollNotification) {
-            //             if (scrollNotification is ScrollStartNotification) {
-            //               _hideKeyboard(context);
-            //             }
-            //             return false;
-            //           },
-            //           child: ListView.builder(
-            //             itemCount: _recentSearches.length,
-            //             itemBuilder: (context, index) {
-            //               final word = _recentSearches[index];
-            //               return ListTile(
-            //                 leading: Icon(
-            //                   Icons.access_time_rounded,
-            //                   color: Colors.grey,
-            //                 ),
-            //                 title: Text(word),
-            //                 onTap: () => Navigator.push(
-            //                   context,
-            //                   MaterialPageRoute(
-            //                     builder: (context) =>
-            //                         ViewSearch(wordDefinition: _wordDefinition),
-            //                   ),
-            //                 ),
-            //                 trailing: Icon(
-            //                   Icons.arrow_forward_ios,
-            //                   size: 16,
-            //                   color: Colors.grey,
-            //                 ),
-            //               );
-            //             },
-            //           ),
-            //         ),
-            //       )
-            //     : Padding(
-            //         padding: EdgeInsets.fromLTRB(0, 100, 0, 50),
-            //         child: Text('Fine word by using the search'),
-            //       ),
           ],
         ),
       ),

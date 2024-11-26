@@ -1,22 +1,18 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:translation_app/core/utilities/colors.dart';
-import 'package:translation_app/features/File/widgets/imagePickerUtility.dart';
 import 'package:translation_app/features/translator/screens/setting/setting.dart';
 import '../../../core/widgets/translator_provider.dart';
 import '../../../core/widgets/permission_handler.dart';
-import '../../File/screens/picture.dart';
 import '../widgets/error_handler.dart';
 import '../widgets/input_field.dart';
 import '../widgets/language_selector.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class TranslatorScreen extends StatefulWidget {
   const TranslatorScreen({super.key});
@@ -116,9 +112,9 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         AppLocalizations.of(context)!.savedTranslations,
         _savedTranslations,
       );
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Translation saved!')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.translationSaved)),
+      );
       setState(() {
         _isSaved = true;
       });
@@ -128,9 +124,9 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   // Function to copy text to the clipboard
   void _copyToClipboard(String text) {
     Clipboard.setData(ClipboardData(text: text));
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Text copied to clipboard')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(AppLocalizations.of(context)!.textCopied)),
+    );
   }
 
   @override
@@ -145,11 +141,14 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                   backgroundColor: translateButtonColor,
                   label:
                       (!_isTranslating)
-                          ? Text('Translate', style: TextStyle(color: bgColor))
+                          ? Text(
+                            AppLocalizations.of(context)!.translate,
+                            style: TextStyle(color: bgColor),
+                          )
                           : Row(
                             children: [
                               Text(
-                                'Translating...  ',
+                                AppLocalizations.of(context)!.translating,
                                 style: TextStyle(color: bgColor),
                               ),
                               CircularProgressIndicator(
@@ -354,11 +353,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        // IconButton(
-        //   icon: const Icon(Icons.search),
-        //   onPressed: _findInDictionary,
-        //   tooltip: 'Find in Dictionary',
-        // ),
         share
             ? IconButton(
               onPressed: () => shareTranslatedText(textToCopy),
@@ -394,13 +388,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   }
 
   Future<void> _handleTextToSpeech(String text, String languageCode) async {
-    // if (_isSpeaking) {
-    //   await _flutterTts.stop(); // Stop speaking if already speaking
-    //   setState(() {
-    //     _isSpeaking = false;
-    //   });
-    //   return;
-    // }
     setState(() {
       _isSpeaking = false;
     });
@@ -428,9 +415,9 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         });
       });
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Please enter some text to speak.")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Empty Text")));
     }
   }
 

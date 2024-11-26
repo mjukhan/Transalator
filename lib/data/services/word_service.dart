@@ -12,7 +12,6 @@ class DictionaryService {
     try {
       return await repository.fetchWordDefinition(word);
     } catch (e) {
-      print('Error fetching word definition: $e');
       return null;
     }
   }
