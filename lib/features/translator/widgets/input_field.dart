@@ -286,11 +286,17 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class InputField extends StatefulWidget {
   final ValueChanged<String> onChanged;
   final String sourceLanguage;
+  final bool isTextInput;
+  final bool isVoiceInput;
+  final ValueChanged<String> onSubmit;
 
   const InputField({
     super.key,
     required this.onChanged,
     required this.sourceLanguage,
+    required this.isTextInput,
+    required this.isVoiceInput,
+    required this.onSubmit,
   });
 
   @override
@@ -324,6 +330,7 @@ class _InputFieldState extends State<InputField> {
             onChanged: (text) {
               widget.onChanged(text); // Pass text to parent widget
             },
+            onSubmit: widget.onSubmit,
           ),
         ),
         // Show clear button only when there is text
@@ -356,12 +363,14 @@ class TextInputField extends StatelessWidget {
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
   final String hintText;
+  final ValueChanged<String> onSubmit;
 
   const TextInputField({
     super.key,
     required this.controller,
     required this.hintText,
     required this.onChanged,
+    required this.onSubmit,
   });
 
   @override
@@ -379,6 +388,9 @@ class TextInputField extends StatelessWidget {
 
       style: TextStyle(fontSize: 24.0),
       onChanged: onChanged,
+      onSubmitted: (value) {
+        onSubmit(value);
+      },
     );
   }
 }

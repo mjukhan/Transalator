@@ -296,73 +296,41 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     return Expanded(
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Stack(
-          children: [
-            // Main Content (Translation and Input)
-            SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Text Input Field at the Top
-                  InputField(
-                    onChanged: (text) {
-                      setState(() {
-                        _inputText = text;
-                        _translatedText = '';
-                        _isSaved = false;
-                      });
-                      //_translateText(_inputText);
-                    },
-                    sourceLanguage: '',
-                    // isVoiceInput: false,
-                    // isTextInput: true,
-                    // onSubmit: (_) => _translateText(_inputText),
-                  ),
-                  _inputText.isNotEmpty && _translatedText.isNotEmpty
-                      ? _buildActionButtons(
-                        true,
-                        false,
-                        false,
-                        true,
-                        _inputText,
-                        _sourceLanguage,
-                      )
-                      : SizedBox.shrink(),
-                  const SizedBox(height: 16),
-                  (_translatedText.isNotEmpty)
-                      ? _buildTranslatedText()
-                      : SizedBox.shrink(),
-                ],
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Text Input Field at the Top
+              InputField(
+                onChanged: (text) {
+                  setState(() {
+                    _inputText = text;
+                    _translatedText = '';
+                    _isSaved = false;
+                  });
+                  //_translateText(_inputText);
+                },
+                sourceLanguage: '',
+                isVoiceInput: false,
+                isTextInput: true,
+                onSubmit: (_) => _translateText(_inputText),
               ),
-            ),
-
-            // _inputText.isEmpty
-            //     ? // Voice Input Icon at the Bottom Right
-            //     Positioned(
-            //       bottom: 16,
-            //       right: 16,
-            //       child: Row(
-            //         children: [
-            //           _cameraButton(),
-            //           InputField(
-            //             onChanged: (text) {
-            //               setState(() {
-            //                 _inputText = text;
-            //                 _translatedText = '';
-            //                 _isSaved = false;
-            //               });
-            //               //_translateText(_inputText);
-            //             },
-            //             sourceLanguage: '',
-            //             // isVoiceInput: true,
-            //             // isTextInput: false,
-            //             // onSubmit: (_) => _translateText(_inputText),
-            //           ),
-            //         ],
-            //       ),
-            //     )
-            //     : SizedBox.shrink(),
-          ],
+              _inputText.isNotEmpty && _translatedText.isNotEmpty
+                  ? _buildActionButtons(
+                    true,
+                    false,
+                    false,
+                    true,
+                    _inputText,
+                    _sourceLanguage,
+                  )
+                  : SizedBox.shrink(),
+              const SizedBox(height: 16),
+              (_translatedText.isNotEmpty)
+                  ? _buildTranslatedText()
+                  : SizedBox.shrink(),
+            ],
+          ),
         ),
       ),
     );
@@ -376,15 +344,13 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         Container(
           //decoration: BoxDecoration(border: Border.all(color: Colors.yellow)),
           margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: FittedBox(
-            child: AutoSizeText(
-              _translatedText,
-              textAlign: TextAlign.start,
-              style: TextStyle(color: translatedTextColor),
-              maxFontSize: 24,
-              minFontSize: 18,
-              maxLines: null,
-            ),
+          child: AutoSizeText(
+            _translatedText,
+            textAlign: TextAlign.start,
+            style: TextStyle(color: translatedTextColor),
+            maxFontSize: 24,
+            minFontSize: 18,
+            maxLines: null,
           ),
         ),
         _buildActionButtons(
