@@ -93,9 +93,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
       });
     } catch (e) {
       ErrorHandlerTranslating.handleTranslationError(context, e);
-      setState(() {
-        _translatedText = AppLocalizations.of(context)!.errorInTranslation;
-      });
     }
   }
 
@@ -277,9 +274,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                   //_translateText(_inputText);
                 },
                 sourceLanguage: _sourceLanguage,
-                // isVoiceInput: false,
-                // isTextInput: true,
-                // onSubmit: (_) => _translateText(_inputText),
               ),
               _inputText.isNotEmpty && _translatedText.isNotEmpty
                   ? _buildActionButtons(
@@ -310,15 +304,13 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         Container(
           //decoration: BoxDecoration(border: Border.all(color: Colors.yellow)),
           margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: FittedBox(
-            child: AutoSizeText(
-              _translatedText,
-              textAlign: TextAlign.start,
-              style: TextStyle(color: translatedTextColor),
-              maxFontSize: 24,
-              minFontSize: 18,
-              maxLines: null,
-            ),
+          child: AutoSizeText(
+            _translatedText,
+            textAlign: TextAlign.start,
+            style: TextStyle(color: translatedTextColor),
+            maxFontSize: 18,
+            minFontSize: 12,
+            maxLines: null,
           ),
         ),
         _buildActionButtons(

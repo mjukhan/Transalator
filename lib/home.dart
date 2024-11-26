@@ -48,31 +48,19 @@ class _HomeScreenState extends State<HomeScreen> {
       onTap: _onItemTapped,
       items: [
         BottomNavigationBarItem(
-          icon: Image.asset(
-            'assets/icons/translate.png',
-            scale: 24,
-          ),
+          icon: Image.asset('assets/icons/translate.png', scale: 24),
           label: AppLocalizations.of(context)!.translation,
         ),
         BottomNavigationBarItem(
-          icon: Image.asset(
-            'assets/icons/chat (3).png',
-            scale: 24,
-          ),
+          icon: Image.asset('assets/icons/chat (3).png', scale: 24),
           label: AppLocalizations.of(context)!.conversation,
         ),
         BottomNavigationBarItem(
-          icon: Image.asset(
-            'assets/icons/upload.png',
-            scale: 24,
-          ),
+          icon: Image.asset('assets/icons/upload.png', scale: 24),
           label: AppLocalizations.of(context)!.upload,
         ),
         BottomNavigationBarItem(
-          icon: Image.asset(
-            'assets/icons/dictionary (1).png',
-            scale: 24,
-          ),
+          icon: Image.asset('assets/icons/dictionary (1).png', scale: 24),
           label: AppLocalizations.of(context)!.dictionary,
         ),
       ],

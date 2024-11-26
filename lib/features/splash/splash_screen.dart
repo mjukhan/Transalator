@@ -22,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
         Navigator.pushReplacementNamed(context, '/home');
         return false; // Stop updating progress
       }
-      await Future.delayed(Duration(milliseconds: 100));
+      await Future.delayed(Duration(milliseconds: 500));
       setState(() {
         _progress += 0.05; // Increment progress
       });
@@ -64,7 +64,7 @@ class _SplashScreenState extends State<SplashScreen> {
             // ),
             Text('Loading...'),
             Container(
-              width: 200,
+              width: size.width * 0.8,
               height: 20,
               padding: EdgeInsets.all(4),
               decoration: BoxDecoration(
