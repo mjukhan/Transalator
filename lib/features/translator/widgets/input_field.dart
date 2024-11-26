@@ -276,27 +276,27 @@
 // //     );
 // //   }
 // // }
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:translation_app/core/utilities/colors.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../../../core/widgets/permission_handler.dart';
+import '../../File/screens/picture.dart';
+import '../../File/widgets/imagePickerUtility.dart';
+
 class InputField extends StatefulWidget {
   final ValueChanged<String> onChanged;
   final String sourceLanguage;
-  final bool isTextInput;
-  final bool isVoiceInput;
-  final ValueChanged<String> onSubmit;
 
   const InputField({
     super.key,
     required this.onChanged,
     required this.sourceLanguage,
-    required this.isTextInput,
-    required this.isVoiceInput,
-    required this.onSubmit,
   });
 
   @override
@@ -309,6 +309,7 @@ class _InputFieldState extends State<InputField> {
   @override
   void dispose() {
     _controller.dispose();
+
     super.dispose();
   }
 
@@ -318,9 +319,74 @@ class _InputFieldState extends State<InputField> {
     widget.onChanged(''); // Notify parent with empty string
   }
 
+  // Function to paste the last copied text into the input field (_inputText)
+  void _pasteFromClipboard() async {
+    final clipboardData = await Clipboard.getData('text/plain');
+    if (clipboardData != null && clipboardData.text != null) {
+      setState(() {
+        _controller.text = clipboardData.text!;
+      });
+      widget.onChanged(_controller.text);
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Clipboard is empty')));
+    }
+  }
+
+  void _getFromCamera() async {
+    File? imageFile;
+    File? file = await ImagePickerUtility.pickImageFromCamera(context);
+    if (file != null) {
+      setState(() {
+        imageFile = file;
+      });
+
+      // Navigate to PictureScreen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PictureScreen(imageFile: imageFile!),
+        ),
+      );
+    }
+  }
+
+  Widget _cameraButton() {
+    return Container(
+      decoration: BoxDecoration(shape: BoxShape.circle, color: micColor),
+      margin: EdgeInsets.fromLTRB(0, 16, 16, 0),
+      height: 40,
+      width: 40,
+      child: Center(
+        child: IconButton(
+          onPressed: () => _getFromCamera(),
+          icon: Icon(Icons.camera_alt, color: bgColor),
+        ),
+      ),
+    );
+  }
+
+  Widget _pasteButton() {
+    return Container(
+      decoration: BoxDecoration(shape: BoxShape.circle, color: micColor),
+      margin: EdgeInsets.fromLTRB(0, 16, 16, 0),
+      height: 40,
+      width: 40,
+      child: Center(
+        child: IconButton(
+          onPressed: () => _pasteFromClipboard(),
+          icon: Icon(Icons.paste, color: bgColor),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Text Input Widget
         Expanded(
@@ -328,12 +394,13 @@ class _InputFieldState extends State<InputField> {
             controller: _controller,
             hintText: AppLocalizations.of(context)!.hintTextTranslation,
             onChanged: (text) {
+              setState(() {
+                _controller.text = text;
+              });
               widget.onChanged(text); // Pass text to parent widget
             },
-            onSubmit: widget.onSubmit,
           ),
         ),
-        // Show clear button only when there is text
         if (_controller.text.isNotEmpty) ...[
           IconButton(
             icon: Icon(Icons.clear),
@@ -341,16 +408,26 @@ class _InputFieldState extends State<InputField> {
             tooltip: 'Clear',
           ),
         ],
+
+        // Show clear button only when there is text
         if (_controller.text.isEmpty) ...[
           // Voice Input Widget
-          VoiceInputButton(
-            onResult: (text) {
-              _controller.text = text; // Update the text field with voice input
-              widget.onChanged(
-                text,
-              ); // Notify parent widget with recognized text
-            },
-            languageCode: widget.sourceLanguage,
+          Column(
+            children: [
+              VoiceInputButton(
+                onResult: (text) {
+                  setState(() {
+                    _controller.text = text;
+                  });
+                  widget.onChanged(
+                    text,
+                  ); // Notify parent widget with recognized text
+                },
+                languageCode: widget.sourceLanguage,
+              ),
+              _cameraButton(),
+              _pasteButton(),
+            ],
           ),
         ],
       ],
@@ -363,14 +440,12 @@ class TextInputField extends StatelessWidget {
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
   final String hintText;
-  final ValueChanged<String> onSubmit;
 
   const TextInputField({
     super.key,
     required this.controller,
     required this.hintText,
     required this.onChanged,
-    required this.onSubmit,
   });
 
   @override
@@ -386,11 +461,8 @@ class TextInputField extends StatelessWidget {
       ),
       maxLines: null,
 
-      style: TextStyle(fontSize: 24.0),
+      style: TextStyle(fontSize: 14.0),
       onChanged: onChanged,
-      onSubmitted: (value) {
-        onSubmit(value);
-      },
     );
   }
 }
@@ -415,26 +487,9 @@ class _VoiceInputButtonState extends State<VoiceInputButton> {
 
   String _text = "";
 
-  // Check microphone permission
-  Future<bool> _checkMicrophonePermission() async {
-    var status = await Permission.microphone.status;
-    if (!status.isGranted) {
-      status = await Permission.microphone.request();
-    }
-    return status.isGranted;
-  }
-
   // Function to handle speech recognition
   void _listen() async {
-    bool hasPermission = await _checkMicrophonePermission();
-    if (!hasPermission) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context)!.micPermissionRequired),
-        ),
-      );
-      return;
-    }
+    if (!await PermissionHelper().checkMicrophonePermission()) return;
 
     if (_speech.isNotListening) {
       bool available = await _speech.initialize(
@@ -447,11 +502,8 @@ class _VoiceInputButtonState extends State<VoiceInputButton> {
         _speech.listen(
           localeId: widget.languageCode,
           onResult: (val) {
-            setState(() {
-              _text = val.recognizedWords;
-              // Trigger callback with recognized text
-              widget.onResult(_text);
-            });
+            _text = val.recognizedWords;
+            widget.onResult(_text);
 
             // Stop listening if the speech is complete
             if (val.hasConfidenceRating && val.confidence > 0.5) {
@@ -468,7 +520,10 @@ class _VoiceInputButtonState extends State<VoiceInputButton> {
   // Helper function to stop listening
   void _stopListening() async {
     await _speech.stop();
-    setState(() {});
+    if (mounted) {
+      // Check if the widget is still part of the widget tree
+      setState(() {});
+    }
   }
 
   @override

@@ -3,9 +3,7 @@ import 'dart:async';
 import '../../core/utilities/colors.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({
-    super.key,
-  });
+  const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -70,9 +68,7 @@ class _SplashScreenState extends State<SplashScreen> {
               height: 20,
               padding: EdgeInsets.all(4),
               decoration: BoxDecoration(
-                border: Border.all(
-                  color: Colors.yellow,
-                ),
+                border: Border.all(color: Colors.yellow),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: LinearProgressIndicator(

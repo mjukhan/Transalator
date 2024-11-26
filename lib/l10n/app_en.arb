@@ -11,7 +11,7 @@
     "instanceSaved" : "Instance saved:",
     "copiedToClipboard" : "Copied to clipboard!",
     "copied": "Copied:",
-    "hintTextTranslation": "Enter or speak text here",
+    "hintTextTranslation": "Enter text",
     "micPermissionRequired": "Microphone permission is required.",
     "errorInPickImageFromCamera": "Error picking image from camera:",
     "errorInPickImageFromGallery": "Error picking image from gallery:",

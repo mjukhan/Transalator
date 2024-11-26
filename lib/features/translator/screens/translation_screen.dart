@@ -34,8 +34,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   List<String> _savedTranslations = []; // List of saved translations
   final FlutterTts _flutterTts = FlutterTts();
   bool _isSpeaking = false;
-  bool _isListening = false;
-  final stt.SpeechToText _speech = stt.SpeechToText();
 
   final TranslationService _translationService = TranslationService();
 
@@ -129,42 +127,9 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   // Function to copy text to the clipboard
   void _copyToClipboard(String text) {
     Clipboard.setData(ClipboardData(text: text));
-    print(text);
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Text copied to clipboard')));
-  }
-
-  // Method to handle speech recognition for Person 1
-  void _listen() async {
-    if (!await PermissionHelper().checkMicrophonePermission()) return;
-
-    if (!_isListening) {
-      if (await _speech.initialize()) {
-        setState(() {
-          _isListening = true;
-        });
-        _speech.listen(
-          onResult: (val) {
-            setState(() {
-              _inputText = val.recognizedWords;
-            });
-
-            if (val.hasConfidenceRating && val.confidence > 0.5) {
-              _speech.stop();
-              setState(() {
-                _isListening = false;
-              });
-            }
-          },
-        );
-      }
-    } else {
-      _speech.stop();
-      setState(() {
-        _isListening = false;
-      });
-    }
   }
 
   @override
@@ -296,6 +261,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     return Expanded(
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        //decoration: BoxDecoration(border: Border.all(color: Colors.yellow)),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -310,10 +276,10 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                   });
                   //_translateText(_inputText);
                 },
-                sourceLanguage: '',
-                isVoiceInput: false,
-                isTextInput: true,
-                onSubmit: (_) => _translateText(_inputText),
+                sourceLanguage: _sourceLanguage,
+                // isVoiceInput: false,
+                // isTextInput: true,
+                // onSubmit: (_) => _translateText(_inputText),
               ),
               _inputText.isNotEmpty && _translatedText.isNotEmpty
                   ? _buildActionButtons(
@@ -326,7 +292,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                   )
                   : SizedBox.shrink(),
               const SizedBox(height: 16),
-              (_translatedText.isNotEmpty)
+              (_translatedText.isNotEmpty && _inputText.isNotEmpty)
                   ? _buildTranslatedText()
                   : SizedBox.shrink(),
             ],
@@ -344,13 +310,15 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         Container(
           //decoration: BoxDecoration(border: Border.all(color: Colors.yellow)),
           margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: AutoSizeText(
-            _translatedText,
-            textAlign: TextAlign.start,
-            style: TextStyle(color: translatedTextColor),
-            maxFontSize: 24,
-            minFontSize: 18,
-            maxLines: null,
+          child: FittedBox(
+            child: AutoSizeText(
+              _translatedText,
+              textAlign: TextAlign.start,
+              style: TextStyle(color: translatedTextColor),
+              maxFontSize: 24,
+              minFontSize: 18,
+              maxLines: null,
+            ),
           ),
         ),
         _buildActionButtons(
@@ -410,45 +378,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             : SizedBox.shrink(),
       ],
     );
-  }
-
-  _cameraButton() {
-    return Container(
-      decoration: BoxDecoration(shape: BoxShape.circle, color: micColor),
-      margin: EdgeInsets.fromLTRB(0, 16, 16, 0),
-      height: 40,
-      width: 40,
-      child: Center(
-        child: IconButton(
-          onPressed: () => _getFromCamera(),
-          icon: Icon(Icons.camera_alt, color: bgColor),
-        ),
-      ),
-    );
-  }
-
-  void _getFromCamera() async {
-    File? imageFile;
-    File? file = await ImagePickerUtility.pickImageFromCamera(context);
-    if (file != null) {
-      setState(() {
-        imageFile = file;
-      });
-
-      // Navigate to PictureScreen
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PictureScreen(imageFile: imageFile!),
-        ),
-      ).then((result) {
-        if (result != null) {
-          setState(() {
-            _inputText = result;
-          });
-        }
-      });
-    }
   }
 
   Future<void> _handleTextToSpeech(String text, String languageCode) async {
