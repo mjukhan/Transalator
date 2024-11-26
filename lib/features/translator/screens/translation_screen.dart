@@ -314,9 +314,9 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                       //_translateText(_inputText);
                     },
                     sourceLanguage: '',
-                    isVoiceInput: false,
-                    isTextInput: true,
-                    onSubmit: (_) => _translateText(_inputText),
+                    // isVoiceInput: false,
+                    // isTextInput: true,
+                    // onSubmit: (_) => _translateText(_inputText),
                   ),
                   _inputText.isNotEmpty && _translatedText.isNotEmpty
                       ? _buildActionButtons(
@@ -336,32 +336,32 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
               ),
             ),
 
-            _inputText.isEmpty
-                ? // Voice Input Icon at the Bottom Right
-                Positioned(
-                  bottom: 16,
-                  right: 16,
-                  child: Row(
-                    children: [
-                      _cameraButton(),
-                      InputField(
-                        onChanged: (text) {
-                          setState(() {
-                            _inputText = text;
-                            _translatedText = '';
-                            _isSaved = false;
-                          });
-                          //_translateText(_inputText);
-                        },
-                        sourceLanguage: '',
-                        isVoiceInput: true,
-                        isTextInput: false,
-                        onSubmit: (_) => _translateText(_inputText),
-                      ),
-                    ],
-                  ),
-                )
-                : SizedBox.shrink(),
+            // _inputText.isEmpty
+            //     ? // Voice Input Icon at the Bottom Right
+            //     Positioned(
+            //       bottom: 16,
+            //       right: 16,
+            //       child: Row(
+            //         children: [
+            //           _cameraButton(),
+            //           InputField(
+            //             onChanged: (text) {
+            //               setState(() {
+            //                 _inputText = text;
+            //                 _translatedText = '';
+            //                 _isSaved = false;
+            //               });
+            //               //_translateText(_inputText);
+            //             },
+            //             sourceLanguage: '',
+            //             // isVoiceInput: true,
+            //             // isTextInput: false,
+            //             // onSubmit: (_) => _translateText(_inputText),
+            //           ),
+            //         ],
+            //       ),
+            //     )
+            //     : SizedBox.shrink(),
           ],
         ),
       ),
