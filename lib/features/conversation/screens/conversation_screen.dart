@@ -28,6 +28,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
   bool _isListeningPerson1 = false;
   bool _isListeningPerson2 = false;
   bool _isSpeaking = false;
+  bool _isTranslating = false;
   StreamSubscription? _connectivitySubscription;
   final TextEditingController _controller = TextEditingController();
   final stt.SpeechToText _speech = stt.SpeechToText();
@@ -64,11 +65,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
     bool isSpeaker1,
     bool isSpeaker2,
   ) async {
-    //if (!await PermissionHelper().checkMicrophonePermission()) return;
     if (!await PermissionHelper().checkWifiConnection(context)) return;
-
     if (inputText.isEmpty) {
       setState(() {
+        _isTranslating = true;
         _translatedText = '';
       });
       return;
@@ -93,7 +93,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
             "translated": translation,
             "person": isSpeaker1 ? "1" : "2",
           });
-          print(_translations);
+          _isTranslating = false;
         });
       } catch (e) {
         ErrorHandlerTranslating.handleTranslationError(context, e);
@@ -112,7 +112,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
   // Method to handle speech recognition for Person 1
   void _listenPerson1() async {
     if (!await PermissionHelper().checkMicrophonePermission()) return;
-
     if (!_isListeningPerson1) {
       if (await _speech.initialize()) {
         setState(() {
@@ -130,26 +129,25 @@ class _ConversationScreenState extends State<ConversationScreen> {
             });
 
             if (val.hasConfidenceRating && val.confidence > 0.5) {
-              _speech.stop();
               setState(() {
                 _isListeningPerson1 = false;
               });
+              _speech.stop();
             }
           },
         );
       }
     } else {
-      _speech.stop();
       setState(() {
         _isListeningPerson1 = false;
       });
+      _speech.stop();
     }
   }
 
   // Method to handle speech recognition for Person 2
   void _listenPerson2() async {
     if (!await PermissionHelper().checkMicrophonePermission()) return;
-
     if (!_isListeningPerson2) {
       if (await _speech.initialize()) {
         setState(() {
@@ -163,23 +161,24 @@ class _ConversationScreenState extends State<ConversationScreen> {
               _controller.text = _inputText;
               speaker1 = false;
               speaker2 = true;
+              _isListeningPerson2 = false;
               _translateText(_inputText, speaker1, speaker2);
             });
 
             if (val.hasConfidenceRating && val.confidence > 0.5) {
-              _speech.stop();
               setState(() {
                 _isListeningPerson2 = false;
               });
+              _speech.stop();
             }
           },
         );
       }
     } else {
-      _speech.stop();
       setState(() {
         _isListeningPerson2 = false;
       });
+      _speech.stop();
     }
   }
 
@@ -189,6 +188,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
     _debounce?.cancel();
     if (_speech.isListening) {
       _speech.stop();
+      _isListeningPerson1 = false;
+      _isListeningPerson2 = false;
     }
     _connectivitySubscription?.cancel();
     super.dispose();
@@ -219,7 +220,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                 borderRadius: BorderRadius.circular(16),
               ),
               child:
-                  _translations.isEmpty
+                  _translatedText.isEmpty
                       ? Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -235,11 +236,23 @@ class _ConversationScreenState extends State<ConversationScreen> {
                           ),
                         ],
                       )
+                      : ((_isListeningPerson1 || _isListeningPerson2) ||
+                          _isTranslating)
+                      ? Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade200,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child:
+                            (_isListeningPerson1 || _isListeningPerson2)
+                                ? Text('Speaking...')
+                                : Text("Translating..."),
+                      )
                       : Container(
                         margin: EdgeInsets.fromLTRB(8, 8, 8, 8),
-                        // decoration: BoxDecoration(
-                        //   border: Border.all(color: Colors.yellow),
-                        // ),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.yellow),
+                        ),
                         child: ListView.builder(
                           itemCount: _translations.length,
                           itemBuilder: (BuildContext context, int index) {
@@ -295,7 +308,12 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                   // Translated Text Container
                                   _translations.isNotEmpty
                                       ? Padding(
-                                        padding: const EdgeInsets.all(8.0),
+                                        padding: const EdgeInsets.fromLTRB(
+                                          8,
+                                          0,
+                                          8,
+                                          0,
+                                        ),
                                         child: AutoSizeText(
                                           _translations[index]['translated']
                                               .toString(),
@@ -369,7 +387,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                           border: Border.all(color: borderColor),
                         ),
                         child: Icon(
-                          _isListeningPerson1 ? Icons.mic : Icons.mic_none,
+                          _isListeningPerson1 ? Icons.stop : Icons.mic_none,
                           color: Colors.white,
                         ),
                       ),
@@ -414,7 +432,9 @@ class _ConversationScreenState extends State<ConversationScreen> {
                           color: micColor,
                         ),
                         child: Icon(
-                          _isListeningPerson2 ? Icons.mic : Icons.mic_none,
+                          _isListeningPerson2
+                              ? Icons.stop_circle
+                              : Icons.mic_none,
                           color: Colors.white,
                         ),
                       ),

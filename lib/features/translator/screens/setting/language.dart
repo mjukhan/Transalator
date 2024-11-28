@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:translation_app/core/utilities/colors.dart';
 import 'package:translation_app/main.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -40,9 +41,10 @@ class _AppLanguageState extends State<AppLanguage> {
     String? languageCode = prefs.getString('locale');
     if (languageCode != null) {
       setState(() {
-        selectedLanguage = languages.entries
-            .firstWhere((entry) => entry.value == languageCode)
-            .key;
+        selectedLanguage =
+            languages.entries
+                .firstWhere((entry) => entry.value == languageCode)
+                .key;
       });
     }
   }
@@ -61,15 +63,21 @@ class _AppLanguageState extends State<AppLanguage> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-          content: Text(
-              '${AppLocalizations.of(context)!.languageChangedTo} $selectedLanguage')),
+        content: Text(
+          '${AppLocalizations.of(context)!.languageChangedTo} $selectedLanguage',
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: bgColor,
       appBar: AppBar(
+        backgroundColor: bgColor,
+        elevation: 0,
+        scrolledUnderElevation: 0,
         title: Text(AppLocalizations.of(context)!.appLanguages),
       ),
       body: ListView.builder(
@@ -79,9 +87,10 @@ class _AppLanguageState extends State<AppLanguage> {
           return ListTile(
             leading: Image.asset(langIcons[index], scale: 12),
             title: Text(language, style: const TextStyle(fontSize: 16)),
-            trailing: selectedLanguage == language
-                ? const Icon(Icons.check, color: Colors.green)
-                : null,
+            trailing:
+                selectedLanguage == language
+                    ? const Icon(Icons.check, color: Colors.green)
+                    : null,
             onTap: () => _onLanguageChanged(language),
           );
         },

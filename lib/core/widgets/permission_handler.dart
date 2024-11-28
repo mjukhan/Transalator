@@ -33,59 +33,72 @@ class PermissionHelper {
 
   // Permission request function specifically for Camera and Gallery access
   static Future<bool> requestCameraAndGalleryPermissions(
-      BuildContext context) async {
+    BuildContext context,
+  ) async {
     // Request both Camera and Photos permissions in sequence
     bool cameraGranted = await requestPermission(
-        permission: Permission.camera, context: context);
+      permission: Permission.camera,
+      context: context,
+    );
     bool galleryGranted = await requestPermission(
-        permission: Permission.photos, context: context);
+      permission: Permission.photos,
+      context: context,
+    );
 
     return cameraGranted && galleryGranted;
   }
 
   static void _showPermissionDeniedDialog(
-      BuildContext context, Permission permission) {
+    BuildContext context,
+    Permission permission,
+  ) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Permission Required'),
-        content: Text(
-          'This app needs ${permission.toString().split('.').last} permission to proceed. Please grant it in settings.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text('Cancel'),
+      builder:
+          (context) => AlertDialog(
+            title: Text('Permission Required'),
+            content: Text(
+              'This app needs ${permission.toString().split('.').last} permission to proceed. Please grant it in settings.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  openAppSettings();
+                  Navigator.of(context).pop();
+                },
+                child: Text('Settings'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () {
-              openAppSettings();
-              Navigator.of(context).pop();
-            },
-            child: Text('Settings'),
-          ),
-        ],
-      ),
     );
   }
 
-  /// Check WiFi connection and prompt settings if denied multiple times
+  /// Check WiFi connection and show error in Snackbar if no connection
   Future<bool> checkWifiConnection(BuildContext context) async {
     var connectivityResult = await Connectivity().checkConnectivity();
 
-    // Handle WiFi connectivity based on status
     if (connectivityResult == ConnectivityResult.none) {
-      // If no connectivity, redirect user to settings to enable WiFi
-      openAppSettings(); // Open app settings
-      // Show snack bar for no internet connection
+      // Show snackbar for no internet connection
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text('No internet connection. Please connect to WiFi.')),
+          content: Text(
+            'No Internet connection. Please check your Wi-Fi',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 3),
+        ),
       );
+
       return false;
-    } else {
-      return true;
     }
+
+    return true;
   }
 
   // Check microphone permission and prompt settings if denied multiple times

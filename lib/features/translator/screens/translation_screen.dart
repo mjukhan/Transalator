@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/services.dart';
@@ -39,6 +40,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     super.initState();
     _loadLanguagePreferences();
     _loadSavedTranslations();
+    //_checkWIFI();
   }
 
   // Load the previously selected languages from SharedPreferences
@@ -65,12 +67,27 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     });
   }
 
+  // void _checkWIFI() async {
+  //   if (!await PermissionHelper().checkWifiConnection(context)) {
+  //     return;
+  //   } else {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text(
+  //           'WIFI Connected.',
+  //           style: TextStyle(color: Colors.white),
+  //         ),
+  //         backgroundColor: Colors.red,
+  //         behavior: SnackBarBehavior.floating,
+  //         duration: const Duration(seconds: 3),
+  //       ),
+  //     );
+  //   }
+  // }
+
   void _translateText(String inputText) async {
-    if (!await PermissionHelper().checkWifiConnection(context)) {
-      CircularProgressIndicator();
-    }
     if (inputText.isEmpty) {
-      setState(() {
+      setState(() async {
         _translatedText = '';
       });
       return;
@@ -80,6 +97,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
       setState(() {
         _isTranslating = true;
       });
+
       // Call the translation service
       final translation = await _translationService.translate(
         text: inputText,
@@ -89,9 +107,12 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
 
       setState(() {
         _isTranslating = false;
-        _translatedText = translation; // Update translated text
+        _translatedText = translation;
       });
     } catch (e) {
+      setState(() {
+        _isTranslating = false;
+      });
       ErrorHandlerTranslating.handleTranslationError(context, e);
     }
   }
