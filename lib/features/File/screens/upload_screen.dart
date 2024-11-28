@@ -63,7 +63,10 @@ class _FileScreenState extends State<FileScreen> {
                 child: Image.asset('assets/icons/upload-file.png', scale: 4),
               ),
               Flexible(
-                child: Text('Select Document', style: TextStyle(fontSize: 18)),
+                child: Text(
+                  'Select Document',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
               ),
               Flexible(
                 child: Text(

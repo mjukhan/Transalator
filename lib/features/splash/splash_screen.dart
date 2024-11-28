@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import '../../core/utilities/colors.dart';
+import '../../core/widgets/permission_handler.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -31,9 +32,10 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   @override
-  void initState() {
+  Future<void> initState() async {
     super.initState();
     _startProgress();
+    if (!await PermissionHelper().checkWifiConnection(context)) return;
   }
 
   @override
