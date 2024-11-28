@@ -60,16 +60,10 @@ class _FileScreenState extends State<FileScreen> {
             children: <Widget>[
               Flexible(
                 flex: 2,
-                child: Image.asset(
-                  'assets/icons/upload.png',
-                  scale: 4,
-                ),
+                child: Image.asset('assets/icons/upload-file.png', scale: 4),
               ),
               Flexible(
-                child: Text(
-                  'Select Document',
-                  style: TextStyle(fontSize: 18),
-                ),
+                child: Text('Select Document', style: TextStyle(fontSize: 18)),
               ),
               Flexible(
                 child: Text(
@@ -77,9 +71,7 @@ class _FileScreenState extends State<FileScreen> {
                   style: TextStyle(color: Colors.grey, fontSize: 12),
                 ),
               ),
-              SizedBox(
-                height: 50,
-              ),
+              SizedBox(height: 50),
               Flexible(
                 flex: 1,
                 child: GestureDetector(

@@ -70,7 +70,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 children: [
                   Text('Loading...'),
                   Container(
-                    width: size.width * 0.6,
+                    width: size.width * 0.5,
                     height: 8,
                     padding: EdgeInsets.all(1),
                     decoration: BoxDecoration(
