@@ -42,38 +42,53 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: bgColor,
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              'assets/icons/translate.png',
-              width: 100, // Adjust size as needed
-              height: 100,
-            ),
-            SizedBox(height: size.height * 0.3),
-            // Image.asset(
-            //   'assets/files/loading/loading.gif',
-            //   width: 50, // Adjust width as needed
-            //   height: 50, // Adjust height as needed
-            // ),
-            Text('Loading...'),
-            Container(
-              width: size.width * 0.7,
-              height: 10,
-              padding: EdgeInsets.all(1),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.yellow),
-                borderRadius: BorderRadius.circular(8),
+        child: SizedBox(
+          height: size.height * 0.6,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(32, 16, 32, 0),
+                child: Image.asset(
+                  'assets/icons/splash.png',
+                  // width: 100,
+                  // height: 100,
+                ),
               ),
-              child: LinearProgressIndicator(
-                borderRadius: BorderRadius.circular(8),
+              SizedBox(height: size.height * 0.05),
+              Text(
+                'Language Translator',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+              Text(
+                'Communicate with the World',
+                style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+              ),
+              Spacer(),
 
-                value: _progress, // Progress value (0.0 to 1.0)
-                backgroundColor: bgColor,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+              Column(
+                children: [
+                  Text('Loading...'),
+                  Container(
+                    width: size.width * 0.6,
+                    height: 8,
+                    padding: EdgeInsets.all(1),
+                    decoration: BoxDecoration(
+                      //border: Border.all(color: Colors.yellow),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: LinearProgressIndicator(
+                      borderRadius: BorderRadius.circular(16),
+
+                      value: _progress, // Progress value (0.0 to 1.0)
+                      backgroundColor: Colors.grey.shade200,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
