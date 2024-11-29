@@ -399,10 +399,14 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         speak
             ? IconButton(
               icon:
-                  (!_isSpeaking)
-                      ? Icon(Icons.volume_up)
-                      : CircularProgressIndicator(),
-              onPressed: () => _handleTextToSpeech(textToCopy, languageCode),
+                  _isSpeaking
+                      ? Icon(Icons.stop_circle_outlined)
+                      : Icon(Icons.volume_up),
+              onPressed:
+                  () =>
+                      (!_isSpeaking)
+                          ? _handleTextToSpeech(textToCopy, languageCode)
+                          : _stop_tts(),
               tooltip: 'Speak',
             )
             : SizedBox.shrink(),
@@ -410,7 +414,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     );
   }
 
-  Future<void> _handleTextToSpeech(String text, String languageCode) async {
+  void _handleTextToSpeech(String text, String languageCode) async {
     setState(() {
       _isSpeaking = false;
     });
@@ -438,10 +442,20 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         });
       });
     } else {
+      setState(() {
+        _isSpeaking = false;
+      });
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Empty Text")));
     }
+  }
+
+  void _stop_tts() {
+    _flutterTts.stop();
+    setState(() {
+      _isSpeaking = false;
+    });
   }
 
   Future<void> shareTranslatedText(String translation) async {

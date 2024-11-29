@@ -17,6 +17,7 @@ class Favorite extends StatefulWidget {
 class _FavoriteState extends State<Favorite> {
   List<String> savedTranslations = [];
   final FlutterTts _flutterTts = FlutterTts();
+  late bool _isSpeaking = false;
 
   @override
   void initState() {
@@ -56,6 +57,47 @@ class _FavoriteState extends State<Favorite> {
         duration: Durations.short3,
       ),
     );
+  }
+
+  Future<void> _handleTextToSpeech(String text, String languageCode) async {
+    setState(() {
+      _isSpeaking = false;
+    });
+
+    if (text.isNotEmpty) {
+      await _flutterTts.setLanguage(languageCode);
+      await _flutterTts.setPitch(1.0);
+      await _flutterTts.setSpeechRate(0.5);
+      setState(() {
+        _isSpeaking = true; // Start speaking state
+      });
+
+      // Speak the text and handle completion
+      await _flutterTts.speak(text);
+
+      _flutterTts.setCompletionHandler(() {
+        setState(() {
+          _isSpeaking = false;
+        });
+      });
+
+      _flutterTts.setErrorHandler((error) {
+        setState(() {
+          _isSpeaking = false;
+        });
+      });
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Empty Text")));
+    }
+  }
+
+  void _stop_tts() {
+    _flutterTts.stop();
+    setState(() {
+      _isSpeaking = false;
+    });
   }
 
   @override
@@ -116,7 +158,7 @@ class _FavoriteState extends State<Favorite> {
                               onPressed:
                                   () => _handleTextToSpeech(
                                     instance['translate'],
-                                    instance['source'],
+                                    instance['target'],
                                   ),
                               tooltip: 'Speak',
                             ),
@@ -128,24 +170,5 @@ class _FavoriteState extends State<Favorite> {
                 },
               ),
     );
-  }
-
-  Future<void> _handleTextToSpeech(String text, String languageCode) async {
-    if (text.isNotEmpty) {
-      await _flutterTts.setLanguage(languageCode);
-      await _flutterTts.setPitch(1.0);
-      await _flutterTts.setSpeechRate(0.5);
-
-      // Speak the text and handle completion
-      await _flutterTts.speak(text);
-
-      _flutterTts.setCompletionHandler(() {});
-
-      _flutterTts.setErrorHandler((error) {});
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Please enter some text to speak.")),
-      );
-    }
   }
 }
