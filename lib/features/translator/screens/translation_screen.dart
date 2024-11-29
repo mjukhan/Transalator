@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/services.dart';
@@ -8,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:translation_app/core/utilities/colors.dart';
 import 'package:translation_app/features/translator/screens/setting/setting.dart';
 import '../../../core/widgets/translator_provider.dart';
-import '../../../core/widgets/permission_handler.dart';
 import '../widgets/error_handler.dart';
 import '../widgets/input_field.dart';
 import '../widgets/language_selector.dart';

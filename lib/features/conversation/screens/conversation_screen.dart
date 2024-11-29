@@ -59,13 +59,13 @@ class _ConversationScreenState extends State<ConversationScreen> {
     prefs.setString('person2Language', _person2Language);
   }
 
-  // Debounced text translation
   void _translateText(
     String inputText,
     bool isSpeaker1,
     bool isSpeaker2,
   ) async {
     if (!await PermissionHelper().checkWifiConnection(context)) return;
+
     if (inputText.isEmpty) {
       setState(() {
         _isTranslating = true;
@@ -74,65 +74,97 @@ class _ConversationScreenState extends State<ConversationScreen> {
       return;
     }
 
-    // Debounce the translation to avoid multiple calls
-    _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 2000), () async {
-      try {
-        final translation = await _translationService.translate(
-          text: inputText,
-          from: isSpeaker1 ? _person1Language : _person2Language,
-          to: isSpeaker1 ? _person2Language : _person1Language,
-        );
-
-        setState(() {
-          _translatedText = translation;
-
-          // Add the new translation to the list
-          _translations.add({
-            "input": inputText,
-            "translated": translation,
-            "person": isSpeaker1 ? "1" : "2",
-          });
-          _isTranslating = false;
-        });
-      } catch (e) {
-        ErrorHandlerTranslating.handleTranslationError(context, e);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.errorInTranslation),
+    // Show dialog for translation
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (_) => AlertDialog(
+            backgroundColor: Colors.white,
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.translating, // "Translating..."
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 16),
+                Image.asset('assets/icons/translating.gif', scale: 6),
+              ],
+            ),
           ),
-        );
-        setState(() {
-          _translatedText = AppLocalizations.of(context)!.errorInTranslation;
+    );
+
+    try {
+      final translation = await _translationService.translate(
+        text: inputText,
+        from: isSpeaker1 ? _person1Language : _person2Language,
+        to: isSpeaker1 ? _person2Language : _person1Language,
+      );
+
+      setState(() {
+        _translatedText = translation;
+
+        // Add the new translation to the list
+        _translations.add({
+          "input": inputText,
+          "translated": translation,
+          "person": isSpeaker1 ? "1" : "2",
         });
-      }
-    });
+
+        _isTranslating = false;
+      });
+
+      Navigator.of(context).pop(); // Close translation dialog
+    } catch (e) {
+      ErrorHandlerTranslating.handleTranslationError(context, e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.errorInTranslation),
+        ),
+      );
+      setState(() {
+        _translatedText = AppLocalizations.of(context)!.errorInTranslation;
+      });
+
+      Navigator.of(context).pop();
+    }
   }
 
-  // Method to handle speech recognition for Person 1
   void _listenPerson1() async {
     if (!await PermissionHelper().checkMicrophonePermission()) return;
+
     if (!_isListeningPerson1) {
       if (await _speech.initialize()) {
         setState(() {
           _isListeningPerson1 = true;
           _isListeningPerson2 = false;
         });
+
+        // Show dialog for real-time text recognition
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => _buildSpeechDialog(),
+        );
+
+        // Start listening with timeout handling
         _speech.listen(
           onResult: (val) {
             setState(() {
               _inputText = val.recognizedWords;
-              _controller.text = _inputText;
-              speaker1 = true;
-              speaker2 = false;
-              _translateText(_inputText, speaker1, speaker2);
             });
 
-            if (val.hasConfidenceRating && val.confidence > 0.5) {
+            if ((val.hasConfidenceRating && val.confidence > 0.5) ||
+                !_isListeningPerson1) {
+              _speech.stop();
               setState(() {
                 _isListeningPerson1 = false;
               });
-              _speech.stop();
+
+              Navigator.of(context).pop(); // Close dialog
+
+              _translateText(_inputText, true, false); // Translate text
             }
           },
         );
@@ -145,31 +177,40 @@ class _ConversationScreenState extends State<ConversationScreen> {
     }
   }
 
-  // Method to handle speech recognition for Person 2
   void _listenPerson2() async {
     if (!await PermissionHelper().checkMicrophonePermission()) return;
+
     if (!_isListeningPerson2) {
       if (await _speech.initialize()) {
         setState(() {
           _isListeningPerson2 = true;
           _isListeningPerson1 = false;
         });
+
+        // Show dialog for real-time text recognition
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => _buildSpeechDialog(),
+        );
+
+        // Start listening with timeout handling
         _speech.listen(
           onResult: (val) {
             setState(() {
               _inputText = val.recognizedWords;
-              _controller.text = _inputText;
-              speaker1 = false;
-              speaker2 = true;
-              _isListeningPerson2 = false;
-              _translateText(_inputText, speaker1, speaker2);
             });
 
-            if (val.hasConfidenceRating && val.confidence > 0.5) {
+            if ((val.hasConfidenceRating && val.confidence > 0.5) ||
+                !_isListeningPerson2) {
+              _speech.stop();
               setState(() {
                 _isListeningPerson2 = false;
               });
-              _speech.stop();
+
+              Navigator.of(context).pop(); // Close dialog
+
+              _translateText(_inputText, false, true); // Translate text
             }
           },
         );
@@ -236,23 +277,11 @@ class _ConversationScreenState extends State<ConversationScreen> {
                           ),
                         ],
                       )
-                      : ((_isListeningPerson1 || _isListeningPerson2) ||
-                          _isTranslating)
-                      ? Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade200,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child:
-                            (_isListeningPerson1 || _isListeningPerson2)
-                                ? Text('Speaking...')
-                                : Text("Translating..."),
-                      )
                       : Container(
                         margin: EdgeInsets.fromLTRB(8, 8, 8, 8),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.yellow),
-                        ),
+                        // decoration: BoxDecoration(
+                        //   border: Border.all(color: Colors.yellow),
+                        // ),
                         child: ListView.builder(
                           itemCount: _translations.length,
                           itemBuilder: (BuildContext context, int index) {
@@ -386,10 +415,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                           shape: BoxShape.circle,
                           border: Border.all(color: borderColor),
                         ),
-                        child: Icon(
-                          _isListeningPerson1 ? Icons.stop : Icons.mic_none,
-                          color: Colors.white,
-                        ),
+                        child: Icon(Icons.mic_none, color: Colors.white),
                       ),
                     ),
                   ],
@@ -431,12 +457,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                           border: Border.all(color: borderColor),
                           color: micColor,
                         ),
-                        child: Icon(
-                          _isListeningPerson2
-                              ? Icons.stop_circle
-                              : Icons.mic_none,
-                          color: Colors.white,
-                        ),
+                        child: Icon(Icons.mic_none, color: Colors.white),
                       ),
                     ),
                   ],
@@ -486,5 +507,30 @@ class _ConversationScreenState extends State<ConversationScreen> {
         context,
       ).showSnackBar(SnackBar(content: Text("No Text to Speak")));
     }
+  }
+
+  Widget _buildSpeechDialog() {
+    return AlertDialog(
+      backgroundColor: Colors.white,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Listening...', // "Listening..."
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 16),
+          Text('Speak Now', style: TextStyle(color: Colors.grey)),
+          SizedBox(height: 16),
+          IconButton(
+            onPressed: () {
+              _speech.stop();
+              Navigator.pop(context);
+            },
+            icon: Icon(Icons.stop_circle_outlined, size: 64, color: micColor),
+          ),
+        ],
+      ),
+    );
   }
 }
