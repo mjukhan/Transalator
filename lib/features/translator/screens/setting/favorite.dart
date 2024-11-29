@@ -5,16 +5,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:translation_app/core/utilities/colors.dart';
 
-class SavedTranslationsPage extends StatefulWidget {
-  final List<String> savedTranslations; // Parameter for initial translations
+class Favorite extends StatefulWidget {
+  final List<String> savedTranslations;
 
-  const SavedTranslationsPage({super.key, required this.savedTranslations});
+  const Favorite({super.key, required this.savedTranslations});
 
   @override
-  _SavedTranslationsPageState createState() => _SavedTranslationsPageState();
+  _FavoriteState createState() => _FavoriteState();
 }
 
-class _SavedTranslationsPageState extends State<SavedTranslationsPage> {
+class _FavoriteState extends State<Favorite> {
   List<String> savedTranslations = [];
   final FlutterTts _flutterTts = FlutterTts();
 
@@ -51,7 +51,10 @@ class _SavedTranslationsPageState extends State<SavedTranslationsPage> {
     });
     await _saveTranslations();
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(AppLocalizations.of(context)!.translationRemoved)),
+      SnackBar(
+        content: Text(AppLocalizations.of(context)!.translationRemoved),
+        duration: Durations.short3,
+      ),
     );
   }
 
@@ -101,7 +104,7 @@ class _SavedTranslationsPageState extends State<SavedTranslationsPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             IconButton(
-                              icon: Icon(Icons.delete_outline),
+                              icon: Icon(Icons.star, color: Colors.yellow),
                               onPressed: () => _removeTranslation(index),
                               tooltip:
                                   AppLocalizations.of(

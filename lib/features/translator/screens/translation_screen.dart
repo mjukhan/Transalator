@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:translation_app/core/utilities/colors.dart';
+import 'package:translation_app/features/translator/screens/setting/favorite.dart';
 import 'package:translation_app/features/translator/screens/setting/setting.dart';
 import '../../../core/widgets/translator_provider.dart';
 import '../widgets/error_handler.dart';
@@ -65,24 +66,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     });
   }
 
-  // void _checkWIFI() async {
-  //   if (!await PermissionHelper().checkWifiConnection(context)) {
-  //     return;
-  //   } else {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(
-  //         content: Text(
-  //           'WIFI Connected.',
-  //           style: TextStyle(color: Colors.white),
-  //         ),
-  //         backgroundColor: Colors.red,
-  //         behavior: SnackBarBehavior.floating,
-  //         duration: const Duration(seconds: 3),
-  //       ),
-  //     );
-  //   }
-  // }
-
   void _translateText(String inputText) async {
     if (inputText.isEmpty) {
       setState(() async {
@@ -132,7 +115,10 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         _savedTranslations,
       );
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.translationSaved)),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.translationSaved),
+          duration: Durations.short3,
+        ),
       );
       setState(() {
         _isSaved = true;
@@ -197,6 +183,21 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
               );
             },
           ),
+          actions: [
+            IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) =>
+                            Favorite(savedTranslations: _savedTranslations),
+                  ),
+                );
+              },
+              icon: Icon(Icons.star, color: Colors.yellow),
+            ),
+          ],
         ),
         body: Container(
           height: (_inputText.isEmpty) ? size.height * 0.7 : size.height,
@@ -380,7 +381,10 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             : SizedBox.shrink(),
         favorite
             ? IconButton(
-              icon: Icon(_isSaved ? Icons.star : Icons.star_border),
+              icon: Icon(
+                _isSaved ? Icons.star : Icons.star_border,
+                color: Colors.yellow,
+              ),
               onPressed: _saveInstance,
               tooltip: 'Save Instance',
             )

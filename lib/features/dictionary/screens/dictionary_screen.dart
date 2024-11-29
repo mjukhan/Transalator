@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
@@ -23,6 +24,8 @@ class _DictionaryScreenState extends State<DictionaryScreen>
     DictionaryRepository(),
   );
   Future<WordDefinition?>? _wordDefinition;
+  Future<WordDefinition?>? _wordOfTheDay;
+  Future<WordDefinition?>? _meaningOfTheDay;
   final TextEditingController _searchController = TextEditingController();
 
   List<String> _recentSearches = [];
@@ -37,7 +40,9 @@ class _DictionaryScreenState extends State<DictionaryScreen>
       _searchWord(_searchedWord);
     }
     _loadRecentSearches();
-    _clearRecentWords();
+
+    fetchRandomWord();
+    _searchController.clear();
   }
 
   @override
@@ -47,14 +52,14 @@ class _DictionaryScreenState extends State<DictionaryScreen>
   Future<void> _loadRecentSearches() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _recentSearches = prefs.getStringList('Recent Searched Words') ?? [];
+      _recentSearches = prefs.getStringList('Recent Words') ?? [];
     });
   }
 
   // Save recent searches to SharedPreferences
   Future<void> _saveRecentSearches() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setStringList('Recent Searched Words', _recentSearches);
+    prefs.setStringList('Recent Words', _recentSearches);
   }
 
   // Function to clear all recent searches
@@ -63,9 +68,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
     setState(() {
       _recentSearches.clear(); // Clear the in-memory list
     });
-    await prefs.remove(
-      'Recent Searched Words',
-    ); // Remove from SharedPreferences
+    await prefs.remove('Recent Words'); // Remove from SharedPreferences
   }
 
   // Function to fetch word meaning and update recent searches
@@ -76,6 +79,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
       if (!_recentSearches.contains(word)) {
         _recentSearches.add(word); // Add to recent searches
         _saveRecentSearches(); // Save to local storage
+        _searchController.clear();
       }
     });
   }
@@ -128,6 +132,16 @@ class _DictionaryScreenState extends State<DictionaryScreen>
     }
   }
 
+  void fetchRandomWord() async {
+    // Example: Fetch a random word from your service
+    final randomWord =
+        await _dictionaryService
+            .getRandomWord(); // Adjust according to your API
+    setState(() {
+      _wordOfTheDay = _dictionaryService.getWordDefinition(randomWord!);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -145,39 +159,182 @@ class _DictionaryScreenState extends State<DictionaryScreen>
           elevation: 0,
           scrolledUnderElevation: 0,
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: AppLocalizations.of(context)!.hintTextForSearchWord,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.0),
-                borderSide: BorderSide(color: borderColor),
-              ),
-              suffixIcon:
-                  (_searchController.text.isNotEmpty)
-                      ? searchButton()
-                      : voiceInput(),
-            ),
-            onSubmitted: (text) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder:
-                      (context) => ViewSearch(wordDefinition: _wordDefinition),
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: AppLocalizations.of(context)!.hintTextForSearchWord,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide(color: borderColor),
+                  ),
+                  suffixIcon:
+                      (_searchController.text.isNotEmpty)
+                          ? searchButton()
+                          : voiceInput(),
                 ),
-              );
-              _searchWord(text);
-              //_searchController.clear();
-            },
+                onSubmitted: (text) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) =>
+                              ViewSearch(wordDefinition: _wordDefinition),
+                    ),
+                  );
+                  _searchWord(text);
+                  _searchController.clear();
+                },
 
-            onChanged: (text) {
-              setState(() {
-                _searchedWord = text;
-              });
-            },
-          ),
+                onChanged: (text) {
+                  setState(() {
+                    _searchedWord = text;
+                  });
+                },
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.fromLTRB(16, 0, 16, 0),
+              //height: size.height * 0.2,
+              decoration: BoxDecoration(
+                color: Colors.yellow.shade100,
+                border: Border.all(color: borderColor),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: FutureBuilder<WordDefinition?>(
+                future: _wordOfTheDay,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError || !snapshot.hasData) {
+                    return Center(
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+
+                  final wordDefinition = snapshot.data!;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            AutoSizeText(
+                              AppLocalizations.of(context)!.wordOfTheDay,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                            Icon(Icons.volume_up, size: 18, color: Colors.blue),
+                          ],
+                        ),
+                      ),
+                      Divider(),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 2),
+                        child: AutoSizeText(
+                          maxFontSize: 12,
+                          minFontSize: 8,
+                          wordDefinition.word,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 2, 16, 8),
+                        child: AutoSizeText(
+                          maxFontSize: 12,
+                          minFontSize: 8,
+                          maxLines: null,
+                          wordDefinition
+                              .meanings
+                              .first
+                              .definitions[0]
+                              .definition,
+                          wrapWords: true,
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+
+            // Recent Searches List
+            Padding(
+              padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.recentSearches,
+                    style: TextStyle(fontSize: 14),
+                  ),
+                  (_recentSearches.isNotEmpty)
+                      ? TextButton(
+                        onPressed: _clearRecentWords,
+                        child: Text('Clear all'),
+                      )
+                      : SizedBox.shrink(),
+                ],
+              ),
+            ),
+            _recentSearches.isNotEmpty
+                ? Expanded(
+                  child: NotificationListener<ScrollNotification>(
+                    onNotification: (scrollNotification) {
+                      if (scrollNotification is ScrollStartNotification) {
+                        _hideKeyboard(context);
+                      }
+                      return false;
+                    },
+                    child: ListView.builder(
+                      itemCount: _recentSearches.length,
+                      itemBuilder: (context, index) {
+                        final word = _recentSearches[index];
+                        return ListTile(
+                          leading: Icon(
+                            Icons.access_time_rounded,
+                            color: Colors.grey,
+                          ),
+                          title: Text(word),
+                          onTap: () {
+                            _searchWord(word);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => ViewSearch(
+                                      wordDefinition: _wordDefinition,
+                                    ),
+                              ),
+                            );
+                          },
+                          trailing: Icon(
+                            Icons.arrow_forward_ios,
+                            size: 16,
+                            color: Colors.grey,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                )
+                : Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(0, size.height * 0.2, 0, 50),
+                    child: Text(AppLocalizations.of(context)!.findWordBySearch),
+                  ),
+                ),
+          ],
         ),
       ),
     );
@@ -202,6 +359,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
           ),
         );
         _searchWord(_searchController.text);
+        _searchController.clear();
       },
       icon: Image.asset('assets/icons/search.png', scale: 16),
     );

@@ -15,4 +15,13 @@ class DictionaryService {
       return null;
     }
   }
+  Future<String?> getRandomWord() async {
+    try {
+      return await repository.fetchRandomWord();
+    } catch (e) {
+      return null;
+    }
+  }
+
+
 }
