@@ -9,6 +9,7 @@ import '../../../data/models/Word_model.dart';
 import '../../../data/repositories/word_repository.dart';
 import '../../../data/services/word_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 class DictionaryScreen extends StatefulWidget {
   final String? searchWord;
@@ -27,9 +28,11 @@ class _DictionaryScreenState extends State<DictionaryScreen>
   Future<WordDefinition?>? _wordOfTheDay;
   Future<WordDefinition?>? _meaningOfTheDay;
   final TextEditingController _searchController = TextEditingController();
+  final FlutterTts _flutterTts = FlutterTts();
 
   List<String> _recentSearches = [];
   String _searchedWord = '';
+  bool _isSpeaking = false;
   final stt.SpeechToText _speech = stt.SpeechToText();
 
   @override
@@ -198,7 +201,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
             ),
             Container(
               margin: EdgeInsets.fromLTRB(16, 0, 16, 0),
-              //height: size.height * 0.2,
+              padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
               decoration: BoxDecoration(
                 color: Colors.yellow.shade100,
                 border: Border.all(color: borderColor),
@@ -208,10 +211,14 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                 future: _wordOfTheDay,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return Center(
+                      child: CircularProgressIndicator(color: Colors.yellow),
+                    );
                   } else if (snapshot.hasError || !snapshot.hasData) {
                     return Center(
-                      child: Center(child: CircularProgressIndicator()),
+                      child: Center(
+                        child: CircularProgressIndicator(color: Colors.yellow),
+                      ),
                     );
                   }
 
@@ -219,48 +226,53 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            AutoSizeText(
-                              AppLocalizations.of(context)!.wordOfTheDay,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
-                              ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          AutoSizeText(
+                            AppLocalizations.of(context)!.wordOfTheDay,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
                             ),
-                            Icon(Icons.volume_up, size: 18, color: Colors.blue),
-                          ],
-                        ),
+                          ),
+                          GestureDetector(
+                            onTap:
+                                () =>
+                                    !_isSpeaking
+                                        ? _tts(wordDefinition.word)
+                                        : _stop_tts(),
+                            child:
+                                _isSpeaking
+                                    ? Icon(
+                                      Icons.stop_circle_outlined,
+                                      size: 18,
+                                      color: Colors.blue,
+                                    )
+                                    : Icon(
+                                      Icons.volume_up,
+                                      size: 18,
+                                      color: Colors.blue,
+                                    ),
+                          ),
+                        ],
                       ),
                       Divider(),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 2),
-                        child: AutoSizeText(
-                          maxFontSize: 12,
-                          minFontSize: 8,
-                          wordDefinition.word,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue,
-                          ),
+                      AutoSizeText(
+                        maxFontSize: 12,
+                        minFontSize: 8,
+                        wordDefinition.word,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 2, 16, 8),
-                        child: AutoSizeText(
-                          maxFontSize: 12,
-                          minFontSize: 8,
-                          maxLines: null,
-                          wordDefinition
-                              .meanings
-                              .first
-                              .definitions[0]
-                              .definition,
-                          wrapWords: true,
-                        ),
+                      AutoSizeText(
+                        maxFontSize: 12,
+                        minFontSize: 8,
+                        maxLines: null,
+                        wordDefinition.meanings.first.definitions[0].definition,
+                        wrapWords: true,
                       ),
                     ],
                   );
@@ -363,5 +375,46 @@ class _DictionaryScreenState extends State<DictionaryScreen>
       },
       icon: Image.asset('assets/icons/search.png', scale: 16),
     );
+  }
+
+  Future<void> _tts(String text) async {
+    setState(() {
+      _isSpeaking = false;
+    });
+
+    if (text.isNotEmpty) {
+      await _flutterTts.setLanguage('en');
+      await _flutterTts.setPitch(1.0);
+      await _flutterTts.setSpeechRate(0.5);
+      setState(() {
+        _isSpeaking = true; // Start speaking state
+      });
+
+      // Speak the text and handle completion
+      await _flutterTts.speak(text);
+
+      _flutterTts.setCompletionHandler(() {
+        setState(() {
+          _isSpeaking = false;
+        });
+      });
+
+      _flutterTts.setErrorHandler((error) {
+        setState(() {
+          _isSpeaking = false;
+        });
+      });
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Empty Text")));
+    }
+  }
+
+  void _stop_tts() {
+    _flutterTts.stop();
+    setState(() {
+      _isSpeaking = false;
+    });
   }
 }
