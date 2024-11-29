@@ -26,6 +26,11 @@ class _InputFieldState extends State<InputField> {
   final TextEditingController _controller = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
 

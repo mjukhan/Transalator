@@ -1,15 +1,14 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart';
+import 'package:translation_app/core/utilities/colors.dart';
+import 'package:translation_app/features/File/screens/results.dart';
+import 'package:translation_app/features/translator/screens/translation_screen.dart';
+import 'package:translation_app/features/translator/widgets/input_field.dart';
 import 'dart:async';
-import '../../../core/utilities/colors.dart';
-import '../../../core/widgets/translator_provider.dart';
-import '../../translator/widgets/error_handler.dart';
-import '../../translator/widgets/language_selector.dart';
 import '../widgets/OcrFile.dart';
 import '../widgets/upload.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PictureScreen extends StatefulWidget {
   final File? imageFile;
@@ -20,33 +19,16 @@ class PictureScreen extends StatefulWidget {
 }
 
 class _PictureScreenState extends State<PictureScreen> {
-  String _targetLanguage = '';
   List<Map<String, dynamic>> extractedLines = [];
-  List<String> translatedLines = [];
   List<String> inputLines = [];
-  bool _isTranslating = false;
+  bool isExtracting = false;
+
   final StreamController<String> controller = StreamController<String>();
-  final TranslationService _translationService = TranslationService();
 
   @override
   void initState() {
     super.initState();
     imageUpload();
-    _loadLanguagePreferences();
-  }
-
-  // Load the previously selected languages from SharedPreferences
-  void _loadLanguagePreferences() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _targetLanguage = prefs.getString('targetLanguage') ?? 'es';
-    });
-  }
-
-  // Save the language preferences to SharedPreferences
-  void _saveLanguagePreferences() async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString('targetLanguage', _targetLanguage);
   }
 
   @override
@@ -56,17 +38,25 @@ class _PictureScreenState extends State<PictureScreen> {
   }
 
   Future<void> imageUpload() async {
-    File? upLoadedFile =
-        await Upload(imageFile: widget.imageFile).startUpload(context);
+    File? upLoadedFile = await Upload(
+      imageFile: widget.imageFile,
+    ).startUpload(context);
     if (upLoadedFile != null) {
+      setState(() {
+        isExtracting = true;
+      });
       // Use compute to offload the OCR processing
       extractedLines = await compute(_performOcr, upLoadedFile);
       // Extracting text lines from the extracted lines
       inputLines =
           extractedLines.map((line) => line['LineText'] as String).toList();
-      print(inputLines);
-      await _translateText(inputLines);
+      setState(() {
+        isExtracting = false;
+      });
     }
+    setState(() {
+      isExtracting = false;
+    });
   }
 
   static Future<List<Map<String, dynamic>>> _performOcr(File file) async {
@@ -78,14 +68,41 @@ class _PictureScreenState extends State<PictureScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: micColor,
+        onPressed: () {
+          (isExtracting)
+              ? null
+              : Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Results(extractedText: inputLines),
+                ),
+              );
+        },
+        label:
+            (isExtracting)
+                ? Text(
+                  "Extracting Text...",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: bgColor,
+                  ),
+                )
+                : Text(
+                  "Next",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: bgColor,
+                  ),
+                ),
+      ),
       body: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
-          return Column(
-            children: [
-              _buildImageView(),
-              _buildBottomControls(),
-            ],
-          );
+          return Column(children: [_buildImageView()]);
         },
       ),
     );
@@ -96,123 +113,7 @@ class _PictureScreenState extends State<PictureScreen> {
     return SizedBox(
       height: size.height * 0.7,
       width: size.width,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Image.file(
-            widget.imageFile!,
-            fit: BoxFit.contain,
-          ),
-          _isTranslating
-              ? CircularProgressIndicator()
-              : _buildTranslatedLinesView(translatedLines),
-        ],
-      ),
+      child: Image.file(widget.imageFile!, fit: BoxFit.contain),
     );
-  }
-
-  Widget _buildTranslatedLinesView(List<String> lines) {
-    return IntrinsicHeight(
-      child: Container(
-        color: bgColor,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: lines
-              .map(
-                (line) => Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: Text(
-                    line,
-                  ),
-                ),
-              )
-              .toList(),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomControls() {
-    return _buildLanguageSelector();
-  }
-
-  Widget _buildLanguageSelector() {
-    final size = MediaQuery.of(context).size;
-    return SizedBox(
-      height: 100,
-      width: 250,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Text(AppLocalizations.of(context)!.translateTo),
-          _buildLanguageDropdown(
-            size,
-            _targetLanguage,
-            (newLang) {
-              setState(() => _targetLanguage = newLang);
-              _translateText(inputLines);
-              _saveLanguagePreferences();
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLanguageDropdown(
-      Size size, String selectedLang, Function(String) onChanged) {
-    return Container(
-      height: size.height * 0.04,
-      width: size.width * 0.25,
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: langSelectorColor,
-        borderRadius: BorderRadius.circular(32),
-      ),
-      child: LanguageSelector(
-        selectedLanguage: selectedLang,
-        onLanguageChanged: onChanged,
-        fontSize: 10,
-      ),
-    );
-  }
-
-  // Function to translate each line of text in the selected target language
-  Future<void> _translateText(List<String> inputLines) async {
-    _isTranslating = true;
-    if (inputLines.isEmpty) {
-      setState(() {
-        translatedLines = [];
-        _isTranslating = false;
-      });
-      return;
-    }
-
-    List<String> translations = [];
-
-    for (String line in inputLines) {
-      try {
-        // Use the dynamically set target language for translation
-        String translation = await _translationService.translate(
-          text: line,
-          from: 'auto',
-          to: _targetLanguage, // Uses selected language from dropdown
-        );
-
-        translations.add(translation.isNotEmpty
-            ? translation
-            : AppLocalizations.of(context)!.translationResultEmpty);
-      } catch (e) {
-        ErrorHandlerTranslating.handleTranslationError(context, e);
-        translations.add(
-            '${AppLocalizations.of(context)!.translationErrorInLine} $line');
-        _isTranslating = false;
-      }
-    }
-
-    setState(() {
-      translatedLines = translations; // Update translatedLines state
-      _isTranslating = false;
-    });
   }
 }

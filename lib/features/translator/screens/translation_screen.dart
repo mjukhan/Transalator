@@ -39,7 +39,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     super.initState();
     _loadLanguagePreferences();
     _loadSavedTranslations();
-    //_checkWIFI();
   }
 
   // Load the previously selected languages from SharedPreferences

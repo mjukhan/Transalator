@@ -48,11 +48,13 @@ class _FileScreenState extends State<FileScreen> {
         scrolledUnderElevation: 0,
         elevation: 0,
       ),
-      body: Center(
+      body: Align(
+        alignment: Alignment.topCenter,
         child: Container(
           height: size.height * 0.4,
           width: size.width * 0.8,
           decoration: BoxDecoration(
+            color: Colors.white,
             border: Border.all(color: Colors.grey),
             borderRadius: BorderRadius.circular(8),
           ),
