@@ -35,6 +35,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
   final TranslationService _translationService = TranslationService();
   Timer? _debounce; // Timer for debounce mechanism
   final List<Map<String, String>> _translations = [];
+  final ScrollController _scrollController = ScrollController();
   final FlutterTts _flutterTts = FlutterTts();
 
   @override
@@ -113,6 +114,14 @@ class _ConversationScreenState extends State<ConversationScreen> {
         });
 
         _isTranslating = false;
+      });
+      // Scroll to the last item
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
       });
 
       Navigator.of(context).pop(); // Close translation dialog
@@ -283,6 +292,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                         //   border: Border.all(color: Colors.yellow),
                         // ),
                         child: ListView.builder(
+                          controller: _scrollController,
                           itemCount: _translations.length,
                           itemBuilder: (BuildContext context, int index) {
                             return Container(
@@ -297,8 +307,22 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                 8,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade200,
-                                borderRadius: BorderRadius.circular(8),
+                                color:
+                                    (_translations[index]["person"] == '1')
+                                        ? Colors.grey.shade200
+                                        : Colors.blue,
+                                borderRadius:
+                                    (_translations[index]["person"] == '1')
+                                        ? BorderRadius.only(
+                                          topRight: Radius.circular(8),
+                                          topLeft: Radius.circular(8),
+                                          bottomRight: Radius.circular(8),
+                                        )
+                                        : BorderRadius.only(
+                                          topLeft: Radius.circular(8),
+                                          topRight: Radius.circular(8),
+                                          bottomLeft: Radius.circular(8),
+                                        ),
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -314,25 +338,11 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                       _translations[index]["input"].toString(),
                                       maxLines: null,
                                       maxFontSize: 24,
-                                      minFontSize: 16,
+                                      minFontSize: 14,
                                     ),
                                   ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      IconButton(
-                                        onPressed:
-                                            () => _handleTextToSpeech(
-                                              _translations[index]["input"]
-                                                  .toString(),
-                                              _person1Language,
-                                            ),
-                                        icon: Icon(Icons.volume_up),
-                                      ),
-                                    ],
-                                  ),
                                   _translations.isNotEmpty
-                                      ? Divider(indent: 32, endIndent: 32)
+                                      ? Divider(indent: 8, endIndent: 32)
                                       : SizedBox.shrink(),
                                   // Translated Text Container
                                   _translations.isNotEmpty

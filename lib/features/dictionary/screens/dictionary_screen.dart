@@ -211,14 +211,10 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                 future: _wordOfTheDay,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
-                      child: CircularProgressIndicator(color: Colors.yellow),
-                    );
+                    return Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError || !snapshot.hasData) {
                     return Center(
-                      child: Center(
-                        child: CircularProgressIndicator(color: Colors.yellow),
-                      ),
+                      child: Center(child: CircularProgressIndicator()),
                     );
                   }
 
@@ -353,27 +349,39 @@ class _DictionaryScreenState extends State<DictionaryScreen>
   }
 
   Widget voiceInput() {
-    return IconButton(
-      onPressed: () {
-        _listen();
-      },
-      icon: Image.asset('assets/icons/mic.png', scale: 16),
+    return Container(
+      margin: EdgeInsets.all(8),
+      height: 40,
+      width: 40,
+      decoration: BoxDecoration(shape: BoxShape.circle, color: micColor),
+      child: IconButton(
+        onPressed: () {
+          _listen();
+        },
+        icon: Icon(Icons.mic, color: bgColor),
+      ),
     );
   }
 
   Widget searchButton() {
-    return IconButton(
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ViewSearch(wordDefinition: _wordDefinition),
-          ),
-        );
-        _searchWord(_searchController.text);
-        _searchController.clear();
-      },
-      icon: Image.asset('assets/icons/search.png', scale: 16),
+    return Container(
+      margin: EdgeInsets.all(8),
+      height: 40,
+      width: 40,
+      decoration: BoxDecoration(shape: BoxShape.circle, color: micColor),
+      child: IconButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ViewSearch(wordDefinition: _wordDefinition),
+            ),
+          );
+          _searchWord(_searchController.text);
+          _searchController.clear();
+        },
+        icon: Icon(Icons.search, color: bgColor),
+      ),
     );
   }
 

@@ -37,7 +37,6 @@ class OcrRepository {
 
     if (response.statusCode == 200) {
       final responseData = await http.Response.fromStream(response);
-      print('Response body: ${responseData.body}');
       return OcrModel.fromJson(jsonDecode(responseData.body));
     } else {
       throw Exception('Failed to load OCR data');

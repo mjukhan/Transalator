@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
 import '../../core/utilities/colors.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -10,30 +9,16 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  double _progress = 0.0;
-  void _startProgress() {
-    setState(() {
-      _progress = 0.0; // Reset progress
-    });
-
-    Future.doWhile(() async {
-      if (_progress >= 1.0) {
-        // Navigate to the home page when progress completes
-        Navigator.pushReplacementNamed(context, '/home');
-        return false; // Stop updating progress
-      }
-      await Future.delayed(Duration(milliseconds: 500));
-      setState(() {
-        _progress += 0.05; // Increment progress
-      });
-      return true;
-    });
-  }
-
   @override
   void initState() {
     super.initState();
-    _startProgress();
+    _navigateToHome();
+  }
+
+  void _navigateToHome() async {
+    // Simulate a loading delay
+    await Future.delayed(const Duration(seconds: 3));
+    Navigator.pushReplacementNamed(context, '/home'); // Navigate to home
   }
 
   @override
@@ -51,45 +36,90 @@ class _SplashScreenState extends State<SplashScreen> {
                 padding: const EdgeInsets.fromLTRB(32, 16, 32, 0),
                 child: Image.asset(
                   'assets/icons/splash.png',
-                  // width: 100,
-                  // height: 100,
                 ),
               ),
               SizedBox(height: size.height * 0.05),
               Text(
                 'Language Translator',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
               Text(
                 'Communicate with the World',
                 style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
               ),
-              Spacer(),
-
+              const Spacer(),
               Column(
                 children: [
-                  Text('Loading...'),
-                  Container(
-                    width: size.width * 0.5,
-                    height: 8,
-                    padding: EdgeInsets.all(1),
-                    decoration: BoxDecoration(
-                      //border: Border.all(color: Colors.yellow),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: LinearProgressIndicator(
-                      borderRadius: BorderRadius.circular(16),
-
-                      value: _progress, // Progress value (0.0 to 1.0)
-                      backgroundColor: Colors.grey.shade200,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                    ),
-                  ),
+                  const Text('Loading...'),
+                  const SizedBox(height: 16),
+                  AnimatedLoader(), // Replace progress bar with AnimatedLoader
                 ],
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class AnimatedLoader extends StatefulWidget {
+  @override
+  _AnimatedLoaderState createState() => _AnimatedLoaderState();
+}
+
+class _AnimatedLoaderState extends State<AnimatedLoader>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Initialize the animation controller
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    )..repeat(reverse: false);
+
+    // Define the animation
+    _animation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 130, // Fixed width of the loader
+      height: 4,  // Height of the loader
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: AnimatedBuilder(
+        animation: _animation,
+        builder: (context, child) {
+          return Align(
+            alignment: Alignment.centerLeft,
+            child: FractionallySizedBox(
+              widthFactor: _animation.value,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0071E2),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

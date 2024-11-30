@@ -188,35 +188,32 @@ class _ResultsState extends State<Results> {
     return Flexible(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           // Displaying extracted text in a scrollable ListView
           Expanded(
-            child: Stack(
-              children: [
-                ListView.builder(
-                  itemCount: widget.extractedText.length,
-                  itemBuilder: (context, index) {
-                    return Center(
-                      child: AutoSizeText(
-                        widget.extractedText[index],
-                        maxFontSize: 32,
-                        minFontSize: 24,
-                      ),
-                    );
-                  },
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 16,
-                  child: _buildActionButtons(widget.extractedText.join('')),
-                ),
-              ],
+            child: ListView.builder(
+              itemCount: widget.extractedText.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 2, 16, 2),
+                  child: AutoSizeText(
+                    widget.extractedText[index],
+                    maxFontSize: 24,
+                    minFontSize: 18,
+                  ),
+                );
+              },
             ),
           ),
+          (widget.extractedText.isNotEmpty)
+              ? _buildActionButtons(widget.extractedText.join(''))
+              : SizedBox.shrink(),
           const Divider(),
           _buildTranslatedLinesView(translatedLines),
-
+          (translatedLines.isNotEmpty)
+              ? _buildActionButtons(widget.extractedText.join(''))
+              : SizedBox.shrink(),
         ],
       ),
     );
@@ -227,27 +224,19 @@ class _ResultsState extends State<Results> {
             widget.extractedText.isNotEmpty &&
             !_isTranslating)
         ? Expanded(
-          child: Stack(
-            children: [
-              ListView.builder(
-                itemCount: translatedLines.length,
-                itemBuilder: (context, index) {
-                  return Center(
-                    child: AutoSizeText(
-                      translatedLines[index],
-                      maxFontSize: 32,
-                      minFontSize: 24,
-                      style: TextStyle(color: Colors.blue),
-                    ),
-                  );
-                },
-              ),
-              Positioned(
-                bottom: 0,
-                right: 16,
-                child: _buildActionButtons(translatedLines.join('')),
-              ),
-            ],
+          child: ListView.builder(
+            itemCount: translatedLines.length,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(15, 2, 16, 2),
+                child: AutoSizeText(
+                  translatedLines[index],
+                  maxFontSize: 24,
+                  minFontSize: 18,
+                  style: TextStyle(color: Colors.blue),
+                ),
+              );
+            },
           ),
         )
         : Expanded(child: Center(child: CircularProgressIndicator()));

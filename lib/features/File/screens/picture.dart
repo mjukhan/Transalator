@@ -92,7 +92,7 @@ class _PictureScreenState extends State<PictureScreen> {
                   ),
                 )
                 : Text(
-                  "Next",
+                  "Translate",
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
