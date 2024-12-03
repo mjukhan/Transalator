@@ -167,9 +167,11 @@ class _ConversationScreenState extends State<ConversationScreen> {
         // Show dialog for real-time text recognition
         showDialog(
           context: context,
-          barrierDismissible: false,
+          barrierDismissible: true,
           builder: (context) => _buildSpeechDialog(),
-        );
+        ).then((_) {
+          _speech.stop();
+        });
 
         // Start listening with timeout handling
         _speech.listen(
@@ -181,11 +183,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
             if ((val.hasConfidenceRating && val.confidence > 0.5) ||
                 !_isListeningPerson1) {
               _speech.stop();
+              Navigator.of(context).pop(); // Close dialog
               setState(() {
                 _isListeningPerson1 = false;
               });
-
-              Navigator.of(context).pop(); // Close dialog
 
               _translateText(_inputText, true, false); // Translate text
             }
@@ -213,9 +214,11 @@ class _ConversationScreenState extends State<ConversationScreen> {
         // Show dialog for real-time text recognition
         showDialog(
           context: context,
-          barrierDismissible: false,
+          barrierDismissible: true,
           builder: (context) => _buildSpeechDialog(),
-        );
+        ).then((_) {
+          _speech.stop();
+        });
 
         // Start listening with timeout handling
         _speech.listen(
@@ -227,11 +230,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
             if ((val.hasConfidenceRating && val.confidence > 0.5) ||
                 !_isListeningPerson2) {
               _speech.stop();
+              Navigator.of(context).pop(); // Close dialog
               setState(() {
                 _isListeningPerson2 = false;
               });
-
-              Navigator.of(context).pop(); // Close dialog
 
               _translateText(_inputText, false, true); // Translate text
             }
@@ -397,10 +399,17 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                                   .toString(),
                                               (_translations[index]['person'] ==
                                                       '1')
-                                                  ? _person1Language
-                                                  : _person2Language,
+                                                  ? _person2Language
+                                                  : _person1Language,
                                             ),
-                                        icon: Icon(Icons.volume_up),
+                                        icon: Icon(
+                                          Icons.volume_up,
+                                          color:
+                                              (_translations[index]['person'] ==
+                                                      '1')
+                                                  ? Colors.grey
+                                                  : bgColor,
+                                        ),
                                       ),
                                     ],
                                   ),

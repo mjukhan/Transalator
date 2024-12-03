@@ -116,6 +116,15 @@ class _DictionaryScreenState extends State<DictionaryScreen>
         },
       );
 
+      // Show dialog for real-time text recognition
+      showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (context) => _buildSpeechDialog(),
+      ).then((_) {
+        _stopListening();
+      });
+
       if (available) {
         _speech.listen(
           onResult: (val) {
@@ -124,6 +133,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
             // Stop listening if the speech is complete
             if (val.hasConfidenceRating && val.confidence > 0.5) {
               _stopListening();
+              Navigator.pop(context);
             }
           },
         );
@@ -460,5 +470,41 @@ class _DictionaryScreenState extends State<DictionaryScreen>
     setState(() {
       _isSpeaking = false;
     });
+  }
+
+  Widget _buildSpeechDialog() {
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                AppLocalizations.of(context)!.listening, // "Listening..."
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 16),
+              Text(
+                AppLocalizations.of(context)!.speakNow,
+                style: TextStyle(color: Colors.grey),
+              ),
+              SizedBox(height: 16),
+              IconButton(
+                onPressed: () {
+                  _speech.stop();
+                  Navigator.pop(context);
+                },
+                icon: Icon(
+                  Icons.stop_circle_outlined,
+                  size: 64,
+                  color: micColor,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

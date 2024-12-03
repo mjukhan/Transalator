@@ -143,25 +143,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     );
   }
 
-  // void checkWiFi() {
-  //   _internetConnectionStream = InternetConnectionChecker().onStatusChange
-  //       .listen((status) {
-  //         bool hasConnection = status == InternetConnectionStatus.connected;
-  //         connectionStatus =
-  //             hasConnection
-  //                 ? "Connected to Internet"
-  //                 : "No Internet. Please Check Your Internet";
-  //         setState(() {
-  //           _wifi = hasConnection ? true : false;
-  //         });
-  //         if (!_wifi) {
-  //           snackMassage(connectionStatus);
-  //         }
-  //         print("_wifi : ${_wifi}");
-  //         print("connection Status : ${connectionStatus}");
-  //       });
-  // }
-  //
   void snackMassage(String text) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -428,8 +409,8 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             _translatedText,
             textAlign: TextAlign.start,
             style: TextStyle(color: translatedTextColor),
-            maxFontSize: 18,
-            minFontSize: 12,
+            maxFontSize: 32,
+            minFontSize: 24,
             maxLines: null,
           ),
         ),

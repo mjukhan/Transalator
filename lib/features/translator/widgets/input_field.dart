@@ -188,13 +188,13 @@ class TextInputField extends StatelessWidget {
       decoration: InputDecoration(
         hintText: hintText,
         helperMaxLines: 1,
-        hintStyle: TextStyle(fontSize: 18, color: Colors.grey.shade500),
+        hintStyle: TextStyle(fontSize: 24, color: Colors.grey.shade500),
         border: InputBorder.none,
         contentPadding: EdgeInsets.fromLTRB(16, 20, 16, 16),
       ),
       maxLines: null,
 
-      style: TextStyle(fontSize: 14.0),
+      style: TextStyle(fontSize: 24.0),
       onChanged: onChanged,
     );
   }

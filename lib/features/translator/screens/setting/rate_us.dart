@@ -11,18 +11,16 @@ class RateUs extends StatelessWidget {
     if (await canLaunchUrl(Uri.parse(appLink))) {
       await launchUrl(Uri.parse(appLink), mode: LaunchMode.externalApplication);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not open the app store.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Could not open the app store.')));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Rate Us'),
-      ),
+      appBar: AppBar(title: Text('Rate Us')),
       body: Center(
         child: ElevatedButton(
           onPressed: () => _rateApp(context),
