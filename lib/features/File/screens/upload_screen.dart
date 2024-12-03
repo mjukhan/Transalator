@@ -7,7 +7,13 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../widgets/imagePickerUtility.dart';
 
 class FileScreen extends StatefulWidget {
-  const FileScreen({super.key});
+  final bool wifi;
+  final String connectionStatus;
+  const FileScreen({
+    super.key,
+    required this.wifi,
+    required this.connectionStatus,
+  });
 
   @override
   State<FileScreen> createState() => _FileScreenState();
@@ -27,7 +33,12 @@ class _FileScreenState extends State<FileScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => PictureScreen(imageFile: imageFile!),
+          builder:
+              (context) => PictureScreen(
+                imageFile: imageFile!,
+                wifi: widget.wifi,
+                connectionStatus: widget.connectionStatus,
+              ),
         ),
       ).then((value) {
         setState(() {
@@ -89,7 +100,13 @@ class _FileScreenState extends State<FileScreen> {
                     height: 50,
                     width: 150,
                     child: Center(
-                      child: Text(AppLocalizations.of(context)!.upload),
+                      child: Text(
+                        AppLocalizations.of(context)!.upload,
+                        style: TextStyle(
+                          color: bgColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ),

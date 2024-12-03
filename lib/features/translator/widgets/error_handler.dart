@@ -13,9 +13,9 @@ class ErrorHandlerTranslating {
     }
 
     // Display a SnackBar with the error message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(errorMessage)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(errorMessage)));
   }
 }
 

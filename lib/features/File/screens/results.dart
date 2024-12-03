@@ -2,7 +2,6 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/utilities/colors.dart';
@@ -48,10 +47,16 @@ class _ResultsState extends State<Results> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    final _ = MediaQuery.of(context).size;
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(title: Text('Results')),
+        backgroundColor: bgColor,
+        appBar: AppBar(
+          title: Text('Results'),
+          backgroundColor: bgColor,
+          scrolledUnderElevation: 0,
+          elevation: 0,
+        ),
         body: Column(
           children: [
             _buildLanguageSelector(),
@@ -180,7 +185,7 @@ class _ResultsState extends State<Results> {
     setState(() {
       translatedLines = translations; // Update translatedLines state
       _isTranslating = false;
-      print("translated lines : ${translatedLines}");
+      print("translated lines : $translatedLines");
     });
   }
 

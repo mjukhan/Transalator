@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:translation_app/core/utilities/colors.dart';
@@ -15,7 +17,13 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TranslatorScreen extends StatefulWidget {
-  const TranslatorScreen({super.key});
+  final bool wifi;
+  final String connectionStatus;
+  const TranslatorScreen({
+    super.key,
+    required this.wifi,
+    required this.connectionStatus,
+  });
 
   @override
   _TranslatorScreenState createState() => _TranslatorScreenState();
@@ -31,14 +39,13 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   final FlutterTts _flutterTts = FlutterTts();
   bool _isSpeaking = false;
   bool _isTranslating = false;
-
   final TranslationService _translationService = TranslationService();
 
   @override
   void initState() {
-    super.initState();
     _loadLanguagePreferences();
     _loadSavedTranslations();
+    super.initState();
   }
 
   // Load the previously selected languages from SharedPreferences
@@ -72,7 +79,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
       });
       return;
     }
-
     try {
       setState(() {
         _isTranslating = true;
@@ -129,7 +135,41 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   void _copyToClipboard(String text) {
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(AppLocalizations.of(context)!.textCopied)),
+      SnackBar(
+        content: Text(AppLocalizations.of(context)!.textCopied),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: micColor,
+      ),
+    );
+  }
+
+  // void checkWiFi() {
+  //   _internetConnectionStream = InternetConnectionChecker().onStatusChange
+  //       .listen((status) {
+  //         bool hasConnection = status == InternetConnectionStatus.connected;
+  //         connectionStatus =
+  //             hasConnection
+  //                 ? "Connected to Internet"
+  //                 : "No Internet. Please Check Your Internet";
+  //         setState(() {
+  //           _wifi = hasConnection ? true : false;
+  //         });
+  //         if (!_wifi) {
+  //           snackMassage(connectionStatus);
+  //         }
+  //         print("_wifi : ${_wifi}");
+  //         print("connection Status : ${connectionStatus}");
+  //       });
+  // }
+  //
+  void snackMassage(String text) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(text),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: micColor,
+        duration: Duration(seconds: 1),
+      ),
     );
   }
 
@@ -141,7 +181,12 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         floatingActionButton:
             _inputText.isNotEmpty && _translatedText.isEmpty
                 ? FloatingActionButton.extended(
-                  onPressed: () => _translateText(_inputText),
+                  onPressed:
+                      () =>
+                          widget.wifi
+                              ? _translateText(_inputText)
+                              : snackMassage(widget.connectionStatus),
+
                   backgroundColor: translateButtonColor,
                   label:
                       (!_isTranslating)
@@ -291,43 +336,82 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   }
 
   Widget _buildTranslationContainer() {
-    return Expanded(
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        //decoration: BoxDecoration(border: Border.all(color: Colors.yellow)),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Text Input Field at the Top
-              InputField(
-                onChanged: (text) {
-                  setState(() {
-                    _inputText = text;
-                    _translatedText = '';
-                    _isSaved = false;
-                  });
-                  //_translateText(_inputText);
-                },
-                sourceLanguage: _sourceLanguage,
+    return (widget.wifi)
+        ? Expanded(
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            //decoration: BoxDecoration(border: Border.all(color: Colors.yellow)),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Text Input Field at the Top
+                  InputField(
+                    onChanged: (text) {
+                      setState(() {
+                        _inputText = text;
+                        _translatedText = '';
+                        _isSaved = false;
+                      });
+                      //_translateText(_inputText);
+                    },
+                    sourceLanguage: _sourceLanguage,
+                    wifi: widget.wifi,
+                    connectionStatus: widget.connectionStatus,
+                  ),
+                  _inputText.isNotEmpty && _translatedText.isNotEmpty
+                      ? _buildActionButtons(
+                        true,
+                        false,
+                        false,
+                        false,
+                        _inputText,
+                        _sourceLanguage,
+                      )
+                      : SizedBox.shrink(),
+                  const SizedBox(height: 16),
+                  (_translatedText.isNotEmpty && _inputText.isNotEmpty)
+                      ? _buildTranslatedText()
+                      : SizedBox.shrink(),
+                ],
               ),
-              _inputText.isNotEmpty && _translatedText.isNotEmpty
-                  ? _buildActionButtons(
-                    true,
-                    false,
-                    false,
-                    false,
-                    _inputText,
-                    _sourceLanguage,
-                  )
-                  : SizedBox.shrink(),
-              const SizedBox(height: 16),
-              (_translatedText.isNotEmpty && _inputText.isNotEmpty)
-                  ? _buildTranslatedText()
-                  : SizedBox.shrink(),
-            ],
+            ),
           ),
-        ),
+        )
+        : noInternetContainer();
+  }
+
+  Widget noInternetContainer() {
+    return Expanded(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Image.asset('assets/icons/nowifi.png', scale: 5),
+          AutoSizeText(
+            "Connect to Internet",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+          ),
+          AutoSizeText(
+            "You're offline. Check your connection",
+            style: TextStyle(fontSize: 12, color: Colors.grey),
+          ),
+          SizedBox(height: 20),
+          ElevatedButton(
+            style: ButtonStyle(
+              backgroundColor: WidgetStatePropertyAll(micColor),
+            ),
+            onPressed: () => openAppSettings(),
+            child: AutoSizeText(
+              "Settings",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: bgColor,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

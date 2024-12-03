@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,7 +14,14 @@ import 'package:flutter_tts/flutter_tts.dart';
 
 class DictionaryScreen extends StatefulWidget {
   final String? searchWord;
-  const DictionaryScreen({super.key, this.searchWord});
+  final bool wifi;
+  final String connectionStatus;
+  const DictionaryScreen({
+    super.key,
+    this.searchWord,
+    required this.wifi,
+    required this.connectionStatus,
+  });
 
   @override
   State<DictionaryScreen> createState() => _DictionaryScreenState();
@@ -26,10 +34,9 @@ class _DictionaryScreenState extends State<DictionaryScreen>
   );
   Future<WordDefinition?>? _wordDefinition;
   Future<WordDefinition?>? _wordOfTheDay;
-  Future<WordDefinition?>? _meaningOfTheDay;
   final TextEditingController _searchController = TextEditingController();
   final FlutterTts _flutterTts = FlutterTts();
-
+  String _todayWord = '';
   List<String> _recentSearches = [];
   String _searchedWord = '';
   bool _isSpeaking = false;
@@ -145,6 +152,17 @@ class _DictionaryScreenState extends State<DictionaryScreen>
     });
   }
 
+  void snackMassage(String text) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(text),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: micColor,
+        duration: Duration(seconds: 1),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -163,6 +181,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
           scrolledUnderElevation: 0,
         ),
         body: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -207,72 +226,86 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                 border: Border.all(color: borderColor),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: FutureBuilder<WordDefinition?>(
-                future: _wordOfTheDay,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError || !snapshot.hasData) {
-                    return Center(
-                      child: Center(child: CircularProgressIndicator()),
-                    );
-                  }
-
-                  final wordDefinition = snapshot.data!;
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          AutoSizeText(
-                            AppLocalizations.of(context)!.wordOfTheDay,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap:
-                                () =>
-                                    !_isSpeaking
-                                        ? _tts(wordDefinition.word)
-                                        : _stop_tts(),
-                            child:
-                                _isSpeaking
-                                    ? Icon(
-                                      Icons.stop_circle_outlined,
-                                      size: 18,
-                                      color: Colors.blue,
-                                    )
-                                    : Icon(
-                                      Icons.volume_up,
-                                      size: 18,
-                                      color: Colors.blue,
-                                    ),
-                          ),
-                        ],
-                      ),
-                      Divider(),
                       AutoSizeText(
-                        maxFontSize: 12,
-                        minFontSize: 8,
-                        wordDefinition.word,
+                        AppLocalizations.of(context)!.wordOfTheDay,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: Colors.blue,
+                          fontSize: 12,
                         ),
                       ),
-                      AutoSizeText(
-                        maxFontSize: 12,
-                        minFontSize: 8,
-                        maxLines: null,
-                        wordDefinition.meanings.first.definitions[0].definition,
-                        wrapWords: true,
+                      GestureDetector(
+                        onTap: () {
+                          !_isSpeaking ? _tts(_todayWord) : _stop_tts();
+                        },
+
+                        child:
+                            _isSpeaking
+                                ? Icon(
+                                  Icons.stop_circle_outlined,
+                                  size: 18,
+                                  color: Colors.blue,
+                                )
+                                : Icon(
+                                  Icons.volume_up,
+                                  size: 18,
+                                  color: Colors.blue,
+                                ),
                       ),
                     ],
-                  );
-                },
+                  ),
+                  Divider(),
+                  FutureBuilder<WordDefinition?>(
+                    future: _wordOfTheDay,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError ||
+                          !snapshot.hasData ||
+                          !widget.wifi) {
+                        return Center(
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+
+                      final wordDefinition = snapshot.data!;
+                      _todayWord = wordDefinition.word;
+
+                      print("today word : $_todayWord");
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AutoSizeText(
+                            maxFontSize: 12,
+                            minFontSize: 8,
+                            wordDefinition.word,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue,
+                            ),
+                          ),
+                          AutoSizeText(
+                            maxFontSize: 12,
+                            minFontSize: 8,
+                            maxLines: null,
+                            wordDefinition
+                                .meanings
+                                .first
+                                .definitions[0]
+                                .definition,
+                            wrapWords: true,
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
 
@@ -371,14 +404,19 @@ class _DictionaryScreenState extends State<DictionaryScreen>
       decoration: BoxDecoration(shape: BoxShape.circle, color: micColor),
       child: IconButton(
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ViewSearch(wordDefinition: _wordDefinition),
-            ),
-          );
-          _searchWord(_searchController.text);
-          _searchController.clear();
+          if (widget.wifi) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => ViewSearch(wordDefinition: _wordDefinition),
+              ),
+            );
+            _searchWord(_searchController.text);
+            _searchController.clear();
+          } else {
+            snackMassage(widget.connectionStatus);
+          }
         },
         icon: Icon(Icons.search, color: bgColor),
       ),
@@ -413,9 +451,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
         });
       });
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Empty Text")));
+      snackMassage("No Word, or No Internet");
     }
   }
 

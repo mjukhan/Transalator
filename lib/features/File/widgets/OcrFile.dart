@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../../data/models/ocr_model.dart';
 import '../../../data/repositories/ocr_repository.dart';
 

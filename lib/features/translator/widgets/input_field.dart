@@ -11,11 +11,15 @@ import '../../File/widgets/imagePickerUtility.dart';
 class InputField extends StatefulWidget {
   final ValueChanged<String> onChanged;
   final String sourceLanguage;
+  final bool wifi;
+  final String connectionStatus;
 
   const InputField({
     super.key,
     required this.onChanged,
     required this.sourceLanguage,
+    required this.wifi,
+    required this.connectionStatus,
   });
 
   @override
@@ -70,7 +74,12 @@ class _InputFieldState extends State<InputField> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => PictureScreen(imageFile: imageFile!),
+          builder:
+              (context) => PictureScreen(
+                imageFile: imageFile!,
+                wifi: widget.wifi,
+                connectionStatus: widget.connectionStatus,
+              ),
         ),
       );
     }

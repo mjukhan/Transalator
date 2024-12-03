@@ -34,14 +34,15 @@ class _SplashScreenState extends State<SplashScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(32, 16, 32, 0),
-                child: Image.asset(
-                  'assets/icons/splash.png',
-                ),
+                child: Image.asset('assets/icons/splash.png'),
               ),
               SizedBox(height: size.height * 0.05),
               Text(
                 'Language Translator',
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
               ),
               Text(
                 'Communicate with the World',
@@ -64,6 +65,8 @@ class _SplashScreenState extends State<SplashScreen> {
 }
 
 class AnimatedLoader extends StatefulWidget {
+  const AnimatedLoader({super.key});
+
   @override
   _AnimatedLoaderState createState() => _AnimatedLoaderState();
 }
@@ -80,13 +83,14 @@ class _AnimatedLoaderState extends State<AnimatedLoader>
     // Initialize the animation controller
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 700),
     )..repeat(reverse: false);
 
     // Define the animation
-    _animation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _animation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -99,7 +103,7 @@ class _AnimatedLoaderState extends State<AnimatedLoader>
   Widget build(BuildContext context) {
     return Container(
       width: 130, // Fixed width of the loader
-      height: 4,  // Height of the loader
+      height: 4, // Height of the loader
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.2),
         borderRadius: BorderRadius.circular(30),

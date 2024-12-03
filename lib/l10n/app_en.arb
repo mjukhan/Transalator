@@ -111,7 +111,9 @@
     "trnslationSaved": "Translation saved!",
     "textCopied": "Text copied",
     "translate": "Translate",
-    "translating": "Translating... "
+    "translating": "Translating... ",
+    "listening": "Listening...",
+    "speakNow": "Speak Now"
 
 
 }

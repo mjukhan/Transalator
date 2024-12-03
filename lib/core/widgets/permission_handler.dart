@@ -1,7 +1,9 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
+//import 'package:connectivity_plus/connectivity_plus.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class PermissionHelper {
   static Future<bool> requestPermission({
@@ -77,29 +79,28 @@ class PermissionHelper {
     );
   }
 
-  /// Check WiFi connection and show error in Snackbar if no connection
-  Future<bool> checkWifiConnection(BuildContext context) async {
-    var connectivityResult = await Connectivity().checkConnectivity();
-
-    if (connectivityResult == ConnectivityResult.none) {
-      // Show snackbar for no internet connection
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'No Internet connection. Please check your Wi-Fi',
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 3),
-        ),
-      );
-
-      return false;
-    }
-
-    return true;
-  }
+  // /// Check WiFi connection and show error in Snackbar if no connection
+  // void checkWifiConnection(BuildContext context) async {
+  //   var connectivityResult = await Connectivity().checkConnectivity();
+  //
+  //   if (connectivityResult == ConnectivityResult.none) {
+  //     // Show snackbar for no internet connection
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text(
+  //           'No Internet connection. Please check your Wi-Fi',
+  //           style: TextStyle(color: Colors.white),
+  //         ),
+  //         backgroundColor: Colors.red,
+  //         behavior: SnackBarBehavior.floating,
+  //         duration: const Duration(seconds: 3),
+  //       ),
+  //     );
+  //     print("connected to internet : ${ConnectivityResult.values}");
+  //   } else {
+  //     print("connected to internet : ${ConnectivityResult.values}");
+  //   }
+  // }
 
   // Check microphone permission and prompt settings if denied multiple times
   Future<bool> checkMicrophonePermission() async {
@@ -114,3 +115,4 @@ class PermissionHelper {
     return status.isGranted;
   }
 }
+

@@ -1,18 +1,23 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:translation_app/core/utilities/colors.dart';
 import 'package:translation_app/features/File/screens/results.dart';
-import 'package:translation_app/features/translator/screens/translation_screen.dart';
-import 'package:translation_app/features/translator/widgets/input_field.dart';
 import 'dart:async';
+import '../../translator/widgets/error_handler.dart';
 import '../widgets/OcrFile.dart';
 import '../widgets/upload.dart';
 
 class PictureScreen extends StatefulWidget {
+  final bool wifi;
+  final String connectionStatus;
   final File? imageFile;
-  const PictureScreen({super.key, this.imageFile});
+  const PictureScreen({
+    super.key,
+    this.imageFile,
+    required this.wifi,
+    required this.connectionStatus,
+  });
 
   @override
   State<PictureScreen> createState() => _PictureScreenState();
@@ -37,22 +42,39 @@ class _PictureScreenState extends State<PictureScreen> {
     super.dispose();
   }
 
+  void snackMassage(String text) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(text),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: micColor,
+        duration: Duration(seconds: 1),
+      ),
+    );
+  }
+
   Future<void> imageUpload() async {
     File? upLoadedFile = await Upload(
       imageFile: widget.imageFile,
     ).startUpload(context);
     if (upLoadedFile != null) {
-      setState(() {
-        isExtracting = true;
-      });
-      // Use compute to offload the OCR processing
-      extractedLines = await compute(_performOcr, upLoadedFile);
-      // Extracting text lines from the extracted lines
-      inputLines =
-          extractedLines.map((line) => line['LineText'] as String).toList();
-      setState(() {
-        isExtracting = false;
-      });
+      if (widget.wifi) {
+        try {
+          setState(() {
+            isExtracting = true;
+          });
+          // Use compute to offload the OCR processing
+          extractedLines = await compute(_performOcr, upLoadedFile);
+          // Extracting text lines from the extracted lines
+          inputLines =
+              extractedLines.map((line) => line['LineText'] as String).toList();
+          setState(() {
+            isExtracting = false;
+          });
+        } catch (e) {
+          ErrorHandlerTranslating.handleTranslationError(context, e);
+        }
+      }
     }
     setState(() {
       isExtracting = false;
@@ -67,19 +89,26 @@ class _PictureScreenState extends State<PictureScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      backgroundColor: bgColor,
+      appBar: AppBar(
+        backgroundColor: bgColor,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: micColor,
         onPressed: () {
-          (isExtracting)
-              ? null
-              : Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Results(extractedText: inputLines),
-                ),
-              );
+          (widget.wifi)
+              ? (isExtracting)
+                  ? null
+                  : Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Results(extractedText: inputLines),
+                    ),
+                  )
+              : snackMassage(widget.connectionStatus);
         },
         label:
             (isExtracting)

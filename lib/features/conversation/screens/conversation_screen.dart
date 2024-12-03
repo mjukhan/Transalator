@@ -12,7 +12,13 @@ import '../../translator/widgets/language_selector.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
 class ConversationScreen extends StatefulWidget {
-  const ConversationScreen({super.key});
+  final bool wifi;
+  final String connectionStatus;
+  const ConversationScreen({
+    super.key,
+    required this.wifi,
+    required this.connectionStatus,
+  });
 
   @override
   State<ConversationScreen> createState() => _ConversationScreenState();
@@ -29,7 +35,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
   bool _isListeningPerson2 = false;
   bool _isSpeaking = false;
   bool _isTranslating = false;
-  StreamSubscription? _connectivitySubscription;
   final TextEditingController _controller = TextEditingController();
   final stt.SpeechToText _speech = stt.SpeechToText();
   final TranslationService _translationService = TranslationService();
@@ -42,6 +47,17 @@ class _ConversationScreenState extends State<ConversationScreen> {
   void initState() {
     super.initState();
     _loadLanguagePreferences();
+  }
+
+  void snackMassage(String text) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(text),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: micColor,
+        duration: Duration(seconds: 1),
+      ),
+    );
   }
 
   // Load the previously selected languages from SharedPreferences
@@ -65,8 +81,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
     bool isSpeaker1,
     bool isSpeaker2,
   ) async {
-    if (!await PermissionHelper().checkWifiConnection(context)) return;
-
     if (inputText.isEmpty) {
       setState(() {
         _isTranslating = true;
@@ -154,7 +168,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
         showDialog(
           context: context,
           barrierDismissible: false,
-          builder: (_) => _buildSpeechDialog(),
+          builder: (context) => _buildSpeechDialog(),
         );
 
         // Start listening with timeout handling
@@ -200,7 +214,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
         showDialog(
           context: context,
           barrierDismissible: false,
-          builder: (_) => _buildSpeechDialog(),
+          builder: (context) => _buildSpeechDialog(),
         );
 
         // Start listening with timeout handling
@@ -241,7 +255,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
       _isListeningPerson1 = false;
       _isListeningPerson2 = false;
     }
-    _connectivitySubscription?.cancel();
     super.dispose();
   }
 
@@ -288,9 +301,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       )
                       : Container(
                         margin: EdgeInsets.fromLTRB(8, 8, 8, 8),
-                        // decoration: BoxDecoration(
-                        //   border: Border.all(color: Colors.yellow),
-                        // ),
                         child: ListView.builder(
                           controller: _scrollController,
                           itemCount: _translations.length,
@@ -314,14 +324,14 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                 borderRadius:
                                     (_translations[index]["person"] == '1')
                                         ? BorderRadius.only(
-                                          topRight: Radius.circular(8),
-                                          topLeft: Radius.circular(8),
-                                          bottomRight: Radius.circular(8),
+                                          topRight: Radius.circular(16),
+                                          topLeft: Radius.circular(16),
+                                          bottomRight: Radius.circular(16),
                                         )
                                         : BorderRadius.only(
-                                          topLeft: Radius.circular(8),
-                                          topRight: Radius.circular(8),
-                                          bottomLeft: Radius.circular(8),
+                                          topLeft: Radius.circular(16),
+                                          topRight: Radius.circular(16),
+                                          bottomLeft: Radius.circular(16),
                                         ),
                               ),
                               child: Column(
@@ -339,6 +349,13 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                       maxLines: null,
                                       maxFontSize: 24,
                                       minFontSize: 14,
+                                      style: TextStyle(
+                                        color:
+                                            (_translations[index]['person'] ==
+                                                    '2')
+                                                ? bgColor
+                                                : Colors.black,
+                                      ),
                                     ),
                                   ),
                                   _translations.isNotEmpty
@@ -359,6 +376,14 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                           maxLines: null,
                                           maxFontSize: 24,
                                           minFontSize: 16,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color:
+                                                (_translations[index]['person'] ==
+                                                        '2')
+                                                    ? bgColor
+                                                    : Colors.black,
+                                          ),
                                         ),
                                       )
                                       : SizedBox.shrink(),
@@ -370,7 +395,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                             () => _handleTextToSpeech(
                                               _translations[index]["translated"]
                                                   .toString(),
-                                              _person2Language,
+                                              (_translations[index]['person'] ==
+                                                      '1')
+                                                  ? _person1Language
+                                                  : _person2Language,
                                             ),
                                         icon: Icon(Icons.volume_up),
                                       ),
@@ -416,7 +444,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       ),
                     ),
                     GestureDetector(
-                      onTap: _listenPerson1,
+                      onTap:
+                          (widget.wifi)
+                              ? _listenPerson1
+                              : () => snackMassage(widget.connectionStatus),
                       child: Container(
                         height: 60,
                         width: 60,
@@ -458,7 +489,9 @@ class _ConversationScreenState extends State<ConversationScreen> {
                     ),
                     GestureDetector(
                       onTap:
-                          _listenPerson2, // Call the listen method for person 2
+                          (widget.wifi)
+                              ? _listenPerson2
+                              : () => snackMassage(widget.connectionStatus),
                       child: Container(
                         height: 60,
                         width: 60,
@@ -520,27 +553,38 @@ class _ConversationScreenState extends State<ConversationScreen> {
   }
 
   Widget _buildSpeechDialog() {
-    return AlertDialog(
-      backgroundColor: Colors.white,
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'Listening...', // "Listening..."
-            style: TextStyle(fontWeight: FontWeight.bold),
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                AppLocalizations.of(context)!.listening, // "Listening..."
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 16),
+              Text(
+                AppLocalizations.of(context)!.speakNow,
+                style: TextStyle(color: Colors.grey),
+              ),
+              SizedBox(height: 16),
+              IconButton(
+                onPressed: () {
+                  _speech.stop();
+                  Navigator.pop(context);
+                },
+                icon: Icon(
+                  Icons.stop_circle_outlined,
+                  size: 64,
+                  color: micColor,
+                ),
+              ),
+            ],
           ),
-          SizedBox(height: 16),
-          Text('Speak Now', style: TextStyle(color: Colors.grey)),
-          SizedBox(height: 16),
-          IconButton(
-            onPressed: () {
-              _speech.stop();
-              Navigator.pop(context);
-            },
-            icon: Icon(Icons.stop_circle_outlined, size: 64, color: micColor),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

@@ -12,12 +12,6 @@
 @import camera_avfoundation;
 #endif
 
-#if __has_include(<connectivity_plus/ConnectivityPlusPlugin.h>)
-#import <connectivity_plus/ConnectivityPlusPlugin.h>
-#else
-@import connectivity_plus;
-#endif
-
 #if __has_include(<file_picker/FilePickerPlugin.h>)
 #import <file_picker/FilePickerPlugin.h>
 #else
@@ -76,7 +70,6 @@
 
 + (void)registerWithRegistry:(NSObject<FlutterPluginRegistry>*)registry {
   [CameraPlugin registerWithRegistrar:[registry registrarForPlugin:@"CameraPlugin"]];
-  [ConnectivityPlusPlugin registerWithRegistrar:[registry registrarForPlugin:@"ConnectivityPlusPlugin"]];
   [FilePickerPlugin registerWithRegistrar:[registry registrarForPlugin:@"FilePickerPlugin"]];
   [FlutterTtsPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterTtsPlugin"]];
   [FLTImagePickerPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTImagePickerPlugin"]];
