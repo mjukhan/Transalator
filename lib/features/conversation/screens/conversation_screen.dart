@@ -93,21 +93,20 @@ class _ConversationScreenState extends State<ConversationScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder:
-          (_) => AlertDialog(
-            backgroundColor: Colors.white,
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  AppLocalizations.of(context)!.translating, // "Translating..."
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 16),
-                Image.asset('assets/icons/translating.gif', scale: 6),
-              ],
+      builder: (_) => AlertDialog(
+        backgroundColor: Colors.white,
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              AppLocalizations.of(context)!.translating, // "Translating..."
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
-          ),
+            SizedBox(height: 16),
+            Image.asset('assets/icons/translating.gif', scale: 6),
+          ],
+        ),
+      ),
     );
 
     try {
@@ -284,88 +283,81 @@ class _ConversationScreenState extends State<ConversationScreen> {
                 border: Border.all(color: borderColor),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child:
-                  _translatedText.isEmpty
-                      ? Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            'assets/icons/empty_conversation.png',
-                            scale: 4,
-                          ),
-                          SizedBox(height: 20),
-                          Text(
-                            AppLocalizations.of(context)!.startConvo,
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ],
-                      )
-                      : Container(
-                        margin: EdgeInsets.fromLTRB(8, 8, 8, 8),
-                        child: ListView.builder(
-                          controller: _scrollController,
-                          itemCount: _translations.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return Container(
-                              margin: EdgeInsets.fromLTRB(
-                                (_translations[index]["person"] == '1')
-                                    ? 0
-                                    : 50,
-                                0,
-                                (_translations[index]["person"] == '1')
-                                    ? 50
-                                    : 0,
-                                8,
-                              ),
-                              decoration: BoxDecoration(
-                                color:
-                                    (_translations[index]["person"] == '1')
-                                        ? Colors.grey.shade200
-                                        : Colors.blue,
-                                borderRadius:
-                                    (_translations[index]["person"] == '1')
-                                        ? BorderRadius.only(
+              child: _translatedText.isEmpty
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          'assets/icons/empty_conversation.png',
+                          scale: 4,
+                        ),
+                        SizedBox(height: 20),
+                        Text(
+                          AppLocalizations.of(context)!.startConvo,
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ],
+                    )
+                  : Container(
+                      margin: EdgeInsets.fromLTRB(8, 8, 8, 8),
+                      child: ListView.builder(
+                        controller: _scrollController,
+                        itemCount: _translations.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Container(
+                            margin: EdgeInsets.fromLTRB(
+                              (_translations[index]["person"] == '1') ? 0 : 50,
+                              0,
+                              (_translations[index]["person"] == '1') ? 50 : 0,
+                              8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: (_translations[index]["person"] == '1')
+                                  ? Colors.grey.shade200
+                                  : Colors.blue,
+                              borderRadius:
+                                  (_translations[index]["person"] == '1')
+                                      ? BorderRadius.only(
                                           topRight: Radius.circular(16),
                                           topLeft: Radius.circular(16),
                                           bottomRight: Radius.circular(16),
                                         )
-                                        : BorderRadius.only(
+                                      : BorderRadius.only(
                                           topLeft: Radius.circular(16),
                                           topRight: Radius.circular(16),
                                           bottomLeft: Radius.circular(16),
                                         ),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(
-                                      8,
-                                      8,
-                                      8,
-                                      0,
-                                    ),
-                                    child: AutoSizeText(
-                                      _translations[index]["input"].toString(),
-                                      maxLines: null,
-                                      maxFontSize: 24,
-                                      minFontSize: 14,
-                                      style: TextStyle(
-                                        color:
-                                            (_translations[index]['person'] ==
-                                                    '2')
-                                                ? bgColor
-                                                : Colors.black,
-                                      ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    8,
+                                    8,
+                                    8,
+                                    0,
+                                  ),
+                                  child: AutoSizeText(
+                                    _translations[index]["input"].toString(),
+                                    maxLines: null,
+                                    maxFontSize: 24,
+                                    minFontSize: 14,
+                                    style: TextStyle(
+                                      color: (_translations[index]['person'] ==
+                                              '2')
+                                          ? bgColor
+                                          : Colors.black,
                                     ),
                                   ),
-                                  _translations.isNotEmpty
-                                      ? Divider(indent: 8, endIndent: 32)
-                                      : SizedBox.shrink(),
-                                  // Translated Text Container
-                                  _translations.isNotEmpty
-                                      ? Padding(
+                                ),
+                                _translations.isNotEmpty
+                                    ? Divider(indent: 8, endIndent: 32)
+                                    : SizedBox.shrink(),
+                                // Translated Text Container
+                                _translations.isNotEmpty
+                                    ? Padding(
                                         padding: const EdgeInsets.fromLTRB(
                                           8,
                                           0,
@@ -380,45 +372,43 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                           minFontSize: 16,
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
-                                            color:
-                                                (_translations[index]['person'] ==
-                                                        '2')
-                                                    ? bgColor
-                                                    : Colors.black,
+                                            color: (_translations[index]
+                                                        ['person'] ==
+                                                    '2')
+                                                ? bgColor
+                                                : Colors.black,
                                           ),
                                         ),
                                       )
-                                      : SizedBox.shrink(),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      IconButton(
-                                        onPressed:
-                                            () => _handleTextToSpeech(
-                                              _translations[index]["translated"]
-                                                  .toString(),
-                                              (_translations[index]['person'] ==
-                                                      '1')
-                                                  ? _person2Language
-                                                  : _person1Language,
-                                            ),
-                                        icon: Icon(
-                                          Icons.volume_up,
-                                          color:
-                                              (_translations[index]['person'] ==
-                                                      '1')
-                                                  ? Colors.grey
-                                                  : bgColor,
-                                        ),
+                                    : SizedBox.shrink(),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    IconButton(
+                                      onPressed: () => _handleTextToSpeech(
+                                        _translations[index]["translated"]
+                                            .toString(),
+                                        (_translations[index]['person'] == '1')
+                                            ? _person2Language
+                                            : _person1Language,
                                       ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
+                                      icon: Icon(
+                                        Icons.volume_up,
+                                        color: (_translations[index]
+                                                    ['person'] ==
+                                                '1')
+                                            ? Colors.grey
+                                            : bgColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
+                    ),
             ),
           ),
           SizedBox(
@@ -453,10 +443,9 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       ),
                     ),
                     GestureDetector(
-                      onTap:
-                          (widget.wifi)
-                              ? _listenPerson1
-                              : () => snackMassage(widget.connectionStatus),
+                      onTap: (widget.wifi)
+                          ? _listenPerson1
+                          : () => snackMassage(widget.connectionStatus),
                       child: Container(
                         height: 60,
                         width: 60,
@@ -497,10 +486,9 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       ),
                     ),
                     GestureDetector(
-                      onTap:
-                          (widget.wifi)
-                              ? _listenPerson2
-                              : () => snackMassage(widget.connectionStatus),
+                      onTap: (widget.wifi)
+                          ? _listenPerson2
+                          : () => snackMassage(widget.connectionStatus),
                       child: Container(
                         height: 60,
                         width: 60,
@@ -562,38 +550,55 @@ class _ConversationScreenState extends State<ConversationScreen> {
   }
 
   Widget _buildSpeechDialog() {
-    return StatefulBuilder(
-      builder: (context, setState) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                AppLocalizations.of(context)!.listening, // "Listening..."
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 16),
-              Text(
-                AppLocalizations.of(context)!.speakNow,
-                style: TextStyle(color: Colors.grey),
-              ),
-              SizedBox(height: 16),
-              IconButton(
-                onPressed: () {
-                  _speech.stop();
-                  Navigator.pop(context);
-                },
-                icon: Icon(
-                  Icons.stop_circle_outlined,
-                  size: 64,
+    return AlertDialog(
+      backgroundColor: Colors.white,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: (_isListeningPerson1 ||
+                    _isListeningPerson2 ||
+                    _speech.isNotListening)
+                ? Text(
+                    AppLocalizations.of(context)!.listening,
+                    key: const ValueKey<String>('listening'),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  )
+                : Text(
+                    "Try Again",
+                    key: const ValueKey<String>('try_again'),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.red),
+                  ),
+          ),
+          const SizedBox(height: 16),
+          IconButton(
+            onPressed: () {
+              _speech.stop();
+              Navigator.pop(context);
+            },
+            icon: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  width: 2,
                   color: micColor,
                 ),
               ),
-            ],
+              child: Icon(
+                Icons.mic,
+                size: 64,
+                color: (_isListeningPerson1 ||
+                        _isListeningPerson2 ||
+                        _speech.isNotListening)
+                    ? micColor
+                    : Colors.red,
+              ),
+            ),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 }

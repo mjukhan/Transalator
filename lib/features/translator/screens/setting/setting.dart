@@ -34,7 +34,7 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
       },
       {
         'icon': 'assets/icons/language.png',
-        'title': AppLocalizations.of(context)!.appLanguage,
+        'title': AppLocalizations.of(context)!.appLanguages,
         'subtitle': AppLocalizations.of(context)!.changeAppLanguage,
       },
       {
@@ -72,7 +72,7 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
     final localizations = AppLocalizations.of(context)!;
 
     // Use a switch statement based on localized strings
-    if (title == localizations.appLanguage) {
+    if (title == localizations.appLanguages) {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => AppLanguage()),
@@ -92,9 +92,7 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
         context,
         MaterialPageRoute(
           builder:
-              (context) => Favorite(
-                savedTranslations: widget.savedTranslation,
-              ),
+              (context) => Favorite(savedTranslations: widget.savedTranslation),
         ),
       );
     } else if (title == localizations.shareApp) {

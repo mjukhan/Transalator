@@ -243,6 +243,7 @@ class _VoiceInputButtonState extends State<VoiceInputButton> {
               _stopListening();
             }
           },
+          listenOptions: stt.SpeechListenOptions().cancelOnError,
         );
       }
     } else {

@@ -25,21 +25,24 @@ class LanguageSelector extends StatelessWidget {
       {'value': 'nl', 'label': AppLocalizations.of(context)!.dutch},
       {'value': 'hu', 'label': AppLocalizations.of(context)!.hungarian},
       {'value': 'ro', 'label': AppLocalizations.of(context)!.romanian},
+      {'value': 'fil', 'label': AppLocalizations.of(context)!.filipino},
+      {'value': 'cs', 'label': AppLocalizations.of(context)!.czech},
+      {'value': 'ar', 'label': AppLocalizations.of(context)!.arabic},
+      {'value': 'af', 'label': AppLocalizations.of(context)!.afrikaans},
+      {'value': 'hi', 'label': AppLocalizations.of(context)!.hindi},
       // Add more languages here
     ];
 
     // Create DropdownMenuItems from the language options
-    List<DropdownMenuItem<String>> dropdownItems = languageOptions.map((lang) {
-      return DropdownMenuItem<String>(
-        value: lang['value'], // This is how you're getting the value
-        child: FittedBox(
-          child: Text(
-            lang['label']!,
-            textAlign: TextAlign.center,
-          ),
-        ), // This is the display text
-      );
-    }).toList();
+    List<DropdownMenuItem<String>> dropdownItems =
+        languageOptions.map((lang) {
+          return DropdownMenuItem<String>(
+            value: lang['value'], // This is how you're getting the value
+            child: FittedBox(
+              child: Text(lang['label']!, textAlign: TextAlign.center),
+            ), // This is the display text
+          );
+        }).toList();
 
     // Check if selectedLanguage exists in dropdownItems, default to 'en' if not
     final String defaultLanguage = 'en';
@@ -59,10 +62,7 @@ class LanguageSelector extends StatelessWidget {
       isExpanded: true,
       underline: SizedBox.shrink(),
       //icon: SizedBox.shrink(),
-      style: TextStyle(
-        color: Colors.black,
-        fontSize: fontSize,
-      ),
+      style: TextStyle(color: Colors.black, fontSize: fontSize),
       dropdownColor: Colors.white,
     );
   }

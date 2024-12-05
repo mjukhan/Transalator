@@ -110,65 +110,67 @@ class _FavoriteState extends State<Favorite> {
         elevation: 0,
         title: Text(AppLocalizations.of(context)!.favoriteTranslations),
       ),
-      body:
-          savedTranslations.isEmpty
-              ? Center(
-                child: Text(AppLocalizations.of(context)!.noSavedTranslations),
-              )
-              : ListView.builder(
-                itemCount: savedTranslations.length,
-                itemBuilder: (context, index) {
-                  final instance = jsonDecode(savedTranslations[index]);
+      body: savedTranslations.isEmpty
+          ? Center(
+              child: Text(AppLocalizations.of(context)!.noSavedTranslations),
+            )
+          : ListView.builder(
+              itemCount: savedTranslations.length,
+              itemBuilder: (context, index) {
+                final instance = jsonDecode(savedTranslations[index]);
 
-                  return Container(
-                    margin: EdgeInsets.all(16),
-                    padding: EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: borderColor),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          "${instance['input']}",
-                          style: TextStyle(overflow: TextOverflow.fade),
-                        ),
-                        SizedBox(height: 10),
-                        Divider(endIndent: 100, indent: 100),
-                        SizedBox(height: 10),
-                        Text(
-                          '${instance['translate']}',
-                          style: TextStyle(overflow: TextOverflow.fade),
-                        ),
-                        Divider(),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            IconButton(
-                              icon: Icon(Icons.star, color: Colors.yellow),
-                              onPressed: () => _removeTranslation(index),
-                              tooltip:
-                                  AppLocalizations.of(
-                                    context,
-                                  )!.deleteThisTranslation,
+                return Container(
+                  margin: EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: borderColor),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        "${instance['input']}",
+                        style: TextStyle(overflow: TextOverflow.fade),
+                      ),
+                      SizedBox(height: 10),
+                      Divider(endIndent: 100, indent: 100),
+                      SizedBox(height: 10),
+                      Text(
+                        '${instance['translate']}',
+                        style: TextStyle(overflow: TextOverflow.fade),
+                      ),
+                      Divider(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              Icons.star,
+                              color: micColor,
+                              size: 24,
                             ),
-                            IconButton(
-                              icon: Icon(Icons.volume_up),
-                              onPressed:
-                                  () => _handleTextToSpeech(
-                                    instance['translate'],
-                                    instance['target'],
-                                  ),
-                              tooltip: 'Speak',
+                            onPressed: () => _removeTranslation(index),
+                            tooltip: AppLocalizations.of(
+                              context,
+                            )!
+                                .deleteThisTranslation,
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.volume_up),
+                            onPressed: () => _handleTextToSpeech(
+                              instance['translate'],
+                              instance['target'],
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+                            tooltip: 'Speak',
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
     );
   }
 }

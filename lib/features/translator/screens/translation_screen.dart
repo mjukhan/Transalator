@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/services.dart';
@@ -220,7 +221,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                   ),
                 );
               },
-              icon: Icon(Icons.star, color: Colors.yellow),
+              icon: Icon(Icons.star, color: micColor, size: 32),
             ),
           ],
         ),
@@ -382,7 +383,11 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             style: ButtonStyle(
               backgroundColor: WidgetStatePropertyAll(micColor),
             ),
-            onPressed: () => openAppSettings(),
+            onPressed: () {
+              AppSettings.openAppSettingsPanel(
+                AppSettingsPanelType.internetConnectivity,
+              );
+            },
             child: AutoSizeText(
               "Settings",
               style: TextStyle(
@@ -447,7 +452,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             ? IconButton(
               icon: Icon(
                 _isSaved ? Icons.star : Icons.star_border,
-                color: Colors.yellow,
+                color: micColor,
               ),
               onPressed: _saveInstance,
               tooltip: 'Save Instance',

@@ -10,8 +10,8 @@ showAlert({
     context: bContext,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text(title ?? "", style: TextStyle(color: Colors.white)),
-        content: Text(content ?? ""),
+        title: Text(title, style: TextStyle(color: Colors.white)),
+        content: Text(content),
         actions: [
           TextButton(
             onPressed: () => {Navigator.pop(context)},
