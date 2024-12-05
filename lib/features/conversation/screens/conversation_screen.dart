@@ -155,21 +155,20 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
   void _listenPerson1() async {
     if (!await PermissionHelper().checkMicrophonePermission()) return;
+    // Show dialog for real-time text recognition
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => _buildSpeechDialog(),
+    ).then((_) {
+      _speech.stop();
+    });
 
     if (!_isListeningPerson1) {
       if (await _speech.initialize()) {
         setState(() {
           _isListeningPerson1 = true;
           _isListeningPerson2 = false;
-        });
-
-        // Show dialog for real-time text recognition
-        showDialog(
-          context: context,
-          barrierDismissible: true,
-          builder: (context) => _buildSpeechDialog(),
-        ).then((_) {
-          _speech.stop();
         });
 
         // Start listening with timeout handling
@@ -435,7 +434,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
                           setState(() {
                             // Update source language
                             _person1Language = newLang;
-                            _translations.clear();
                           });
                           _saveLanguagePreferences();
                         },
@@ -478,7 +476,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
                           setState(() {
                             // Update target language
                             _person2Language = newLang;
-                            _translations.clear();
                           });
                           _saveLanguagePreferences();
                         },
@@ -555,22 +552,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
-            child: (_isListeningPerson1 ||
-                    _isListeningPerson2 ||
-                    _speech.isNotListening)
-                ? Text(
-                    AppLocalizations.of(context)!.listening,
-                    key: const ValueKey<String>('listening'),
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  )
-                : Text(
-                    "Try Again",
-                    key: const ValueKey<String>('try_again'),
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.red),
-                  ),
+          Text(
+            AppLocalizations.of(context)!.listening,
+            key: const ValueKey<String>('listening'),
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           IconButton(
@@ -582,19 +567,11 @@ class _ConversationScreenState extends State<ConversationScreen> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  width: 2,
+                  width: 3,
                   color: micColor,
                 ),
               ),
-              child: Icon(
-                Icons.mic,
-                size: 64,
-                color: (_isListeningPerson1 ||
-                        _isListeningPerson2 ||
-                        _speech.isNotListening)
-                    ? micColor
-                    : Colors.red,
-              ),
+              child: Icon(Icons.mic, size: 64, color: micColor),
             ),
           ),
         ],
