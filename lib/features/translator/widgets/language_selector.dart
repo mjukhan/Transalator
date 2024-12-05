@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:translation_app/core/utilities/colors.dart';
 
+// Language Selector widget
 class LanguageSelector extends StatelessWidget {
   final String selectedLanguage;
   final Function(String) onLanguageChanged;
@@ -13,10 +15,8 @@ class LanguageSelector extends StatelessWidget {
     required this.fontSize,
   });
 
-  @override
-  Widget build(BuildContext context) {
-    // List of available language codes and names
-    List<Map<String, String>> languageOptions = [
+  List<Map<String, String>> getLanguageOptions(BuildContext context) {
+    return [
       {'value': 'en', 'label': AppLocalizations.of(context)!.english},
       {'value': 'es', 'label': AppLocalizations.of(context)!.spanish},
       {'value': 'fr', 'label': AppLocalizations.of(context)!.french},
@@ -30,40 +30,85 @@ class LanguageSelector extends StatelessWidget {
       {'value': 'ar', 'label': AppLocalizations.of(context)!.arabic},
       {'value': 'af', 'label': AppLocalizations.of(context)!.afrikaans},
       {'value': 'hi', 'label': AppLocalizations.of(context)!.hindi},
-      // Add more languages here
     ];
+  }
 
-    // Create DropdownMenuItems from the language options
-    List<DropdownMenuItem<String>> dropdownItems =
-        languageOptions.map((lang) {
-          return DropdownMenuItem<String>(
-            value: lang['value'], // This is how you're getting the value
-            child: FittedBox(
-              child: Text(lang['label']!, textAlign: TextAlign.center),
-            ), // This is the display text
-          );
-        }).toList();
+  @override
+  Widget build(BuildContext context) {
+    // Find the label of the selected language
+    String selectedLanguageLabel = getLanguageOptions(context)
+        .firstWhere((lang) => lang['value'] == selectedLanguage)['label']!;
 
-    // Check if selectedLanguage exists in dropdownItems, default to 'en' if not
-    final String defaultLanguage = 'en';
-    final String dropdownValue =
-        dropdownItems.any((item) => item.value == selectedLanguage)
-            ? selectedLanguage
-            : defaultLanguage;
+    return GestureDetector(
+      onTap: () {
+        // Show modal bottom sheet
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true, // Allow for scrollable content
+          builder: (context) {
+            return Container(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+              height: MediaQuery.of(context).size.height *
+                  0.8, // 80% height of the screen
+              child: Column(
+                children: [
+                  // Drag handle - a small indicator at the top
+                  Container(
+                    height: 5.0,
+                    width: 40.0,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[400],
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "Select Language",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: micColor,
+                          ),
+                        ),
+                      )),
 
-    return DropdownButton<String>(
-      value: dropdownValue,
-      items: dropdownItems,
-      onChanged: (newValue) {
-        if (newValue != null) {
-          onLanguageChanged(newValue);
-        }
+                  // Expanded widget allows the list to take the available space
+                  Expanded(
+                    child: SingleChildScrollView(
+                      // Make the content scrollable
+                      child: Column(
+                        children: getLanguageOptions(context).map((lang) {
+                          return ListTile(
+                            style: ListTileStyle.list,
+                            title: Text(lang['label']!), // Language label
+                            trailing: lang['value'] == selectedLanguage
+                                ? Icon(Icons.check,
+                                    color:
+                                        micColor) // Use appropriate color for check icon
+                                : null,
+                            onTap: () {
+                              onLanguageChanged(
+                                  lang['value']!); // Change language
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
       },
-      isExpanded: true,
-      underline: SizedBox.shrink(),
-      //icon: SizedBox.shrink(),
-      style: TextStyle(color: Colors.black, fontSize: fontSize),
-      dropdownColor: Colors.white,
+      child: Text(
+        selectedLanguageLabel, // Show the selected language label here
+        style: TextStyle(fontSize: fontSize),
+      ),
     );
   }
 }

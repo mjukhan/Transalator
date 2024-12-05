@@ -42,6 +42,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
   final List<Map<String, String>> _translations = [];
   final ScrollController _scrollController = ScrollController();
   final FlutterTts _flutterTts = FlutterTts();
+  final TextEditingController _pauseForController =
+      TextEditingController(text: '3');
+  final TextEditingController _listenForController =
+      TextEditingController(text: '60');
 
   @override
   void initState() {
@@ -155,6 +159,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
   void _listenPerson1() async {
     if (!await PermissionHelper().checkMicrophonePermission()) return;
+    final pauseFor = int.tryParse(_pauseForController.text);
+    final listenFor = int.tryParse(_listenForController.text);
     // Show dialog for real-time text recognition
     showDialog(
       context: context,
@@ -173,6 +179,9 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
         // Start listening with timeout handling
         _speech.listen(
+          listenFor: Duration(seconds: listenFor ?? 60),
+          pauseFor: Duration(seconds: pauseFor ?? 3),
+          localeId: _person1Language,
           onResult: (val) {
             setState(() {
               _inputText = val.recognizedWords;
@@ -201,7 +210,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
   void _listenPerson2() async {
     if (!await PermissionHelper().checkMicrophonePermission()) return;
-
+    final pauseFor = int.tryParse(_pauseForController.text);
+    final listenFor = int.tryParse(_listenForController.text);
     if (!_isListeningPerson2) {
       if (await _speech.initialize()) {
         setState(() {
@@ -220,6 +230,9 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
         // Start listening with timeout handling
         _speech.listen(
+          listenFor: Duration(seconds: listenFor ?? 60),
+          pauseFor: Duration(seconds: pauseFor ?? 3),
+          localeId: _person2Language,
           onResult: (val) {
             setState(() {
               _inputText = val.recognizedWords;
@@ -428,16 +441,18 @@ class _ConversationScreenState extends State<ConversationScreen> {
                         borderRadius: BorderRadius.circular(32),
                         border: Border.all(color: borderColor),
                       ),
-                      child: LanguageSelector(
-                        selectedLanguage: _person1Language,
-                        onLanguageChanged: (newLang) {
-                          setState(() {
-                            // Update source language
-                            _person1Language = newLang;
-                          });
-                          _saveLanguagePreferences();
-                        },
-                        fontSize: 14,
+                      child: Center(
+                        child: LanguageSelector(
+                          selectedLanguage: _person1Language,
+                          onLanguageChanged: (newLang) {
+                            setState(() {
+                              // Update source language
+                              _person1Language = newLang;
+                            });
+                            _saveLanguagePreferences();
+                          },
+                          fontSize: 14,
+                        ),
                       ),
                     ),
                     GestureDetector(
@@ -470,16 +485,18 @@ class _ConversationScreenState extends State<ConversationScreen> {
                         borderRadius: BorderRadius.circular(32),
                         border: Border.all(color: borderColor),
                       ),
-                      child: LanguageSelector(
-                        selectedLanguage: _person2Language,
-                        onLanguageChanged: (newLang) {
-                          setState(() {
-                            // Update target language
-                            _person2Language = newLang;
-                          });
-                          _saveLanguagePreferences();
-                        },
-                        fontSize: 14,
+                      child: Center(
+                        child: LanguageSelector(
+                          selectedLanguage: _person2Language,
+                          onLanguageChanged: (newLang) {
+                            setState(() {
+                              // Update target language
+                              _person2Language = newLang;
+                            });
+                            _saveLanguagePreferences();
+                          },
+                          fontSize: 14,
+                        ),
                       ),
                     ),
                     GestureDetector(
@@ -552,16 +569,25 @@ class _ConversationScreenState extends State<ConversationScreen> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            AppLocalizations.of(context)!.listening,
-            key: const ValueKey<String>('listening'),
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
+          (_speech.isNotListening)
+              ? Text(
+                  "Try Again",
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                )
+              : (_speech.isListening)
+                  ? Text(
+                      AppLocalizations.of(context)!.listening,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    )
+                  : SizedBox.shrink(),
+          SizedBox(height: 16),
           IconButton(
             onPressed: () {
               _speech.stop();
-              Navigator.pop(context);
+              setState(() {
+                _isListeningPerson1 = false;
+                _isListeningPerson2 = false;
+              });
             },
             icon: Container(
               decoration: BoxDecoration(

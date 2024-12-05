@@ -8,6 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:translation_app/core/utilities/colors.dart';
+import 'package:translation_app/core/widgets/language_selection_widget.dart';
 import 'package:translation_app/features/translator/screens/setting/favorite.dart';
 import 'package:translation_app/features/translator/screens/setting/setting.dart';
 import '../../../core/widgets/translator_provider.dart';
@@ -33,6 +34,8 @@ class TranslatorScreen extends StatefulWidget {
 class _TranslatorScreenState extends State<TranslatorScreen> {
   String _sourceLanguage = 'en';
   String _targetLanguage = 'es';
+  String _sourceLanguageToShow = '';
+  String _targetLanguageToShow = '';
   String _inputText = '';
   String _translatedText = '';
   bool _isSaved = false; // Toggle for changing the icon
@@ -48,6 +51,8 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     _loadSavedTranslations();
     super.initState();
   }
+
+
 
   // Load the previously selected languages from SharedPreferences
   void _loadLanguagePreferences() async {
@@ -160,36 +165,31 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     final size = MediaQuery.of(context).size;
     return SafeArea(
       child: Scaffold(
-        floatingActionButton:
-            _inputText.isNotEmpty && _translatedText.isEmpty
-                ? FloatingActionButton.extended(
-                  onPressed:
-                      () =>
-                          widget.wifi
-                              ? _translateText(_inputText)
-                              : snackMassage(widget.connectionStatus),
-
-                  backgroundColor: translateButtonColor,
-                  label:
-                      (!_isTranslating)
-                          ? Text(
-                            AppLocalizations.of(context)!.translate,
+        floatingActionButton: _inputText.isNotEmpty && _translatedText.isEmpty
+            ? FloatingActionButton.extended(
+                onPressed: () => widget.wifi
+                    ? _translateText(_inputText)
+                    : snackMassage(widget.connectionStatus),
+                backgroundColor: translateButtonColor,
+                label: (!_isTranslating)
+                    ? Text(
+                        AppLocalizations.of(context)!.translate,
+                        style: TextStyle(color: bgColor),
+                      )
+                    : Row(
+                        children: [
+                          Text(
+                            AppLocalizations.of(context)!.translating,
                             style: TextStyle(color: bgColor),
-                          )
-                          : Row(
-                            children: [
-                              Text(
-                                AppLocalizations.of(context)!.translating,
-                                style: TextStyle(color: bgColor),
-                              ),
-                              CircularProgressIndicator(
-                                color: bgColor,
-                                strokeWidth: 2,
-                              ),
-                            ],
                           ),
-                )
-                : SizedBox.shrink(),
+                          CircularProgressIndicator(
+                            color: bgColor,
+                            strokeWidth: 2,
+                          ),
+                        ],
+                      ),
+              )
+            : SizedBox.shrink(),
         backgroundColor: langSelectorColor,
         appBar: AppBar(
           elevation: 0,
@@ -202,9 +202,8 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder:
-                      (context) =>
-                          Setting(savedTranslation: _savedTranslations),
+                  builder: (context) =>
+                      Setting(savedTranslation: _savedTranslations),
                 ),
               );
             },
@@ -215,9 +214,8 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder:
-                        (context) =>
-                            Favorite(savedTranslations: _savedTranslations),
+                    builder: (context) =>
+                        Favorite(savedTranslations: _savedTranslations),
                   ),
                 );
               },
@@ -229,13 +227,12 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
           height: (_inputText.isEmpty) ? size.height * 0.7 : size.height,
           decoration: BoxDecoration(
             color: bgColor,
-            borderRadius:
-                (_inputText.isEmpty)
-                    ? BorderRadius.only(
-                      bottomLeft: Radius.circular(36),
-                      bottomRight: Radius.circular(36),
-                    )
-                    : null,
+            borderRadius: (_inputText.isEmpty)
+                ? BorderRadius.only(
+                    bottomLeft: Radius.circular(36),
+                    bottomRight: Radius.circular(36),
+                  )
+                : null,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -309,6 +306,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: borderColor),
       ),
+      //child: Text(selectedLanguage),
       child: LanguageSelector(
         selectedLanguage: selectedLanguage,
         onLanguageChanged: onChanged,
@@ -320,46 +318,46 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   Widget _buildTranslationContainer() {
     return (widget.wifi)
         ? Expanded(
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            //decoration: BoxDecoration(border: Border.all(color: Colors.yellow)),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Text Input Field at the Top
-                  InputField(
-                    onChanged: (text) {
-                      setState(() {
-                        _inputText = text;
-                        _translatedText = '';
-                        _isSaved = false;
-                      });
-                      //_translateText(_inputText);
-                    },
-                    sourceLanguage: _sourceLanguage,
-                    wifi: widget.wifi,
-                    connectionStatus: widget.connectionStatus,
-                  ),
-                  _inputText.isNotEmpty && _translatedText.isNotEmpty
-                      ? _buildActionButtons(
-                        true,
-                        false,
-                        false,
-                        false,
-                        _inputText,
-                        _sourceLanguage,
-                      )
-                      : SizedBox.shrink(),
-                  const SizedBox(height: 16),
-                  (_translatedText.isNotEmpty && _inputText.isNotEmpty)
-                      ? _buildTranslatedText()
-                      : SizedBox.shrink(),
-                ],
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              //decoration: BoxDecoration(border: Border.all(color: Colors.yellow)),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Text Input Field at the Top
+                    InputField(
+                      onChanged: (text) {
+                        setState(() {
+                          _inputText = text;
+                          _translatedText = '';
+                          _isSaved = false;
+                        });
+                        //_translateText(_inputText);
+                      },
+                      sourceLanguage: _sourceLanguage,
+                      wifi: widget.wifi,
+                      connectionStatus: widget.connectionStatus,
+                    ),
+                    _inputText.isNotEmpty && _translatedText.isNotEmpty
+                        ? _buildActionButtons(
+                            true,
+                            false,
+                            false,
+                            false,
+                            _inputText,
+                            _sourceLanguage,
+                          )
+                        : SizedBox.shrink(),
+                    const SizedBox(height: 16),
+                    (_translatedText.isNotEmpty && _inputText.isNotEmpty)
+                        ? _buildTranslatedText()
+                        : SizedBox.shrink(),
+                  ],
+                ),
               ),
             ),
-          ),
-        )
+          )
         : noInternetContainer();
   }
 
@@ -444,40 +442,37 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
       children: [
         share
             ? IconButton(
-              onPressed: () => shareTranslatedText(textToCopy),
-              icon: Icon(Icons.share),
-            )
+                onPressed: () => shareTranslatedText(textToCopy),
+                icon: Icon(Icons.share),
+              )
             : SizedBox.shrink(),
         favorite
             ? IconButton(
-              icon: Icon(
-                _isSaved ? Icons.star : Icons.star_border,
-                color: micColor,
-              ),
-              onPressed: _saveInstance,
-              tooltip: 'Save Instance',
-            )
+                icon: Icon(
+                  _isSaved ? Icons.star : Icons.star_border,
+                  color: micColor,
+                ),
+                onPressed: _saveInstance,
+                tooltip: 'Save Instance',
+              )
             : SizedBox.shrink(),
         copy
             ? IconButton(
-              icon: Icon(Icons.copy),
-              onPressed: () => _copyToClipboard(textToCopy),
-              tooltip: 'Copy',
-            )
+                icon: Icon(Icons.copy),
+                onPressed: () => _copyToClipboard(textToCopy),
+                tooltip: 'Copy',
+              )
             : SizedBox.shrink(),
         speak
             ? IconButton(
-              icon:
-                  _isSpeaking
-                      ? Icon(Icons.stop_circle_outlined)
-                      : Icon(Icons.volume_up),
-              onPressed:
-                  () =>
-                      (!_isSpeaking)
-                          ? _handleTextToSpeech(textToCopy, languageCode)
-                          : _stop_tts(),
-              tooltip: 'Speak',
-            )
+                icon: _isSpeaking
+                    ? Icon(Icons.stop_circle_outlined)
+                    : Icon(Icons.volume_up),
+                onPressed: () => (!_isSpeaking)
+                    ? _handleTextToSpeech(textToCopy, languageCode)
+                    : _stop_tts(),
+                tooltip: 'Speak',
+              )
             : SizedBox.shrink(),
       ],
     );
@@ -537,4 +532,89 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
       ).showSnackBar(SnackBar(content: Text("No text to share.")));
     }
   }
+
+  // void _openLanguageBottomSheet({required bool isSource}) {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     isScrollControlled: true,
+  //     shape: RoundedRectangleBorder(
+  //       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+  //     ),
+  //     builder: (BuildContext context) {
+  //       return FractionallySizedBox(
+  //         heightFactor: 0.7,
+  //         child: DefaultTabController(
+  //           length: 2,
+  //           initialIndex: isSource ? 0 : 1,
+  //           child: Column(
+  //             children: [
+  //               TabBar(
+  //                 tabs: [
+  //                   Tab(text: "Source Language"),
+  //                   Tab(text: "Target Language"),
+  //                 ],
+  //               ),
+  //               Expanded(
+  //                 child: TabBarView(
+  //                   children: [
+  //                     _buildLanguageList(
+  //                       selectedLanguage: _sourceLanguage,
+  //                       onLanguageSelected: (lang) {
+  //                         setState(() {
+  //                           _sourceLanguage = lang;
+  //                         });
+  //                         Navigator.pop(context);
+  //                         _saveLanguagePreferences();
+  //                         if (_inputText.isNotEmpty) _translateText(_inputText);
+  //                       },
+  //                     ),
+  //                     _buildLanguageList(
+  //                       selectedLanguage: _targetLanguage,
+  //                       onLanguageSelected: (lang) {
+  //                         setState(() {
+  //                           _targetLanguage = lang;
+  //                         });
+  //                         Navigator.pop(context);
+  //                         _saveLanguagePreferences();
+  //                         if (_inputText.isNotEmpty) _translateText(_inputText);
+  //                       },
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
+
+  // Widget _buildLanguageList({
+  //   required String selectedLanguage,
+  //   required Function(String) onLanguageSelected,
+  // }) {
+  //   List<Map<String, String>> languageOptions = [
+  //     {'value': 'en', 'label': AppLocalizations.of(context)!.english},
+  //     {'value': 'es', 'label': AppLocalizations.of(context)!.spanish},
+  //     {'value': 'fr', 'label': AppLocalizations.of(context)!.french},
+  //     {'value': 'it', 'label': AppLocalizations.of(context)!.italian},
+  //     {'value': 'de', 'label': AppLocalizations.of(context)!.german},
+  //     // Add more languages here
+  //   ];
+  //
+  //   return ListView.builder(
+  //     itemCount: languageOptions.length,
+  //     itemBuilder: (context, index) {
+  //       final lang = languageOptions[index];
+  //       return ListTile(
+  //         title: Text(lang['label']!),
+  //         trailing: lang['value'] == selectedLanguage
+  //             ? Icon(Icons.check, color: Colors.green)
+  //             : null,
+  //         onTap: () => onLanguageSelected(lang['value']!),
+  //       );
+  //     },
+  //   );
+  // }
 }
