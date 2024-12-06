@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
@@ -29,23 +30,18 @@ class _ConversationScreenState extends State<ConversationScreen> {
   String _person2Language = 'es';
   String _inputText = '';
   String _translatedText = '';
-  bool speaker1 = false;
-  bool speaker2 = false;
-  bool _isListeningPerson1 = false;
-  bool _isListeningPerson2 = false;
   bool _isSpeaking = false;
   bool _isTranslating = false;
   final TextEditingController _controller = TextEditingController();
   final stt.SpeechToText _speech = stt.SpeechToText();
   final TranslationService _translationService = TranslationService();
-  Timer? _debounce; // Timer for debounce mechanism
   final List<Map<String, String>> _translations = [];
   final ScrollController _scrollController = ScrollController();
   final FlutterTts _flutterTts = FlutterTts();
   final TextEditingController _pauseForController =
-      TextEditingController(text: '3');
-  final TextEditingController _listenForController =
-      TextEditingController(text: '60');
+      TextEditingController(text: '5');
+  final ValueNotifier<String> _speechStatus =
+      ValueNotifier<String>("Speak Now...");
 
   @override
   void initState() {
@@ -157,117 +153,109 @@ class _ConversationScreenState extends State<ConversationScreen> {
     }
   }
 
+  // Function to handle speech recognition
   void _listenPerson1() async {
     if (!await PermissionHelper().checkMicrophonePermission()) return;
     final pauseFor = int.tryParse(_pauseForController.text);
-    final listenFor = int.tryParse(_listenForController.text);
-    // Show dialog for real-time text recognition
+
+    if (_speech.isNotListening) {
+      bool available = await _speech.initialize(onError: (val) {
+        setState(() {});
+      }, onStatus: (val) {
+        _speechStatus.value = val;
+
+        if (kDebugMode) {
+          print('status: $_speechStatus');
+        }
+      });
+      if (!available) {
+        snackMassage("Microphone not available");
+        return;
+      }
+      _showSpeechRecognitionDialog();
+
+      if (available) {
+        _speech.listen(
+          pauseFor: Duration(seconds: pauseFor ?? 5),
+          localeId: _person1Language,
+          onResult: (val) {
+            _inputText = val.recognizedWords;
+            _speechStatus.value = val.recognizedWords;
+            // Stop listening if the speech is complete
+            if (val.hasConfidenceRating && val.confidence > 0.5) {
+              _stopListening();
+              Navigator.pop(context);
+              _translateText(_inputText, true, false);
+            }
+          },
+        );
+      }
+    } else {
+      _stopListening();
+    }
+  }
+
+  // Function to handle speech recognition
+  void _listenPerson2() async {
+    if (!await PermissionHelper().checkMicrophonePermission()) return;
+    final pauseFor = int.tryParse(_pauseForController.text);
+
+    if (_speech.isNotListening) {
+      bool available = await _speech.initialize(onError: (val) {
+        setState(() {}); // Reset on error
+      }, onStatus: (val) {
+        _speechStatus.value = val;
+        if (kDebugMode) {
+          print('status: $_speechStatus');
+        }
+      });
+      if (!available) {
+        snackMassage("Microphone not available");
+        return;
+      }
+
+      _showSpeechRecognitionDialog();
+
+      if (available) {
+        _speech.listen(
+          pauseFor: Duration(seconds: pauseFor ?? 5),
+          localeId: _person2Language,
+          onResult: (val) {
+            _inputText = val.recognizedWords;
+            _speechStatus.value = val.recognizedWords;
+            // Stop listening if the speech is complete
+            if (val.hasConfidenceRating && val.confidence > 0.5) {
+              _stopListening();
+              Navigator.pop(context);
+              _translateText(_inputText, false, true);
+            }
+          },
+        );
+      }
+    } else {
+      _stopListening();
+    }
+  }
+
+  void _showSpeechRecognitionDialog() {
     showDialog(
       context: context,
       barrierDismissible: true,
       builder: (context) => _buildSpeechDialog(),
     ).then((_) {
-      _speech.stop();
+      _stopListening();
     });
-
-    if (!_isListeningPerson1) {
-      if (await _speech.initialize()) {
-        setState(() {
-          _isListeningPerson1 = true;
-          _isListeningPerson2 = false;
-        });
-
-        // Start listening with timeout handling
-        _speech.listen(
-          listenFor: Duration(seconds: listenFor ?? 60),
-          pauseFor: Duration(seconds: pauseFor ?? 3),
-          localeId: _person1Language,
-          onResult: (val) {
-            setState(() {
-              _inputText = val.recognizedWords;
-            });
-
-            if ((val.hasConfidenceRating && val.confidence > 0.5) ||
-                !_isListeningPerson1) {
-              _speech.stop();
-              Navigator.of(context).pop(); // Close dialog
-              setState(() {
-                _isListeningPerson1 = false;
-              });
-
-              _translateText(_inputText, true, false); // Translate text
-            }
-          },
-        );
-      }
-    } else {
-      setState(() {
-        _isListeningPerson1 = false;
-      });
-      _speech.stop();
-    }
   }
 
-  void _listenPerson2() async {
-    if (!await PermissionHelper().checkMicrophonePermission()) return;
-    final pauseFor = int.tryParse(_pauseForController.text);
-    final listenFor = int.tryParse(_listenForController.text);
-    if (!_isListeningPerson2) {
-      if (await _speech.initialize()) {
-        setState(() {
-          _isListeningPerson2 = true;
-          _isListeningPerson1 = false;
-        });
-
-        // Show dialog for real-time text recognition
-        showDialog(
-          context: context,
-          barrierDismissible: true,
-          builder: (context) => _buildSpeechDialog(),
-        ).then((_) {
-          _speech.stop();
-        });
-
-        // Start listening with timeout handling
-        _speech.listen(
-          listenFor: Duration(seconds: listenFor ?? 60),
-          pauseFor: Duration(seconds: pauseFor ?? 3),
-          localeId: _person2Language,
-          onResult: (val) {
-            setState(() {
-              _inputText = val.recognizedWords;
-            });
-
-            if ((val.hasConfidenceRating && val.confidence > 0.5) ||
-                !_isListeningPerson2) {
-              _speech.stop();
-              Navigator.of(context).pop(); // Close dialog
-              setState(() {
-                _isListeningPerson2 = false;
-              });
-
-              _translateText(_inputText, false, true); // Translate text
-            }
-          },
-        );
-      }
-    } else {
-      setState(() {
-        _isListeningPerson2 = false;
-      });
-      _speech.stop();
-    }
+  // Helper function to stop listening
+  void _stopListening() async {
+    await _speech.stop();
   }
 
   @override
   void dispose() {
     _controller.dispose();
-    _debounce?.cancel();
-    if (_speech.isListening) {
-      _speech.stop();
-      _isListeningPerson1 = false;
-      _isListeningPerson2 = false;
-    }
+
     super.dispose();
   }
 
@@ -566,41 +554,32 @@ class _ConversationScreenState extends State<ConversationScreen> {
   Widget _buildSpeechDialog() {
     return AlertDialog(
       backgroundColor: Colors.white,
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          (_speech.isNotListening)
-              ? Text(
-                  "Try Again",
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                )
-              : (_speech.isListening)
-                  ? Text(
-                      AppLocalizations.of(context)!.listening,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    )
-                  : SizedBox.shrink(),
-          SizedBox(height: 16),
-          IconButton(
-            onPressed: () {
-              _speech.stop();
-              setState(() {
-                _isListeningPerson1 = false;
-                _isListeningPerson2 = false;
-              });
-            },
-            icon: Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  width: 3,
-                  color: micColor,
-                ),
+      content: ValueListenableBuilder<String>(
+        valueListenable: _speechStatus,
+        builder: (context, status, _) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                status,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              child: Icon(Icons.mic, size: 64, color: micColor),
-            ),
-          ),
-        ],
+              SizedBox(height: 16),
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    width: 3,
+                    color: (status == 'done') ? Colors.red : micColor,
+                  ),
+                ),
+                child: Icon(Icons.mic,
+                    size: 64,
+                    color: (status == 'done') ? Colors.red : micColor),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

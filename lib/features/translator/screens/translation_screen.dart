@@ -52,8 +52,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     super.initState();
   }
 
-
-
   // Load the previously selected languages from SharedPreferences
   void _loadLanguagePreferences() async {
     final prefs = await SharedPreferences.getInstance();

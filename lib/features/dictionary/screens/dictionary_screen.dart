@@ -146,17 +146,12 @@ class _DictionaryScreenState extends State<DictionaryScreen>
   // Helper function to stop listening
   void _stopListening() async {
     await _speech.stop();
-    if (mounted) {
-      // Check if the widget is still part of the widget tree
-      setState(() {});
-    }
   }
 
   void fetchRandomWord() async {
     // Example: Fetch a random word from your service
-    final randomWord =
-        await _dictionaryService
-            .getRandomWord(); // Adjust according to your API
+    final randomWord = await _dictionaryService
+        .getRandomWord(); // Adjust according to your API
     setState(() {
       _wordOfTheDay = _dictionaryService.getWordDefinition(randomWord!);
     });
@@ -203,24 +198,21 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                     borderRadius: BorderRadius.circular(8.0),
                     borderSide: BorderSide(color: borderColor),
                   ),
-                  suffixIcon:
-                      (_searchController.text.isNotEmpty)
-                          ? searchButton()
-                          : voiceInput(),
+                  suffixIcon: (_searchController.text.isNotEmpty)
+                      ? searchButton()
+                      : voiceInput(),
                 ),
                 onSubmitted: (text) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder:
-                          (context) =>
-                              ViewSearch(wordDefinition: _wordDefinition),
+                      builder: (context) =>
+                          ViewSearch(wordDefinition: _wordDefinition),
                     ),
                   );
                   _searchWord(text);
                   _searchController.clear();
                 },
-
                 onChanged: (text) {
                   setState(() {
                     _searchedWord = text;
@@ -253,19 +245,17 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                         onTap: () {
                           !_isSpeaking ? _tts(_todayWord) : _stop_tts();
                         },
-
-                        child:
-                            _isSpeaking
-                                ? Icon(
-                                  Icons.stop_circle_outlined,
-                                  size: 18,
-                                  color: Colors.blue,
-                                )
-                                : Icon(
-                                  Icons.volume_up,
-                                  size: 18,
-                                  color: Colors.blue,
-                                ),
+                        child: _isSpeaking
+                            ? Icon(
+                                Icons.stop_circle_outlined,
+                                size: 18,
+                                color: Colors.blue,
+                              )
+                            : Icon(
+                                Icons.volume_up,
+                                size: 18,
+                                color: Colors.blue,
+                              ),
                       ),
                     ],
                   ),
@@ -305,10 +295,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                             minFontSize: 8,
                             maxLines: null,
                             wordDefinition
-                                .meanings
-                                .first
-                                .definitions[0]
-                                .definition,
+                                .meanings.first.definitions[0].definition,
                             wrapWords: true,
                           ),
                         ],
@@ -331,60 +318,60 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                   ),
                   (_recentSearches.isNotEmpty)
                       ? TextButton(
-                        onPressed: _clearRecentWords,
-                        child: Text('Clear all'),
-                      )
+                          onPressed: _clearRecentWords,
+                          child: Text('Clear all'),
+                        )
                       : SizedBox.shrink(),
                 ],
               ),
             ),
             _recentSearches.isNotEmpty
                 ? Expanded(
-                  child: NotificationListener<ScrollNotification>(
-                    onNotification: (scrollNotification) {
-                      if (scrollNotification is ScrollStartNotification) {
-                        _hideKeyboard(context);
-                      }
-                      return false;
-                    },
-                    child: ListView.builder(
-                      itemCount: _recentSearches.length,
-                      itemBuilder: (context, index) {
-                        final word = _recentSearches[index];
-                        return ListTile(
-                          leading: Icon(
-                            Icons.access_time_rounded,
-                            color: Colors.grey,
-                          ),
-                          title: Text(word),
-                          onTap: () {
-                            _searchWord(word);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) => ViewSearch(
-                                      wordDefinition: _wordDefinition,
-                                    ),
-                              ),
-                            );
-                          },
-                          trailing: Icon(
-                            Icons.arrow_forward_ios,
-                            size: 16,
-                            color: Colors.grey,
-                          ),
-                        );
+                    child: NotificationListener<ScrollNotification>(
+                      onNotification: (scrollNotification) {
+                        if (scrollNotification is ScrollStartNotification) {
+                          _hideKeyboard(context);
+                        }
+                        return false;
                       },
+                      child: ListView.builder(
+                        itemCount: _recentSearches.length,
+                        itemBuilder: (context, index) {
+                          final word = _recentSearches[index];
+                          return ListTile(
+                            leading: Icon(
+                              Icons.access_time_rounded,
+                              color: Colors.grey,
+                            ),
+                            title: Text(word),
+                            onTap: () {
+                              _searchWord(word);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ViewSearch(
+                                    wordDefinition: _wordDefinition,
+                                  ),
+                                ),
+                              );
+                            },
+                            trailing: Icon(
+                              Icons.arrow_forward_ios,
+                              size: 16,
+                              color: Colors.grey,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  )
+                : Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(0, size.height * 0.2, 0, 50),
+                      child:
+                          Text(AppLocalizations.of(context)!.findWordBySearch),
                     ),
                   ),
-                )
-                : Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(0, size.height * 0.2, 0, 50),
-                    child: Text(AppLocalizations.of(context)!.findWordBySearch),
-                  ),
-                ),
           ],
         ),
       ),
@@ -418,8 +405,8 @@ class _DictionaryScreenState extends State<DictionaryScreen>
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder:
-                    (context) => ViewSearch(wordDefinition: _wordDefinition),
+                builder: (context) =>
+                    ViewSearch(wordDefinition: _wordDefinition),
               ),
             );
             _searchWord(_searchController.text);

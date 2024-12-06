@@ -35,14 +35,20 @@ class LanguageSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Find the label of the selected language
-    String selectedLanguageLabel = getLanguageOptions(context)
-        .firstWhere((lang) => lang['value'] == selectedLanguage)['label']!;
+    // Find the label of the selected language or fallback to a default
+    String selectedLanguageLabel = getLanguageOptions(context).firstWhere(
+      (lang) => lang['value'] == selectedLanguage,
+      orElse: () => {
+        'value': 'en',
+        'label': AppLocalizations.of(context)!.english
+      }, // Default language
+    )['label']!;
 
     return GestureDetector(
       onTap: () {
         // Show modal bottom sheet
         showModalBottomSheet(
+          backgroundColor: bgColor,
           context: context,
           isScrollControlled: true, // Allow for scrollable content
           builder: (context) {
@@ -52,6 +58,7 @@ class LanguageSelector extends StatelessWidget {
                   0.8, // 80% height of the screen
               child: Column(
                 children: [
+                  SizedBox(height: 10),
                   // Drag handle - a small indicator at the top
                   Container(
                     height: 5.0,
@@ -79,21 +86,38 @@ class LanguageSelector extends StatelessWidget {
                   // Expanded widget allows the list to take the available space
                   Expanded(
                     child: SingleChildScrollView(
-                      // Make the content scrollable
                       child: Column(
                         children: getLanguageOptions(context).map((lang) {
-                          return ListTile(
-                            style: ListTileStyle.list,
-                            title: Text(lang['label']!), // Language label
-                            trailing: lang['value'] == selectedLanguage
-                                ? Icon(Icons.check,
-                                    color:
-                                        micColor) // Use appropriate color for check icon
-                                : null,
-                            onTap: () {
-                              onLanguageChanged(
-                                  lang['value']!); // Change language
-                            },
+                          return Container(
+                            decoration: BoxDecoration(
+                              color: lang['value'] == selectedLanguage
+                                  ? micColor
+                                  : bgColor,
+                              borderRadius: BorderRadius.circular(
+                                  16), // Set border radius here
+                            ),
+                            margin: EdgeInsets.symmetric(
+                                vertical:
+                                    4), // Optional: Add some margin for spacing
+                            child: ListTile(
+                              title: Text(
+                                lang['label']!, // Language label
+                                style: TextStyle(
+                                  color: lang['value'] == selectedLanguage
+                                      ? Colors.white
+                                      : null, // Optional: Text color change
+                                ),
+                              ),
+                              trailing: lang['value'] == selectedLanguage
+                                  ? Icon(Icons.check,
+                                      color: Colors.white) // Icon for selected
+                                  : null,
+                              onTap: () {
+                                onLanguageChanged(lang[
+                                    'value']!); // Update the selected language
+                                Navigator.pop(context); // Close the modal
+                              },
+                            ),
                           );
                         }).toList(),
                       ),
