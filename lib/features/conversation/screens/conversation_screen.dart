@@ -1,12 +1,14 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:translation_app/core/utilities/colors.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:translation_app/core/widgets/permission_handler.dart';
+import '../../../core/utilities/example.dart';
+
 import '../../../core/widgets/translator_provider.dart';
 import '../../translator/widgets/error_handler.dart';
 import '../../translator/widgets/language_selector.dart';
@@ -38,15 +40,35 @@ class _ConversationScreenState extends State<ConversationScreen> {
   final List<Map<String, String>> _translations = [];
   final ScrollController _scrollController = ScrollController();
   final FlutterTts _flutterTts = FlutterTts();
-  final TextEditingController _pauseForController =
-      TextEditingController(text: '5');
-  final ValueNotifier<String> _speechStatus =
-      ValueNotifier<String>("Speak Now...");
+
+  String lastStatus = '';
+  bool _logEvents = false;
 
   @override
   void initState() {
     super.initState();
     _loadLanguagePreferences();
+    _saveLanguagePreferences();
+  }
+
+  void clearTranslation() {
+    _inputText = '';
+    _translatedText = '';
+  }
+
+  void statusListener(String status) {
+    _logEvent(
+        'Received listener status: $status, listening: ${_speech.isListening}');
+    setState(() {
+      lastStatus = status;
+    });
+  }
+
+  void _logEvent(String eventDescription) {
+    if (_logEvents) {
+      var eventTime = DateTime.now().toIso8601String();
+      debugPrint('$eventTime $eventDescription');
+    }
   }
 
   void snackMassage(String text) {
@@ -64,8 +86,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
   void _loadLanguagePreferences() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _person1Language = prefs.getString('person1Language') ?? 'en';
-      _person2Language = prefs.getString('person2Language') ?? 'es';
+      _person1Language = prefs.getString('person1Language') ?? '';
+      _person2Language = prefs.getString('person2Language') ?? '';
     });
   }
 
@@ -88,7 +110,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
       });
       return;
     }
-
     // Show dialog for translation
     showDialog(
       context: context,
@@ -125,6 +146,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
           "translated": translation,
           "person": isSpeaker1 ? "1" : "2",
         });
+        clearTranslation();
 
         _isTranslating = false;
       });
@@ -153,105 +175,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
     }
   }
 
-  // Function to handle speech recognition
-  void _listenPerson1() async {
-    if (!await PermissionHelper().checkMicrophonePermission()) return;
-    final pauseFor = int.tryParse(_pauseForController.text);
-
-    if (_speech.isNotListening) {
-      bool available = await _speech.initialize(onError: (val) {
-        setState(() {});
-      }, onStatus: (val) {
-        _speechStatus.value = val;
-
-        if (kDebugMode) {
-          print('status: $_speechStatus');
-        }
-      });
-      if (!available) {
-        snackMassage("Microphone not available");
-        return;
-      }
-      _showSpeechRecognitionDialog();
-
-      if (available) {
-        _speech.listen(
-          pauseFor: Duration(seconds: pauseFor ?? 5),
-          localeId: _person1Language,
-          onResult: (val) {
-            _inputText = val.recognizedWords;
-            _speechStatus.value = val.recognizedWords;
-            // Stop listening if the speech is complete
-            if (val.hasConfidenceRating && val.confidence > 0.5) {
-              _stopListening();
-              Navigator.pop(context);
-              _translateText(_inputText, true, false);
-            }
-          },
-        );
-      }
-    } else {
-      _stopListening();
-    }
-  }
-
-  // Function to handle speech recognition
-  void _listenPerson2() async {
-    if (!await PermissionHelper().checkMicrophonePermission()) return;
-    final pauseFor = int.tryParse(_pauseForController.text);
-
-    if (_speech.isNotListening) {
-      bool available = await _speech.initialize(onError: (val) {
-        setState(() {}); // Reset on error
-      }, onStatus: (val) {
-        _speechStatus.value = val;
-        if (kDebugMode) {
-          print('status: $_speechStatus');
-        }
-      });
-      if (!available) {
-        snackMassage("Microphone not available");
-        return;
-      }
-
-      _showSpeechRecognitionDialog();
-
-      if (available) {
-        _speech.listen(
-          pauseFor: Duration(seconds: pauseFor ?? 5),
-          localeId: _person2Language,
-          onResult: (val) {
-            _inputText = val.recognizedWords;
-            _speechStatus.value = val.recognizedWords;
-            // Stop listening if the speech is complete
-            if (val.hasConfidenceRating && val.confidence > 0.5) {
-              _stopListening();
-              Navigator.pop(context);
-              _translateText(_inputText, false, true);
-            }
-          },
-        );
-      }
-    } else {
-      _stopListening();
-    }
-  }
-
-  void _showSpeechRecognitionDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (context) => _buildSpeechDialog(),
-    ).then((_) {
-      _stopListening();
-    });
-  }
-
-  // Helper function to stop listening
-  void _stopListening() async {
-    await _speech.stop();
-  }
-
   @override
   void dispose() {
     _controller.dispose();
@@ -276,14 +199,14 @@ class _ConversationScreenState extends State<ConversationScreen> {
           Expanded(
             child: Container(
               margin: EdgeInsets.fromLTRB(16, 4, 16, 0),
-              height: size.height * 0.7,
+              height: size.height * 0.65,
               width: size.width,
               decoration: BoxDecoration(
                 color: Colors.white,
                 border: Border.all(color: borderColor),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: _translatedText.isEmpty
+              child: _translations.isEmpty
                   ? Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -411,96 +334,112 @@ class _ConversationScreenState extends State<ConversationScreen> {
                     ),
             ),
           ),
+          // SpeechStatusWidget(
+          //   speech: _speech,
+          //   isTranslating: _isTranslating,
+          //   inputText: _inputText,
+          //   translationText: _translatedText,
+          // ),
           SizedBox(
-            height: 150,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            height: size.height * 0.2,
+            child: Column(
               children: [
-                Column(
+                // (_translations.isNotEmpty)
+                //     ? SpeechStatusWidget(speech: _speech)
+                //     : SizedBox.shrink(),
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Container(
-                      height: 50,
-                      width: 120,
-                      margin: EdgeInsets.fromLTRB(16, 16, 16, 8),
-                      padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                      decoration: BoxDecoration(
-                        color: langSelectorColor,
-                        borderRadius: BorderRadius.circular(32),
-                        border: Border.all(color: borderColor),
-                      ),
-                      child: Center(
-                        child: LanguageSelector(
-                          selectedLanguage: _person1Language,
-                          onLanguageChanged: (newLang) {
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Container(
+                          height: 50,
+                          width: 120,
+                          margin: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                          decoration: BoxDecoration(
+                            color: langSelectorColor,
+                            borderRadius: BorderRadius.circular(32),
+                            border: Border.all(color: borderColor),
+                          ),
+                          child: Center(
+                            child: LanguageSelector(
+                              selectedLanguage: _person1Language,
+                              onLanguageChanged: (newLang) {
+                                setState(() {
+                                  // Update source language
+                                  _person1Language = newLang;
+                                });
+                                _saveLanguagePreferences();
+                              },
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                        MicWidget(
+                          onResult: (text) {
                             setState(() {
-                              // Update source language
-                              _person1Language = newLang;
+                              _inputText = text;
+                              print(_inputText);
                             });
-                            _saveLanguagePreferences();
+                            if (_inputText.isNotEmpty) {
+                              _translateText(_inputText, true, false);
+                            }
                           },
-                          fontSize: 14,
+                          person1Language: _person1Language,
+                          person2Language: _person2Language,
+                          person1or2: true,
+                          height: 60,
+                          width: 60,
                         ),
-                      ),
+                      ],
                     ),
-                    GestureDetector(
-                      onTap: (widget.wifi)
-                          ? _listenPerson1
-                          : () => snackMassage(widget.connectionStatus),
-                      child: Container(
-                        height: 60,
-                        width: 60,
-                        decoration: BoxDecoration(
-                          color: micColor,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: borderColor),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Container(
+                          height: 50,
+                          width: 120,
+                          margin: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                          decoration: BoxDecoration(
+                            color: langSelectorColor,
+                            borderRadius: BorderRadius.circular(32),
+                            border: Border.all(color: borderColor),
+                          ),
+                          child: Center(
+                            child: LanguageSelector(
+                              selectedLanguage: _person2Language,
+                              onLanguageChanged: (newLang) {
+                                setState(() {
+                                  // Update target language
+                                  _person2Language = newLang;
+                                });
+
+                                _saveLanguagePreferences();
+                              },
+                              fontSize: 14,
+                            ),
+                          ),
                         ),
-                        child: Icon(Icons.mic_none, color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Container(
-                      height: 50,
-                      width: 120,
-                      margin: EdgeInsets.fromLTRB(16, 16, 16, 8),
-                      padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                      decoration: BoxDecoration(
-                        color: langSelectorColor,
-                        borderRadius: BorderRadius.circular(32),
-                        border: Border.all(color: borderColor),
-                      ),
-                      child: Center(
-                        child: LanguageSelector(
-                          selectedLanguage: _person2Language,
-                          onLanguageChanged: (newLang) {
+                        MicWidget(
+                          onResult: (text) {
                             setState(() {
-                              // Update target language
-                              _person2Language = newLang;
+                              _inputText = text;
+                              print(_inputText);
                             });
-                            _saveLanguagePreferences();
+                            if (_inputText.isNotEmpty) {
+                              _translateText(_inputText, false, true);
+                            }
                           },
-                          fontSize: 14,
+                          person1Language: 'en',
+                          person2Language: 'hi',
+                          person1or2: false,
+                          height: 60,
+                          width: 60,
                         ),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: (widget.wifi)
-                          ? _listenPerson2
-                          : () => snackMassage(widget.connectionStatus),
-                      child: Container(
-                        height: 60,
-                        width: 60,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: borderColor),
-                          color: micColor,
-                        ),
-                        child: Icon(Icons.mic_none, color: Colors.white),
-                      ),
+                      ],
                     ),
                   ],
                 ),
@@ -551,36 +490,136 @@ class _ConversationScreenState extends State<ConversationScreen> {
     }
   }
 
-  Widget _buildSpeechDialog() {
-    return AlertDialog(
-      backgroundColor: Colors.white,
-      content: ValueListenableBuilder<String>(
-        valueListenable: _speechStatus,
-        builder: (context, status, _) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                status,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 16),
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    width: 3,
-                    color: (status == 'done') ? Colors.red : micColor,
-                  ),
-                ),
-                child: Icon(Icons.mic,
-                    size: 64,
-                    color: (status == 'done') ? Colors.red : micColor),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
+  // Widget _buildSpeechDialog() {
+  //   return AlertDialog(
+  //       backgroundColor: Colors.white,
+  //       content: Column(
+  //         mainAxisSize: MainAxisSize.min,
+  //         children: [
+  //           SpeechStatusWidget(speech: _speech),
+  //
+  //           SizedBox(height: 16),
+  //           Container(
+  //             decoration: BoxDecoration(
+  //               shape: BoxShape.circle,
+  //               border: Border.all(
+  //                 width: 3,
+  //                 color: (_speech.isListening) ? micColor : Colors.red,
+  //               ),
+  //             ),
+  //             child: Icon(
+  //               Icons.mic,
+  //               size: 64,
+  //               color: (_speech.isListening) ? micColor : Colors.red,
+  //             ),
+  //           ),
+  //         ],
+  //       ));
+  // }
 }
+
+// class SpeechStatusWidget extends StatelessWidget {
+//   const SpeechStatusWidget({
+//     super.key,
+//     required this.speech,
+//   });
+//
+//   final stt.SpeechToText speech;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     String getStatusText() {
+//       if (speech.isListening) {
+//         return "Listening...";
+//       } else if (speech.isNotListening) {
+//         return "Not Listening...";
+//       }
+//       return 'Translating...';
+//     }
+//
+//     Color getStatusColor() {
+//       if (speech.isListening) {
+//         return Colors.blue;
+//       } else if (speech.isNotListening) {
+//         return Colors.red;
+//       }
+//       return Colors.green;
+//     }
+//
+//     final statusText = getStatusText();
+//     final statusColor = getStatusColor();
+//
+//     return Center(
+//       child: statusText.isNotEmpty
+//           ? Text(
+//               statusText,
+//               style: TextStyle(
+//                 fontWeight: FontWeight.bold,
+//                 fontSize: 14,
+//                 color: statusColor,
+//               ),
+//             )
+//           : const SizedBox.shrink(),
+//     );
+//   }
+// }
+
+// class SpeechStatusWidget extends StatelessWidget {
+//   const SpeechStatusWidget({
+//     super.key,
+//     required this.speech,
+//     required this.isTranslating,
+//     required this.inputText,
+//     required this.translationText,
+//   });
+//
+//   final stt.SpeechToText speech;
+//   final bool isTranslating;
+//   final String inputText;
+//   final String translationText;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     String getStatusText() {
+//       if (speech.isListening) {
+//         return "Speak now...";
+//       } else if (isTranslating) {
+//         return "Translating...";
+//       } else if (speech.isNotListening) {
+//         return "Not Listening...";
+//       } else if (translationText.isNotEmpty) {
+//         return "Translation Complete!";
+//       }
+//       return "";
+//     }
+//
+//     Color getStatusColor() {
+//       if (speech.isListening && !isTranslating) {
+//         return Colors.blue;
+//       } else if (speech.isNotListening &&
+//           isTranslating &&
+//           translationText.isEmpty) {
+//         return Colors.green;
+//       } else if (speech.isNotListening) {
+//         return Colors.red;
+//       }
+//       return Colors.grey;
+//     }
+//
+//     final statusText = getStatusText();
+//     final statusColor = getStatusColor();
+//
+//     return Center(
+//       child: statusText.isNotEmpty
+//           ? Text(
+//               statusText,
+//               style: TextStyle(
+//                 fontWeight: FontWeight.bold,
+//                 fontSize: 14,
+//                 color: statusColor,
+//               ),
+//             )
+//           : const SizedBox.shrink(),
+//     );
+//   }
+// }

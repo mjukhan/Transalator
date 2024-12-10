@@ -30,6 +30,82 @@ class LanguageSelector extends StatelessWidget {
       {'value': 'ar', 'label': AppLocalizations.of(context)!.arabic},
       {'value': 'af', 'label': AppLocalizations.of(context)!.afrikaans},
       {'value': 'hi', 'label': AppLocalizations.of(context)!.hindi},
+      {'value': 'ja', 'label': AppLocalizations.of(context)!.japanese},
+      {'value': 'ko', 'label': AppLocalizations.of(context)!.korean},
+      {'value': 'pt', 'label': AppLocalizations.of(context)!.portuguese},
+      {'value': 'zh', 'label': AppLocalizations.of(context)!.chinese},
+      {'value': 'ru', 'label': AppLocalizations.of(context)!.russian},
+      {'value': 'tr', 'label': AppLocalizations.of(context)!.turkish},
+      {'value': 'pl', 'label': AppLocalizations.of(context)!.polish},
+      {'value': 'sw', 'label': AppLocalizations.of(context)!.swahili},
+      {'value': 'ta', 'label': AppLocalizations.of(context)!.tamil},
+      {'value': 'bn', 'label': AppLocalizations.of(context)!.bengali},
+      {'value': 'th', 'label': AppLocalizations.of(context)!.thai},
+      {'value': 'vi', 'label': AppLocalizations.of(context)!.vietnamese},
+      {
+        'value': 'ms',
+        'label': AppLocalizations.of(context)!.malay
+      }, // Added Malay
+      {
+        'value': 'ml',
+        'label': AppLocalizations.of(context)!.malayalam
+      }, // Added Malayalam
+      {
+        'value': 'ne',
+        'label': AppLocalizations.of(context)!.nepali
+      }, // Added Nepali
+      {
+        'value': 'sr',
+        'label': AppLocalizations.of(context)!.serbian
+      }, // Added Serbian
+      {
+        'value': 'sq',
+        'label': AppLocalizations.of(context)!.albanian
+      }, // Added Albanian
+      {
+        'value': 'iw',
+        'label': AppLocalizations.of(context)!.hebrew
+      }, // Added Hebrew
+      {
+        'value': 'yu',
+        'label': AppLocalizations.of(context)!.croatian
+      }, // Added Croatian
+      {
+        'value': 'uz',
+        'label': AppLocalizations.of(context)!.uzbek
+      }, // Added Uzbek
+      {
+        'value': 'ka',
+        'label': AppLocalizations.of(context)!.georgian
+      }, // Added Georgian
+      {
+        'value': 'hy',
+        'label': AppLocalizations.of(context)!.armenian
+      }, // Added Armenian
+      {
+        'value': 'km',
+        'label': AppLocalizations.of(context)!.khmer
+      }, // Added Khmer
+      {
+        'value': 'la',
+        'label': AppLocalizations.of(context)!.latin
+      }, // Added Latin
+      {
+        'value': 'cy',
+        'label': AppLocalizations.of(context)!.welsh
+      }, // Added Welsh
+      {
+        'value': 'eu',
+        'label': AppLocalizations.of(context)!.basque
+      }, // Added Basque
+      {
+        'value': 'is',
+        'label': AppLocalizations.of(context)!.icelandic
+      }, // Added Icelandic
+      {
+        'value': 'bs',
+        'label': AppLocalizations.of(context)!.bosnian
+      }, // Added Bosnian
     ];
   }
 

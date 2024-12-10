@@ -4,11 +4,10 @@ import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/services.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:translation_app/core/utilities/colors.dart';
-import 'package:translation_app/core/widgets/language_selection_widget.dart';
 import 'package:translation_app/features/translator/screens/setting/favorite.dart';
 import 'package:translation_app/features/translator/screens/setting/setting.dart';
 import '../../../core/widgets/translator_provider.dart';
@@ -34,8 +33,6 @@ class TranslatorScreen extends StatefulWidget {
 class _TranslatorScreenState extends State<TranslatorScreen> {
   String _sourceLanguage = 'en';
   String _targetLanguage = 'es';
-  String _sourceLanguageToShow = '';
-  String _targetLanguageToShow = '';
   String _inputText = '';
   String _translatedText = '';
   bool _isSaved = false; // Toggle for changing the icon
@@ -49,6 +46,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   void initState() {
     _loadLanguagePreferences();
     _loadSavedTranslations();
+
     super.initState();
   }
 
@@ -56,8 +54,8 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   void _loadLanguagePreferences() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _sourceLanguage = prefs.getString('sourceLanguage') ?? 'en';
-      _targetLanguage = prefs.getString('targetLanguage') ?? 'es';
+      _sourceLanguage = prefs.getString('sourceLanguage') ?? '';
+      _targetLanguage = prefs.getString('targetLanguage') ?? '';
     });
   }
 
@@ -254,6 +252,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             setState(() {
               _sourceLanguage = newLang;
             });
+
             _saveLanguagePreferences();
             if (_inputText.isNotEmpty) _translateText(_inputText);
           }),
@@ -274,6 +273,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                   _targetLanguage = temp;
                 });
                 _saveLanguagePreferences();
+
                 if (_inputText.isNotEmpty) _translateText(_inputText);
               },
             ),
@@ -283,6 +283,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
               _targetLanguage = newLang;
             });
             _saveLanguagePreferences();
+
             if (_inputText.isNotEmpty) _translateText(_inputText);
           }),
         ],
@@ -336,6 +337,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                       sourceLanguage: _sourceLanguage,
                       wifi: widget.wifi,
                       connectionStatus: widget.connectionStatus,
+                      targetLanguage: _targetLanguage,
                     ),
                     _inputText.isNotEmpty && _translatedText.isNotEmpty
                         ? _buildActionButtons(
@@ -530,89 +532,4 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
       ).showSnackBar(SnackBar(content: Text("No text to share.")));
     }
   }
-
-  // void _openLanguageBottomSheet({required bool isSource}) {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     isScrollControlled: true,
-  //     shape: RoundedRectangleBorder(
-  //       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-  //     ),
-  //     builder: (BuildContext context) {
-  //       return FractionallySizedBox(
-  //         heightFactor: 0.7,
-  //         child: DefaultTabController(
-  //           length: 2,
-  //           initialIndex: isSource ? 0 : 1,
-  //           child: Column(
-  //             children: [
-  //               TabBar(
-  //                 tabs: [
-  //                   Tab(text: "Source Language"),
-  //                   Tab(text: "Target Language"),
-  //                 ],
-  //               ),
-  //               Expanded(
-  //                 child: TabBarView(
-  //                   children: [
-  //                     _buildLanguageList(
-  //                       selectedLanguage: _sourceLanguage,
-  //                       onLanguageSelected: (lang) {
-  //                         setState(() {
-  //                           _sourceLanguage = lang;
-  //                         });
-  //                         Navigator.pop(context);
-  //                         _saveLanguagePreferences();
-  //                         if (_inputText.isNotEmpty) _translateText(_inputText);
-  //                       },
-  //                     ),
-  //                     _buildLanguageList(
-  //                       selectedLanguage: _targetLanguage,
-  //                       onLanguageSelected: (lang) {
-  //                         setState(() {
-  //                           _targetLanguage = lang;
-  //                         });
-  //                         Navigator.pop(context);
-  //                         _saveLanguagePreferences();
-  //                         if (_inputText.isNotEmpty) _translateText(_inputText);
-  //                       },
-  //                     ),
-  //                   ],
-  //                 ),
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
-
-  // Widget _buildLanguageList({
-  //   required String selectedLanguage,
-  //   required Function(String) onLanguageSelected,
-  // }) {
-  //   List<Map<String, String>> languageOptions = [
-  //     {'value': 'en', 'label': AppLocalizations.of(context)!.english},
-  //     {'value': 'es', 'label': AppLocalizations.of(context)!.spanish},
-  //     {'value': 'fr', 'label': AppLocalizations.of(context)!.french},
-  //     {'value': 'it', 'label': AppLocalizations.of(context)!.italian},
-  //     {'value': 'de', 'label': AppLocalizations.of(context)!.german},
-  //     // Add more languages here
-  //   ];
-  //
-  //   return ListView.builder(
-  //     itemCount: languageOptions.length,
-  //     itemBuilder: (context, index) {
-  //       final lang = languageOptions[index];
-  //       return ListTile(
-  //         title: Text(lang['label']!),
-  //         trailing: lang['value'] == selectedLanguage
-  //             ? Icon(Icons.check, color: Colors.green)
-  //             : null,
-  //         onTap: () => onLanguageSelected(lang['value']!),
-  //       );
-  //     },
-  //   );
-  // }
 }

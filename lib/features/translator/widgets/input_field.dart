@@ -4,13 +4,14 @@ import 'package:flutter/services.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:translation_app/core/utilities/colors.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../../../core/widgets/permission_handler.dart';
+import 'package:translation_app/core/utilities/example.dart';
 import '../../File/screens/picture.dart';
 import '../../File/widgets/imagePickerUtility.dart';
 
 class InputField extends StatefulWidget {
   final ValueChanged<String> onChanged;
   final String sourceLanguage;
+  final String targetLanguage;
   final bool wifi;
   final String connectionStatus;
 
@@ -20,6 +21,7 @@ class InputField extends StatefulWidget {
     required this.sourceLanguage,
     required this.wifi,
     required this.connectionStatus,
+    required this.targetLanguage,
   });
 
   @override
@@ -28,6 +30,7 @@ class InputField extends StatefulWidget {
 
 class _InputFieldState extends State<InputField> {
   final TextEditingController _controller = TextEditingController();
+  final stt.SpeechToText _speech = stt.SpeechToText();
 
   @override
   void initState() {
@@ -74,12 +77,11 @@ class _InputFieldState extends State<InputField> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder:
-              (context) => PictureScreen(
-                imageFile: imageFile!,
-                wifi: widget.wifi,
-                connectionStatus: widget.connectionStatus,
-              ),
+          builder: (context) => PictureScreen(
+            imageFile: imageFile!,
+            wifi: widget.wifi,
+            connectionStatus: widget.connectionStatus,
+          ),
         ),
       );
     }
@@ -125,7 +127,9 @@ class _InputFieldState extends State<InputField> {
         Expanded(
           child: TextInputField(
             controller: _controller,
-            hintText: AppLocalizations.of(context)!.hintTextTranslation,
+            hintText: (_speech.isListening)
+                ? 'Listening...'
+                : AppLocalizations.of(context)!.hintTextTranslation,
             onChanged: (text) {
               setState(() {
                 _controller.text = text;
@@ -147,16 +151,17 @@ class _InputFieldState extends State<InputField> {
           // Voice Input Widget
           Column(
             children: [
-              VoiceInputButton(
+              MicWidget(
                 onResult: (text) {
-                  setState(() {
-                    _controller.text = text;
-                  });
-                  widget.onChanged(
-                    text,
-                  ); // Notify parent widget with recognized text
+                  _controller.text = text;
+                  widget.onChanged(text);
+                  print(text);
                 },
-                languageCode: widget.sourceLanguage,
+                person1Language: widget.sourceLanguage,
+                person2Language: widget.targetLanguage,
+                person1or2: true,
+                height: 40.0,
+                width: 40.0,
               ),
               _cameraButton(),
               _pasteButton(),
@@ -193,88 +198,8 @@ class TextInputField extends StatelessWidget {
         contentPadding: EdgeInsets.fromLTRB(16, 20, 16, 16),
       ),
       maxLines: null,
-
       style: TextStyle(fontSize: 24.0),
       onChanged: onChanged,
-    );
-  }
-}
-
-// Separate widget for Voice Input Button
-class VoiceInputButton extends StatefulWidget {
-  final ValueChanged<String> onResult;
-  final String languageCode; // Language code for speech recognition
-
-  const VoiceInputButton({
-    super.key,
-    required this.onResult,
-    required this.languageCode,
-  });
-
-  @override
-  _VoiceInputButtonState createState() => _VoiceInputButtonState();
-}
-
-class _VoiceInputButtonState extends State<VoiceInputButton> {
-  final stt.SpeechToText _speech = stt.SpeechToText();
-
-  String _text = "";
-
-  // Function to handle speech recognition
-  void _listen() async {
-    if (!await PermissionHelper().checkMicrophonePermission()) return;
-
-    if (_speech.isNotListening) {
-      bool available = await _speech.initialize(
-        onError: (val) {
-          setState(() {}); // Reset on error
-        },
-      );
-
-      if (available) {
-        _speech.listen(
-          localeId: widget.languageCode,
-          onResult: (val) {
-            _text = val.recognizedWords;
-            widget.onResult(_text);
-
-            // Stop listening if the speech is complete
-            if (val.hasConfidenceRating && val.confidence > 0.5) {
-              _stopListening();
-            }
-          },
-          listenOptions: stt.SpeechListenOptions().cancelOnError,
-        );
-      }
-    } else {
-      _stopListening();
-    }
-  }
-
-  // Helper function to stop listening
-  void _stopListening() async {
-    await _speech.stop();
-    if (mounted) {
-      // Check if the widget is still part of the widget tree
-      setState(() {});
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.fromLTRB(0, 16, 16, 0),
-      height: 40,
-      width: 40,
-      decoration: BoxDecoration(shape: BoxShape.circle, color: micColor),
-      child: IconButton(
-        onPressed: _speech.isNotListening ? _listen : _stopListening,
-        icon: Icon(
-          _speech.isNotListening ? Icons.mic_none : Icons.mic,
-          color: Colors.white,
-        ),
-        tooltip: 'Listen',
-      ),
     );
   }
 }

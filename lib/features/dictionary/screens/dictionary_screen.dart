@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:translation_app/core/utilities/colors.dart';
+import 'package:translation_app/core/utilities/example.dart';
 import 'package:translation_app/features/dictionary/screens/view_search.dart';
 import '../../../core/widgets/permission_handler.dart';
 import '../../../data/models/Word_model.dart';
@@ -41,6 +42,8 @@ class _DictionaryScreenState extends State<DictionaryScreen>
   String _searchedWord = '';
   bool _isSpeaking = false;
   final stt.SpeechToText _speech = stt.SpeechToText();
+  final TextEditingController _pauseForController =
+      TextEditingController(text: '5');
 
   @override
   void initState() {
@@ -53,6 +56,14 @@ class _DictionaryScreenState extends State<DictionaryScreen>
 
     fetchRandomWord();
     _searchController.clear();
+  }
+
+  @override
+  void dispose() {
+    if (_speech.isListening) {
+      _speech.stop();
+    }
+    super.dispose();
   }
 
   @override
@@ -103,49 +114,6 @@ class _DictionaryScreenState extends State<DictionaryScreen>
   // Hide the keyboard when the user scrolls
   void _hideKeyboard(BuildContext context) {
     FocusScope.of(context).unfocus();
-  }
-
-  // Function to handle speech recognition
-  void _listen() async {
-    if (!await PermissionHelper().checkMicrophonePermission()) return;
-
-    if (_speech.isNotListening) {
-      bool available = await _speech.initialize(
-        onError: (val) {
-          setState(() {}); // Reset on error
-        },
-      );
-
-      // Show dialog for real-time text recognition
-      showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (context) => _buildSpeechDialog(),
-      ).then((_) {
-        _stopListening();
-      });
-
-      if (available) {
-        _speech.listen(
-          onResult: (val) {
-            _searchController.text = val.recognizedWords;
-            _searchedWord = _searchController.text;
-            // Stop listening if the speech is complete
-            if (val.hasConfidenceRating && val.confidence > 0.5) {
-              _stopListening();
-              Navigator.pop(context);
-            }
-          },
-        );
-      }
-    } else {
-      _stopListening();
-    }
-  }
-
-  // Helper function to stop listening
-  void _stopListening() async {
-    await _speech.stop();
   }
 
   void fetchRandomWord() async {
@@ -380,22 +348,25 @@ class _DictionaryScreenState extends State<DictionaryScreen>
 
   Widget voiceInput() {
     return Container(
-      margin: EdgeInsets.all(8),
-      height: 40,
-      width: 40,
-      decoration: BoxDecoration(shape: BoxShape.circle, color: micColor),
-      child: IconButton(
-        onPressed: () {
-          _listen();
+      margin: EdgeInsets.fromLTRB(0, 0, 0, 16),
+      child: MicWidget(
+        onResult: (text) {
+          setState(() {
+            _searchController.text = text;
+          });
         },
-        icon: Icon(Icons.mic, color: bgColor),
+        person1Language: 'en',
+        person2Language: 'en',
+        person1or2: true,
+        height: 40.0,
+        width: 40.0,
       ),
     );
   }
 
   Widget searchButton() {
     return Container(
-      margin: EdgeInsets.all(8),
+      margin: EdgeInsets.all(16),
       height: 40,
       width: 40,
       decoration: BoxDecoration(shape: BoxShape.circle, color: micColor),
@@ -457,41 +428,5 @@ class _DictionaryScreenState extends State<DictionaryScreen>
     setState(() {
       _isSpeaking = false;
     });
-  }
-
-  Widget _buildSpeechDialog() {
-    return StatefulBuilder(
-      builder: (context, setState) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                AppLocalizations.of(context)!.listening, // "Listening..."
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 16),
-              Text(
-                AppLocalizations.of(context)!.speakNow,
-                style: TextStyle(color: Colors.grey),
-              ),
-              SizedBox(height: 16),
-              IconButton(
-                onPressed: () {
-                  _speech.stop();
-                  Navigator.pop(context);
-                },
-                icon: Icon(
-                  Icons.stop_circle_outlined,
-                  size: 64,
-                  color: micColor,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
   }
 }
