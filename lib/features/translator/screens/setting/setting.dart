@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:translation_app/core/utilities/colors.dart';
 import 'package:translation_app/features/translator/screens/setting/language.dart';
-import 'package:translation_app/features/translator/screens/setting/premium.dart';
 import 'package:translation_app/features/translator/screens/setting/privacy_policy.dart';
 import 'package:translation_app/features/translator/screens/setting/favorite.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:translation_app/features/translator/screens/setting/rate_us.dart';
 
 class Setting extends StatefulWidget {
   final List<String> savedTranslation;
@@ -20,6 +19,7 @@ class Setting extends StatefulWidget {
 class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
   final String appLink =
       'https://play.google.com/store/apps/details?id=com.example.yourapp';
+
   final List<Map<String, String>> general = [];
   final List<Map<String, String>> other = [];
 
@@ -27,21 +27,21 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
     general.clear();
     other.clear();
     general.addAll([
-      {
-        'icon': 'assets/icons/premium.png',
-        'title': AppLocalizations.of(context)!.premium,
-        'subtitle': AppLocalizations.of(context)!.upgradeToPro,
-      },
+      // {
+      //   'icon': 'assets/icons/premium.png',
+      //   'title': AppLocalizations.of(context)!.premium,
+      //   'subtitle': AppLocalizations.of(context)!.upgradeToPro,
+      // },
       {
         'icon': 'assets/icons/language.png',
         'title': AppLocalizations.of(context)!.appLanguages,
         'subtitle': AppLocalizations.of(context)!.changeAppLanguage,
       },
-      {
-        'icon': 'assets/icons/manage.png',
-        'title': AppLocalizations.of(context)!.manageSubscriptions,
-        'subtitle': AppLocalizations.of(context)!.checkBilling,
-      },
+      // {
+      //   'icon': 'assets/icons/manage.png',
+      //   'title': AppLocalizations.of(context)!.manageSubscriptions,
+      //   'subtitle': AppLocalizations.of(context)!.checkBilling,
+      // },
       {
         'icon': 'assets/icons/star.png',
         'title': AppLocalizations.of(context)!.favorite,
@@ -70,6 +70,7 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
   // Function to handle navigation to the next page
   void _navigateToPage(String title) {
     final localizations = AppLocalizations.of(context)!;
+    final size = MediaQuery.of(context).size;
 
     // Use a switch statement based on localized strings
     if (title == localizations.appLanguages) {
@@ -77,11 +78,11 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
         context,
         MaterialPageRoute(builder: (context) => AppLanguage()),
       );
-    } else if (title == localizations.premium) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => PremiumSubscriptionScreen()),
-      );
+      // } else if (title == localizations.premium) {
+      //   Navigator.push(
+      //     context,
+      //     MaterialPageRoute(builder: (context) => PremiumSubscriptionScreen()),
+      //   );
     } else if (title == localizations.privacyPolicy) {
       Navigator.push(
         context,
@@ -91,14 +92,21 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder:
-              (context) => Favorite(savedTranslations: widget.savedTranslation),
+          builder: (context) =>
+              Favorite(savedTranslations: widget.savedTranslation),
         ),
       );
     } else if (title == localizations.shareApp) {
       _shareApp();
     } else if (title == localizations.rateUs) {
-      _rateApp(context);
+      showModalBottomSheet(
+        backgroundColor: bgColor,
+        context: context,
+        isScrollControlled: true,
+        builder: (context) {
+          return RateUs();
+        },
+      );
     }
   }
 
@@ -106,20 +114,9 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
     Share.share('${AppLocalizations.of(context)!.shareWithFriends} $appLink');
   }
 
-  Future<void> _rateApp(BuildContext context) async {
-    if (await canLaunchUrl(Uri.parse(appLink))) {
-      await launchUrl(Uri.parse(appLink), mode: LaunchMode.externalApplication);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context)!.couldNotOpenAppStore),
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     final localizations = AppLocalizations.of(context)!;
     _initializeGeneralList(context);
 
@@ -139,7 +136,7 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              height: 340,
+              height: size.height * 0.22,
               margin: EdgeInsets.fromLTRB(16, 8, 16, 8),
               decoration: BoxDecoration(
                 color: Colors.white,

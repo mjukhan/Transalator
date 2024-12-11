@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
-import '../widgets/permission_handler.dart';
-import 'colors.dart';
+import 'permission_handler.dart';
+import '../utilities/colors.dart';
 
 class MicWidget extends StatefulWidget {
   final double height;
@@ -12,7 +12,7 @@ class MicWidget extends StatefulWidget {
   final String person2Language;
   final bool person1or2;
 
-  MicWidget({
+  const MicWidget({
     super.key,
     required this.onResult,
     required this.person1Language,
@@ -28,36 +28,21 @@ class MicWidget extends StatefulWidget {
 
 class _MicWidgetState extends State<MicWidget> {
   final stt.SpeechToText _speech = stt.SpeechToText();
-  //final TextEditingController _pauseForController = TextEditingController();
   bool _available = false;
   String lastStatus = '';
-  bool _logEvents = false;
+  //final bool _logEvents = false;
   String text = '';
-  String person1Language = 'en';
-  String person2Language = 'hi';
+  bool _isListening = false;
 
   @override
   void initState() {
     _initSpeech();
-    _loadLanguagePreferences();
     super.initState();
-    print('language 1 : ${widget.person1Language}');
-    print('language 2 : ${widget.person2Language}');
   }
 
   @override
   void dispose() {
-    //_initSpeech();
     super.dispose();
-  }
-
-  // Load the previously selected languages from SharedPreferences
-  void _loadLanguagePreferences() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      person1Language = prefs.getString('person1Language') ?? 'en';
-      person2Language = prefs.getString('person2Language') ?? 'hi';
-    });
   }
 
   void _initSpeech() async {
@@ -68,17 +53,25 @@ class _MicWidgetState extends State<MicWidget> {
   }
 
   void _startListening() async {
-    //_showSpeechRecognitionDialog();
     if (!await PermissionHelper().checkMicrophonePermission()) return;
     if (_available) {
+      setState(() {
+        _isListening = true;
+      });
+      _showSpeechRecognitionDialog();
       await _speech.listen(
-        localeId: (widget.person1or2) ? person1Language : person2Language,
+        localeId: (widget.person1or2)
+            ? widget.person1Language
+            : widget.person2Language,
         onResult: (text) {
           if (text.hasConfidenceRating && text.confidence > 0.5) {
             // Update the text with the recognized words
             _onSpeechResult(text.recognizedWords);
             _stopListening();
-            //Navigator.pop(context);
+            setState(() {
+              _isListening = false;
+            });
+            Navigator.pop(context);
           }
         },
       );
@@ -94,27 +87,27 @@ class _MicWidgetState extends State<MicWidget> {
   }
 
   void statusListener(String status) {
-    _logEvent(
-        'Received listener status: $status, listening: ${_speech.isListening}');
+    // _logEvent(
+    //     'Received listener status: $status, listening: ${_speech.isListening}');
     setState(() {
       lastStatus = status;
     });
-
-    print("lastStatus : $lastStatus");
-    print("logEvent : $_logEvent");
   }
 
-  void _logEvent(String eventDescription) {
-    if (_logEvents) {
-      var eventTime = DateTime.now().toIso8601String();
-      debugPrint('$eventTime $eventDescription');
-    }
-  }
+  // void _logEvent(String eventDescription) {
+  //   if (_logEvents) {
+  //     var eventTime = DateTime.now().toIso8601String();
+  //     debugPrint('$eventTime $eventDescription');
+  //   }
+  // }
 
   // Helper function to stop listening
   void _stopListening() {
     _speech.stop();
     _speech.cancel();
+    setState(() {
+      _isListening = false;
+    });
   }
 
   @override
@@ -125,9 +118,9 @@ class _MicWidgetState extends State<MicWidget> {
       width: widget.width,
       decoration: BoxDecoration(shape: BoxShape.circle, color: micColor),
       child: IconButton(
-        onPressed: _speech.isNotListening ? _startListening : _stopListening,
+        onPressed: !_isListening ? _startListening : _stopListening,
         icon: Icon(
-          _speech.isNotListening ? Icons.mic_none : Icons.mic,
+          !_isListening ? Icons.mic_none : Icons.mic,
           color: Colors.white,
         ),
         tooltip: 'Listen',
@@ -152,14 +145,26 @@ class _MicWidgetState extends State<MicWidget> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(_speech.lastStatus),
-          SizedBox(height: 16),
-          Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                width: 3,
+          Text(
+            AppLocalizations.of(context)!.listening,
+            key: const ValueKey<String>('listening'),
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          IconButton(
+            onPressed: () {
+              _speech.stop();
+              Navigator.pop(context);
+            },
+            icon: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  width: 3,
+                  color: micColor,
+                ),
               ),
+              child: Icon(Icons.mic, size: 64, color: micColor),
             ),
           ),
         ],

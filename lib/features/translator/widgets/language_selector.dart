@@ -33,7 +33,6 @@ class LanguageSelector extends StatelessWidget {
       {'value': 'ja', 'label': AppLocalizations.of(context)!.japanese},
       {'value': 'ko', 'label': AppLocalizations.of(context)!.korean},
       {'value': 'pt', 'label': AppLocalizations.of(context)!.portuguese},
-      {'value': 'zh', 'label': AppLocalizations.of(context)!.chinese},
       {'value': 'ru', 'label': AppLocalizations.of(context)!.russian},
       {'value': 'tr', 'label': AppLocalizations.of(context)!.turkish},
       {'value': 'pl', 'label': AppLocalizations.of(context)!.polish},
@@ -111,13 +110,10 @@ class LanguageSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Find the label of the selected language or fallback to a default
     String selectedLanguageLabel = getLanguageOptions(context).firstWhere(
       (lang) => lang['value'] == selectedLanguage,
-      orElse: () => {
-        'value': 'en',
-        'label': AppLocalizations.of(context)!.english
-      }, // Default language
+      orElse: () =>
+          {'value': 'en', 'label': AppLocalizations.of(context)!.english},
     )['label']!;
 
     return GestureDetector(

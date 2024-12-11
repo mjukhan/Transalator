@@ -2,12 +2,10 @@ import 'dart:async';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:translation_app/core/utilities/colors.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
-import 'package:translation_app/core/widgets/permission_handler.dart';
-import '../../../core/utilities/example.dart';
+import '../../../core/widgets/example.dart';
 
 import '../../../core/widgets/translator_provider.dart';
 import '../../translator/widgets/error_handler.dart';
@@ -42,7 +40,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
   final FlutterTts _flutterTts = FlutterTts();
 
   String lastStatus = '';
-  bool _logEvents = false;
+  //final bool _logEvents = false;
 
   @override
   void initState() {
@@ -57,19 +55,19 @@ class _ConversationScreenState extends State<ConversationScreen> {
   }
 
   void statusListener(String status) {
-    _logEvent(
-        'Received listener status: $status, listening: ${_speech.isListening}');
+    // _logEvent(
+    //     'Received listener status: $status, listening: ${_speech.isListening}');
     setState(() {
       lastStatus = status;
     });
   }
 
-  void _logEvent(String eventDescription) {
-    if (_logEvents) {
-      var eventTime = DateTime.now().toIso8601String();
-      debugPrint('$eventTime $eventDescription');
-    }
-  }
+  // void _logEvent(String eventDescription) {
+  //   if (_logEvents) {
+  //     var eventTime = DateTime.now().toIso8601String();
+  //     debugPrint('$eventTime $eventDescription');
+  //   }
+  // }
 
   void snackMassage(String text) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -82,20 +80,18 @@ class _ConversationScreenState extends State<ConversationScreen> {
     );
   }
 
-  // Load the previously selected languages from SharedPreferences
   void _loadLanguagePreferences() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _person1Language = prefs.getString('person1Language') ?? '';
-      _person2Language = prefs.getString('person2Language') ?? '';
+      _person1Language = prefs.getString('_sourceLanguage') ?? 'en';
+      _person2Language = prefs.getString('_targetLanguage') ?? 'es';
     });
   }
 
-  // Save the language preferences to SharedPreferences
   void _saveLanguagePreferences() async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setString('person1Language', _person1Language);
-    prefs.setString('person2Language', _person2Language);
+    prefs.setString('_sourceLanguage', _person1Language);
+    prefs.setString('_targetLanguage', _person2Language);
   }
 
   void _translateText(
@@ -110,6 +106,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
       });
       return;
     }
+
     // Show dialog for translation
     showDialog(
       context: context,
@@ -334,12 +331,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
                     ),
             ),
           ),
-          // SpeechStatusWidget(
-          //   speech: _speech,
-          //   isTranslating: _isTranslating,
-          //   inputText: _inputText,
-          //   translationText: _translatedText,
-          // ),
           SizedBox(
             height: size.height * 0.2,
             child: Column(
@@ -433,8 +424,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
                               _translateText(_inputText, false, true);
                             }
                           },
-                          person1Language: 'en',
-                          person2Language: 'hi',
+                          person1Language: _person1Language,
+                          person2Language: _person2Language,
                           person1or2: false,
                           height: 60,
                           width: 60,
@@ -489,137 +480,4 @@ class _ConversationScreenState extends State<ConversationScreen> {
       ).showSnackBar(SnackBar(content: Text("No Text to Speak")));
     }
   }
-
-  // Widget _buildSpeechDialog() {
-  //   return AlertDialog(
-  //       backgroundColor: Colors.white,
-  //       content: Column(
-  //         mainAxisSize: MainAxisSize.min,
-  //         children: [
-  //           SpeechStatusWidget(speech: _speech),
-  //
-  //           SizedBox(height: 16),
-  //           Container(
-  //             decoration: BoxDecoration(
-  //               shape: BoxShape.circle,
-  //               border: Border.all(
-  //                 width: 3,
-  //                 color: (_speech.isListening) ? micColor : Colors.red,
-  //               ),
-  //             ),
-  //             child: Icon(
-  //               Icons.mic,
-  //               size: 64,
-  //               color: (_speech.isListening) ? micColor : Colors.red,
-  //             ),
-  //           ),
-  //         ],
-  //       ));
-  // }
 }
-
-// class SpeechStatusWidget extends StatelessWidget {
-//   const SpeechStatusWidget({
-//     super.key,
-//     required this.speech,
-//   });
-//
-//   final stt.SpeechToText speech;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     String getStatusText() {
-//       if (speech.isListening) {
-//         return "Listening...";
-//       } else if (speech.isNotListening) {
-//         return "Not Listening...";
-//       }
-//       return 'Translating...';
-//     }
-//
-//     Color getStatusColor() {
-//       if (speech.isListening) {
-//         return Colors.blue;
-//       } else if (speech.isNotListening) {
-//         return Colors.red;
-//       }
-//       return Colors.green;
-//     }
-//
-//     final statusText = getStatusText();
-//     final statusColor = getStatusColor();
-//
-//     return Center(
-//       child: statusText.isNotEmpty
-//           ? Text(
-//               statusText,
-//               style: TextStyle(
-//                 fontWeight: FontWeight.bold,
-//                 fontSize: 14,
-//                 color: statusColor,
-//               ),
-//             )
-//           : const SizedBox.shrink(),
-//     );
-//   }
-// }
-
-// class SpeechStatusWidget extends StatelessWidget {
-//   const SpeechStatusWidget({
-//     super.key,
-//     required this.speech,
-//     required this.isTranslating,
-//     required this.inputText,
-//     required this.translationText,
-//   });
-//
-//   final stt.SpeechToText speech;
-//   final bool isTranslating;
-//   final String inputText;
-//   final String translationText;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     String getStatusText() {
-//       if (speech.isListening) {
-//         return "Speak now...";
-//       } else if (isTranslating) {
-//         return "Translating...";
-//       } else if (speech.isNotListening) {
-//         return "Not Listening...";
-//       } else if (translationText.isNotEmpty) {
-//         return "Translation Complete!";
-//       }
-//       return "";
-//     }
-//
-//     Color getStatusColor() {
-//       if (speech.isListening && !isTranslating) {
-//         return Colors.blue;
-//       } else if (speech.isNotListening &&
-//           isTranslating &&
-//           translationText.isEmpty) {
-//         return Colors.green;
-//       } else if (speech.isNotListening) {
-//         return Colors.red;
-//       }
-//       return Colors.grey;
-//     }
-//
-//     final statusText = getStatusText();
-//     final statusColor = getStatusColor();
-//
-//     return Center(
-//       child: statusText.isNotEmpty
-//           ? Text(
-//               statusText,
-//               style: TextStyle(
-//                 fontWeight: FontWeight.bold,
-//                 fontSize: 14,
-//                 color: statusColor,
-//               ),
-//             )
-//           : const SizedBox.shrink(),
-//     );
-//   }
-// }

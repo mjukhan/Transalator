@@ -16,61 +16,17 @@ import 'package:intl/intl.dart';
 import 'package:intl/message_lookup_by_library.dart';
 import 'package:intl/src/intl_helpers.dart';
 
-import 'messages_af.dart' as messages_af;
-import 'messages_ar.dart' as messages_ar;
-import 'messages_bn.dart' as messages_bn;
-import 'messages_cs.dart' as messages_cs;
-import 'messages_da.dart' as messages_da;
-import 'messages_de.dart' as messages_de;
 import 'messages_en.dart' as messages_en;
-import 'messages_es.dart' as messages_es;
-import 'messages_fil.dart' as messages_fil;
-import 'messages_fr.dart' as messages_fr;
-import 'messages_hi.dart' as messages_hi;
-import 'messages_it.dart' as messages_it;
 
 typedef Future<dynamic> LibraryLoader();
 Map<String, LibraryLoader> _deferredLibraries = {
-  'af': () => new SynchronousFuture(null),
-  'ar': () => new SynchronousFuture(null),
-  'bn': () => new SynchronousFuture(null),
-  'cs': () => new SynchronousFuture(null),
-  'da': () => new SynchronousFuture(null),
-  'de': () => new SynchronousFuture(null),
   'en': () => new SynchronousFuture(null),
-  'es': () => new SynchronousFuture(null),
-  'fil': () => new SynchronousFuture(null),
-  'fr': () => new SynchronousFuture(null),
-  'hi': () => new SynchronousFuture(null),
-  'it': () => new SynchronousFuture(null),
 };
 
 MessageLookupByLibrary? _findExact(String localeName) {
   switch (localeName) {
-    case 'af':
-      return messages_af.messages;
-    case 'ar':
-      return messages_ar.messages;
-    case 'bn':
-      return messages_bn.messages;
-    case 'cs':
-      return messages_cs.messages;
-    case 'da':
-      return messages_da.messages;
-    case 'de':
-      return messages_de.messages;
     case 'en':
       return messages_en.messages;
-    case 'es':
-      return messages_es.messages;
-    case 'fil':
-      return messages_fil.messages;
-    case 'fr':
-      return messages_fr.messages;
-    case 'hi':
-      return messages_hi.messages;
-    case 'it':
-      return messages_it.messages;
     default:
       return null;
   }

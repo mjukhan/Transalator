@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:translation_app/core/utilities/colors.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:translation_app/core/utilities/example.dart';
+import 'package:translation_app/core/widgets/example.dart';
 import '../../File/screens/picture.dart';
 import '../../File/widgets/imagePickerUtility.dart';
 

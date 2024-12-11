@@ -50,20 +50,22 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     super.initState();
   }
 
-  // Load the previously selected languages from SharedPreferences
   void _loadLanguagePreferences() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _sourceLanguage = prefs.getString('sourceLanguage') ?? '';
-      _targetLanguage = prefs.getString('targetLanguage') ?? '';
+      _sourceLanguage = prefs.getString('_sourceLanguage') ?? 'en';
+      _targetLanguage = prefs.getString('_targetLanguage') ?? 'es';
     });
+    print("Loaded source language: $_sourceLanguage");
+    print("Loaded target language: $_targetLanguage");
   }
 
-  // Save the language preferences to SharedPreferences
   void _saveLanguagePreferences() async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setString('sourceLanguage', _sourceLanguage);
-    prefs.setString('targetLanguage', _targetLanguage);
+    prefs.setString('_sourceLanguage', _sourceLanguage);
+    prefs.setString('_targetLanguage', _targetLanguage);
+    print("Saved source language: $_sourceLanguage");
+    print("Saved target language: $_targetLanguage");
   }
 
   // Load saved translations from SharedPreferences
@@ -254,6 +256,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             });
 
             _saveLanguagePreferences();
+
             if (_inputText.isNotEmpty) _translateText(_inputText);
           }),
           Container(
@@ -282,6 +285,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             setState(() {
               _targetLanguage = newLang;
             });
+
             _saveLanguagePreferences();
 
             if (_inputText.isNotEmpty) _translateText(_inputText);

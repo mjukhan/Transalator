@@ -4,9 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:translation_app/core/utilities/colors.dart';
-import 'package:translation_app/core/utilities/example.dart';
+import 'package:translation_app/core/widgets/example.dart';
 import 'package:translation_app/features/dictionary/screens/view_search.dart';
-import '../../../core/widgets/permission_handler.dart';
 import '../../../data/models/Word_model.dart';
 import '../../../data/repositories/word_repository.dart';
 import '../../../data/services/word_service.dart';
@@ -42,8 +41,6 @@ class _DictionaryScreenState extends State<DictionaryScreen>
   String _searchedWord = '';
   bool _isSpeaking = false;
   final stt.SpeechToText _speech = stt.SpeechToText();
-  final TextEditingController _pauseForController =
-      TextEditingController(text: '5');
 
   @override
   void initState() {
