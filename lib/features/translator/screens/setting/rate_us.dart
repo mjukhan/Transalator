@@ -43,7 +43,7 @@ class _RateUsState extends State<RateUs> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              icon: Icon(Icons.cancel),
+              icon: Icon(Icons.cancel_outlined),
             ),
           ),
           _ratingStar(),
@@ -219,8 +219,8 @@ class _RateUsState extends State<RateUs> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
-                height: 50,
-                width: 50,
+                height: 40,
+                width: 40,
                 child: _image('assets/icons/google_play.png')),
             SizedBox(
               width: 10,
@@ -234,14 +234,6 @@ class _RateUsState extends State<RateUs> {
             ),
           ],
         );
-    }
-  }
-
-  _buttonActions() {
-    if (_rating <= 3.0) {
-      _emailRating();
-    } else if (_rating > 3.0 && _rating <= 5.0) {
-      _googleRating(context);
     }
   }
 
