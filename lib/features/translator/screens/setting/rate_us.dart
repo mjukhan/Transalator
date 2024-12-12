@@ -37,8 +37,14 @@ class _RateUsState extends State<RateUs> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          SizedBox(
-            height: 40.0,
+          Align(
+            alignment: Alignment.topRight,
+            child: IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: Icon(Icons.cancel),
+            ),
           ),
           _ratingStar(),
           SizedBox(

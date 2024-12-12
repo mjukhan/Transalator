@@ -70,7 +70,6 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
   // Function to handle navigation to the next page
   void _navigateToPage(String title) {
     final localizations = AppLocalizations.of(context)!;
-    final size = MediaQuery.of(context).size;
 
     // Use a switch statement based on localized strings
     if (title == localizations.appLanguages) {
@@ -116,7 +115,6 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     final localizations = AppLocalizations.of(context)!;
     _initializeGeneralList(context);
 
@@ -126,42 +124,40 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
         backgroundColor: bgColor,
         elevation: 0,
         scrolledUnderElevation: 0,
-        title: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(localizations.setting),
-        ),
+        title: Text(localizations.setting),
       ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              height: size.height * 0.22,
               margin: EdgeInsets.fromLTRB(16, 8, 16, 8),
               decoration: BoxDecoration(
+                border: Border.all(color: borderColor),
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: borderColor),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 0, 8),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        localizations.general,
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontWeight: FontWeight.bold,
+              child: Card(
+                color: Colors.white,
+                elevation: 0,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 0, 8),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          localizations.general,
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    child: ListView.builder(
+                    ListView.builder(
                       itemCount: general.length,
                       shrinkWrap: true,
                       physics: NeverScrollableScrollPhysics(),
@@ -198,8 +194,8 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
                         );
                       },
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             Container(
@@ -210,63 +206,67 @@ class _SettingState extends State<Setting> with SingleTickerProviderStateMixin {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: borderColor),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 0, 8),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        localizations.other,
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontWeight: FontWeight.bold,
+              child: Card(
+                color: Colors.white,
+                elevation: 0,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 0, 8),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          localizations.other,
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: other.length,
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          leading: Image.asset(
-                            other[index]['icon']!,
-                            scale: 24,
-                          ),
-                          title: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              other[index]['title']!,
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: other.length,
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          return ListTile(
+                            leading: Image.asset(
+                              other[index]['icon']!,
+                              scale: 24,
                             ),
-                          ),
-                          subtitle: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              other[index]['subtitle']!,
-                              style: TextStyle(fontSize: 12),
+                            title: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                other[index]['title']!,
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
                             ),
-                          ),
-                          trailing: Icon(
-                            Icons.arrow_forward_ios,
-                            size: 16,
-                            color: Colors.grey,
-                          ),
-                          onTap: () {
-                            _navigateToPage(other[index]['title']!);
-                          },
-                        );
-                      },
+                            subtitle: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                other[index]['subtitle']!,
+                                style: TextStyle(fontSize: 12),
+                              ),
+                            ),
+                            trailing: Icon(
+                              Icons.arrow_forward_ios,
+                              size: 16,
+                              color: Colors.grey,
+                            ),
+                            onTap: () {
+                              _navigateToPage(other[index]['title']!);
+                            },
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],

@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:translation_app/core/utilities/colors.dart';
 import 'package:translation_app/features/translator/screens/setting/favorite.dart';
+import 'package:translation_app/features/translator/screens/setting/rate_us.dart';
 import 'package:translation_app/features/translator/screens/setting/setting.dart';
 import '../../../core/widgets/translator_provider.dart';
 import '../widgets/error_handler.dart';
@@ -35,11 +36,13 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   String _targetLanguage = 'es';
   String _inputText = '';
   String _translatedText = '';
-  bool _isSaved = false; // Toggle for changing the icon
-  List<String> _savedTranslations = []; // List of saved translations
+  bool _isSaved = false;
+  List<String> _savedTranslations = [];
+  List<String> _saveTranslationNumber = [];
   final FlutterTts _flutterTts = FlutterTts();
   bool _isSpeaking = false;
   bool _isTranslating = false;
+  bool _rateUs = true;
   final TranslationService _translationService = TranslationService();
 
   @override
@@ -95,6 +98,10 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         to: _targetLanguage,
       );
 
+      _saveInstanceNumber();
+
+      print("number of translations : ${_saveTranslationNumber.length}");
+
       setState(() {
         _isTranslating = false;
         _translatedText = translation;
@@ -135,6 +142,28 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     }
   }
 
+  void _saveInstanceNumber() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (_translatedText.isNotEmpty) {
+      // Combine input and translated text into a map
+      final instance = {
+        'input': _inputText,
+        'translate': _translatedText,
+      };
+      _saveTranslationNumber.add(jsonEncode(instance));
+      if (_saveTranslationNumber.length > 1) {
+        setState(() {
+          _rateUs = false;
+        });
+      }
+      // Update SharedPreferences with the new list
+      await prefs.setStringList(
+        AppLocalizations.of(context)!.savedTranslations,
+        _saveTranslationNumber,
+      );
+    }
+  }
+
   // Function to copy text to the clipboard
   void _copyToClipboard(String text) {
     Clipboard.setData(ClipboardData(text: text));
@@ -158,6 +187,13 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     );
   }
 
+  Future<bool> _rateUsTimer() async {
+    bool timerCompleted = false;
+    await Future.delayed(const Duration(seconds: 2));
+    timerCompleted = true;
+    return timerCompleted;
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -165,9 +201,26 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
       child: Scaffold(
         floatingActionButton: _inputText.isNotEmpty && _translatedText.isEmpty
             ? FloatingActionButton.extended(
-                onPressed: () => widget.wifi
-                    ? _translateText(_inputText)
-                    : snackMassage(widget.connectionStatus),
+                onPressed: () async {
+                  if (widget.wifi) {
+                    _translateText(_inputText);
+                    bool rateTime = await _rateUsTimer();
+                    if (_rateUs && rateTime) {
+                      showModalBottomSheet(
+                        backgroundColor: bgColor,
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (context) {
+                          return RateUs();
+                        },
+                      );
+                    } else {
+                      null;
+                    }
+                  } else {
+                    snackMassage(widget.connectionStatus);
+                  }
+                },
                 backgroundColor: translateButtonColor,
                 label: (!_isTranslating)
                     ? Text(
