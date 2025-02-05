@@ -35,22 +35,21 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void checkWiFi() {
-    _internetConnectionStream = InternetConnectionChecker().onStatusChange
-        .listen((status) {
-          bool hasConnection = status == InternetConnectionStatus.connected;
-          setState(() {
-            _wifi = hasConnection;
-            connectionStatus =
-                hasConnection
-                    ? "Connected to Internet"
-                    : "No Internet. Please Check Your Internet";
-          });
-          if (!hasConnection) {
-            snackMassage(connectionStatus);
-          }
-          debugPrint("_wifi : $_wifi");
-          debugPrint("connection Status : $connectionStatus");
-        });
+    _internetConnectionStream =
+        InternetConnectionChecker().onStatusChange.listen((status) {
+      bool hasConnection = status == InternetConnectionStatus.connected;
+      setState(() {
+        _wifi = hasConnection;
+        connectionStatus = hasConnection
+            ? "Connected to Internet"
+            : "No Internet. Please Check Your Internet";
+      });
+      if (!hasConnection) {
+        snackMassage(connectionStatus);
+      }
+      debugPrint("_wifi : $_wifi");
+      debugPrint("connection Status : $connectionStatus");
+    });
   }
 
   void snackMassage(String text) {
@@ -65,11 +64,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   List<Widget> get _pages => [
-    TranslatorScreen(wifi: _wifi, connectionStatus: connectionStatus),
-    ConversationScreen(wifi: _wifi, connectionStatus: connectionStatus),
-    FileScreen(wifi: _wifi, connectionStatus: connectionStatus),
-    DictionaryScreen(wifi: _wifi, connectionStatus: connectionStatus),
-  ];
+        TranslatorScreen(wifi: _wifi, connectionStatus: connectionStatus),
+        ConversationScreen(wifi: _wifi, connectionStatus: connectionStatus),
+        FileScreen(wifi: _wifi, connectionStatus: connectionStatus),
+        DictionaryScreen(wifi: _wifi, connectionStatus: connectionStatus),
+      ];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -96,31 +95,27 @@ class _HomeScreenState extends State<HomeScreen> {
       onTap: _onItemTapped,
       items: [
         BottomNavigationBarItem(
-          icon:
-              (_selectedIndex == 0)
-                  ? Image.asset('assets/icons/home-fill.png', scale: 24)
-                  : Image.asset('assets/icons/home.png', scale: 24),
+          icon: (_selectedIndex == 0)
+              ? Image.asset('assets/icons/home-fill.png', scale: 24)
+              : Image.asset('assets/icons/home.png', scale: 24),
           label: AppLocalizations.of(context)?.translation ?? 'Translation',
         ),
         BottomNavigationBarItem(
-          icon:
-              (_selectedIndex == 1)
-                  ? Image.asset('assets/icons/chat-fill.png', scale: 24)
-                  : Image.asset('assets/icons/chat.png', scale: 24),
+          icon: (_selectedIndex == 1)
+              ? Image.asset('assets/icons/chat-fill.png', scale: 24)
+              : Image.asset('assets/icons/chat.png', scale: 24),
           label: AppLocalizations.of(context)?.conversation ?? 'Conversation',
         ),
         BottomNavigationBarItem(
-          icon:
-              (_selectedIndex == 2)
-                  ? Image.asset('assets/icons/file-fill.png', scale: 24)
-                  : Image.asset('assets/icons/file.png', scale: 24),
+          icon: (_selectedIndex == 2)
+              ? Image.asset('assets/icons/file-fill.png', scale: 24)
+              : Image.asset('assets/icons/file.png', scale: 24),
           label: AppLocalizations.of(context)?.upload ?? 'Upload',
         ),
         BottomNavigationBarItem(
-          icon:
-              (_selectedIndex == 3)
-                  ? Image.asset('assets/icons/dictionary-fill.png', scale: 24)
-                  : Image.asset('assets/icons/dictionary.png', scale: 24),
+          icon: (_selectedIndex == 3)
+              ? Image.asset('assets/icons/dictionary-fill.png', scale: 24)
+              : Image.asset('assets/icons/dictionary.png', scale: 24),
           label: AppLocalizations.of(context)?.dictionary ?? 'Dictionary',
         ),
       ],

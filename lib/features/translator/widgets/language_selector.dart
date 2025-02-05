@@ -17,94 +17,47 @@ class LanguageSelector extends StatelessWidget {
 
   List<Map<String, String>> getLanguageOptions(BuildContext context) {
     return [
-      {'value': 'en', 'label': AppLocalizations.of(context)!.english},
-      {'value': 'es', 'label': AppLocalizations.of(context)!.spanish},
-      {'value': 'fr', 'label': AppLocalizations.of(context)!.french},
-      {'value': 'it', 'label': AppLocalizations.of(context)!.italian},
-      {'value': 'de', 'label': AppLocalizations.of(context)!.german},
-      {'value': 'nl', 'label': AppLocalizations.of(context)!.dutch},
-      {'value': 'hu', 'label': AppLocalizations.of(context)!.hungarian},
-      {'value': 'ro', 'label': AppLocalizations.of(context)!.romanian},
-      {'value': 'fil', 'label': AppLocalizations.of(context)!.filipino},
-      {'value': 'cs', 'label': AppLocalizations.of(context)!.czech},
-      {'value': 'ar', 'label': AppLocalizations.of(context)!.arabic},
-      {'value': 'af', 'label': AppLocalizations.of(context)!.afrikaans},
-      {'value': 'hi', 'label': AppLocalizations.of(context)!.hindi},
-      {'value': 'ja', 'label': AppLocalizations.of(context)!.japanese},
-      {'value': 'ko', 'label': AppLocalizations.of(context)!.korean},
-      {'value': 'pt', 'label': AppLocalizations.of(context)!.portuguese},
-      {'value': 'ru', 'label': AppLocalizations.of(context)!.russian},
-      {'value': 'tr', 'label': AppLocalizations.of(context)!.turkish},
-      {'value': 'pl', 'label': AppLocalizations.of(context)!.polish},
-      {'value': 'sw', 'label': AppLocalizations.of(context)!.swahili},
-      {'value': 'ta', 'label': AppLocalizations.of(context)!.tamil},
-      {'value': 'bn', 'label': AppLocalizations.of(context)!.bengali},
-      {'value': 'th', 'label': AppLocalizations.of(context)!.thai},
-      {'value': 'vi', 'label': AppLocalizations.of(context)!.vietnamese},
-      {
-        'value': 'ms',
-        'label': AppLocalizations.of(context)!.malay
-      }, // Added Malay
-      {
-        'value': 'ml',
-        'label': AppLocalizations.of(context)!.malayalam
-      }, // Added Malayalam
-      {
-        'value': 'ne',
-        'label': AppLocalizations.of(context)!.nepali
-      }, // Added Nepali
-      {
-        'value': 'sr',
-        'label': AppLocalizations.of(context)!.serbian
-      }, // Added Serbian
-      {
-        'value': 'sq',
-        'label': AppLocalizations.of(context)!.albanian
-      }, // Added Albanian
-      {
-        'value': 'iw',
-        'label': AppLocalizations.of(context)!.hebrew
-      }, // Added Hebrew
-      {
-        'value': 'yu',
-        'label': AppLocalizations.of(context)!.croatian
-      }, // Added Croatian
-      {
-        'value': 'uz',
-        'label': AppLocalizations.of(context)!.uzbek
-      }, // Added Uzbek
-      {
-        'value': 'ka',
-        'label': AppLocalizations.of(context)!.georgian
-      }, // Added Georgian
-      {
-        'value': 'hy',
-        'label': AppLocalizations.of(context)!.armenian
-      }, // Added Armenian
-      {
-        'value': 'km',
-        'label': AppLocalizations.of(context)!.khmer
-      }, // Added Khmer
-      {
-        'value': 'la',
-        'label': AppLocalizations.of(context)!.latin
-      }, // Added Latin
-      {
-        'value': 'cy',
-        'label': AppLocalizations.of(context)!.welsh
-      }, // Added Welsh
-      {
-        'value': 'eu',
-        'label': AppLocalizations.of(context)!.basque
-      }, // Added Basque
-      {
-        'value': 'is',
-        'label': AppLocalizations.of(context)!.icelandic
-      }, // Added Icelandic
-      {
-        'value': 'bs',
-        'label': AppLocalizations.of(context)!.bosnian
-      }, // Added Bosnian
+        {'value': 'af', 'label': AppLocalizations.of(context)!.afrikaans},
+        {'value': 'sq', 'label': AppLocalizations.of(context)!.albanian},
+        {'value': 'ar', 'label': AppLocalizations.of(context)!.arabic},
+        {'value': 'hy', 'label': AppLocalizations.of(context)!.armenian},
+        {'value': 'eu', 'label': AppLocalizations.of(context)!.basque},
+        {'value': 'bn', 'label': AppLocalizations.of(context)!.bengali},
+        {'value': 'bs', 'label': AppLocalizations.of(context)!.bosnian},
+        {'value': 'cs', 'label': AppLocalizations.of(context)!.czech},
+        {'value': 'nl', 'label': AppLocalizations.of(context)!.dutch},
+        {'value': 'en', 'label': AppLocalizations.of(context)!.english},
+        {'value': 'fil', 'label': AppLocalizations.of(context)!.filipino},
+        {'value': 'fr', 'label': AppLocalizations.of(context)!.french},
+        {'value': 'ka', 'label': AppLocalizations.of(context)!.georgian},
+        {'value': 'de', 'label': AppLocalizations.of(context)!.german},
+        {'value': 'iw', 'label': AppLocalizations.of(context)!.hebrew},
+        {'value': 'hi', 'label': AppLocalizations.of(context)!.hindi},
+        {'value': 'hu', 'label': AppLocalizations.of(context)!.hungarian},
+        {'value': 'is', 'label': AppLocalizations.of(context)!.icelandic},
+        {'value': 'it', 'label': AppLocalizations.of(context)!.italian},
+        {'value': 'ja', 'label': AppLocalizations.of(context)!.japanese},
+        {'value': 'km', 'label': AppLocalizations.of(context)!.khmer},
+        {'value': 'ko', 'label': AppLocalizations.of(context)!.korean},
+        {'value': 'la', 'label': AppLocalizations.of(context)!.latin},
+        {'value': 'ml', 'label': AppLocalizations.of(context)!.malayalam},
+        {'value': 'ms', 'label': AppLocalizations.of(context)!.malay},
+        {'value': 'ne', 'label': AppLocalizations.of(context)!.nepali},
+        {'value': 'pl', 'label': AppLocalizations.of(context)!.polish},
+        {'value': 'pt', 'label': AppLocalizations.of(context)!.portuguese},
+        {'value': 'ro', 'label': AppLocalizations.of(context)!.romanian},
+        {'value': 'ru', 'label': AppLocalizations.of(context)!.russian},
+        {'value': 'sr', 'label': AppLocalizations.of(context)!.serbian},
+        {'value': 'es', 'label': AppLocalizations.of(context)!.spanish},
+        {'value': 'sw', 'label': AppLocalizations.of(context)!.swahili},
+        {'value': 'ta', 'label': AppLocalizations.of(context)!.tamil},
+        {'value': 'th', 'label': AppLocalizations.of(context)!.thai},
+        {'value': 'tr', 'label': AppLocalizations.of(context)!.turkish},
+        {'value': 'uz', 'label': AppLocalizations.of(context)!.uzbek},
+        {'value': 'vi', 'label': AppLocalizations.of(context)!.vietnamese},
+        {'value': 'cy', 'label': AppLocalizations.of(context)!.welsh},
+        {'value': 'yu', 'label': AppLocalizations.of(context)!.croatian}
+
     ];
   }
 

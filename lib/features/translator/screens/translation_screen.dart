@@ -4,7 +4,6 @@ import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:translation_app/core/utilities/colors.dart';
@@ -38,7 +37,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   String _translatedText = '';
   bool _isSaved = false;
   List<String> _savedTranslations = [];
-  List<String> _saveTranslationNumber = [];
+  final List<String> _saveTranslationNumber = [];
   final FlutterTts _flutterTts = FlutterTts();
   bool _isSpeaking = false;
   bool _isTranslating = false;
