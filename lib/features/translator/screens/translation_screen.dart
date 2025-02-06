@@ -6,10 +6,11 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:translation_app/core/utilities/colors.dart';
-import 'package:translation_app/features/translator/screens/setting/favorite.dart';
-import 'package:translation_app/features/translator/screens/setting/rate_us.dart';
-import 'package:translation_app/features/translator/screens/setting/setting.dart';
+import 'package:translatorapp/features/dictionary/screens/dictionary_screen.dart';
+import 'package:translatorapp/features/translator/screens/setting/favorite.dart';
+import 'package:translatorapp/features/translator/screens/setting/rate_us.dart';
+import 'package:translatorapp/features/translator/screens/setting/setting.dart';
+import '../../../core/utilities/colors.dart';
 import '../../../core/widgets/translator_provider.dart';
 import '../widgets/error_handler.dart';
 import '../widgets/input_field.dart';
@@ -163,18 +164,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     }
   }
 
-  // Function to copy text to the clipboard
-  void _copyToClipboard(String text) {
-    Clipboard.setData(ClipboardData(text: text));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(AppLocalizations.of(context)!.textCopied),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: micColor,
-      ),
-    );
-  }
-
   void snackMassage(String text) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -200,45 +189,45 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
       child: Scaffold(
         floatingActionButton: _inputText.isNotEmpty && _translatedText.isEmpty
             ? FloatingActionButton.extended(
-                onPressed: () async {
-                  if (widget.wifi) {
-                    _translateText(_inputText);
-                    bool rateTime = await _rateUsTimer();
-                    if (_rateUs && rateTime) {
-                      showModalBottomSheet(
-                        backgroundColor: bgColor,
-                        context: context,
-                        isScrollControlled: true,
-                        builder: (context) {
-                          return RateUs();
-                        },
-                      );
-                    } else {
-                      null;
-                    }
-                  } else {
-                    snackMassage(widget.connectionStatus);
-                  }
-                },
-                backgroundColor: translateButtonColor,
-                label: (!_isTranslating)
-                    ? Text(
-                        AppLocalizations.of(context)!.translate,
-                        style: TextStyle(color: bgColor),
-                      )
-                    : Row(
-                        children: [
-                          Text(
-                            AppLocalizations.of(context)!.translating,
-                            style: TextStyle(color: bgColor),
-                          ),
-                          CircularProgressIndicator(
-                            color: bgColor,
-                            strokeWidth: 2,
-                          ),
-                        ],
-                      ),
-              )
+          onPressed: () async {
+            if (widget.wifi) {
+              _translateText(_inputText);
+              bool rateTime = await _rateUsTimer();
+              if (_rateUs && rateTime) {
+                showModalBottomSheet(
+                  backgroundColor: bgColor,
+                  context: context,
+                  isScrollControlled: true,
+                  builder: (context) {
+                    return RateUs();
+                  },
+                );
+              } else {
+                null;
+              }
+            } else {
+              snackMassage(widget.connectionStatus);
+            }
+          },
+          backgroundColor: translateButtonColor,
+          label: (!_isTranslating)
+              ? Text(
+            AppLocalizations.of(context)!.translate,
+            style: TextStyle(color: bgColor),
+          )
+              : Row(
+            children: [
+              Text(
+                AppLocalizations.of(context)!.translating,
+                style: TextStyle(color: bgColor),
+              ),
+              CircularProgressIndicator(
+                color: bgColor,
+                strokeWidth: 2,
+              ),
+            ],
+          ),
+        )
             : SizedBox.shrink(),
         backgroundColor: langSelectorColor,
         appBar: AppBar(
@@ -279,9 +268,9 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             color: bgColor,
             borderRadius: (_inputText.isEmpty)
                 ? BorderRadius.only(
-                    bottomLeft: Radius.circular(36),
-                    bottomRight: Radius.circular(36),
-                  )
+              bottomLeft: Radius.circular(36),
+              bottomRight: Radius.circular(36),
+            )
                 : null,
           ),
           child: Column(
@@ -348,9 +337,9 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   }
 
   Widget _buildLanguageDropdown(
-    String selectedLanguage,
-    Function(String) onChanged,
-  ) {
+      String selectedLanguage,
+      Function(String) onChanged,
+      ) {
     return Container(
       height: 50,
       width: 120,
@@ -373,47 +362,48 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   Widget _buildTranslationContainer() {
     return (widget.wifi)
         ? Expanded(
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              //decoration: BoxDecoration(border: Border.all(color: Colors.yellow)),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Text Input Field at the Top
-                    InputField(
-                      onChanged: (text) {
-                        setState(() {
-                          _inputText = text;
-                          _translatedText = '';
-                          _isSaved = false;
-                        });
-                        //_translateText(_inputText);
-                      },
-                      sourceLanguage: _sourceLanguage,
-                      wifi: widget.wifi,
-                      connectionStatus: widget.connectionStatus,
-                      targetLanguage: _targetLanguage,
-                    ),
-                    _inputText.isNotEmpty && _translatedText.isNotEmpty
-                        ? _buildActionButtons(
-                            true,
-                            false,
-                            false,
-                            false,
-                            _inputText,
-                            _sourceLanguage,
-                          )
-                        : SizedBox.shrink(),
-                    const SizedBox(height: 16),
-                    (_translatedText.isNotEmpty && _inputText.isNotEmpty)
-                        ? _buildTranslatedText()
-                        : SizedBox.shrink(),
-                  ],
-                ),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        //decoration: BoxDecoration(border: Border.all(color: Colors.yellow)),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Text Input Field at the Top
+              InputField(
+                onChanged: (text) {
+                  setState(() {
+                    _inputText = text;
+                    _translatedText = '';
+                    _isSaved = false;
+                  });
+                  //_translateText(_inputText);
+                },
+                sourceLanguage: _sourceLanguage,
+                wifi: widget.wifi,
+                connectionStatus: widget.connectionStatus,
+                targetLanguage: _targetLanguage,
               ),
-            ),
-          )
+              _inputText.isNotEmpty && _translatedText.isNotEmpty
+                  ? _buildActionButtons(
+                true,
+                false,
+                false,
+                false,
+                _sourceLanguage == 'en' ? true : false,
+                _inputText,
+                _sourceLanguage,
+              )
+                  : SizedBox.shrink(),
+              const SizedBox(height: 16),
+              (_translatedText.isNotEmpty && _inputText.isNotEmpty)
+                  ? _buildTranslatedText()
+                  : SizedBox.shrink(),
+            ],
+          ),
+        ),
+      ),
+    )
         : noInternetContainer();
   }
 
@@ -478,6 +468,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
           true,
           true,
           true,
+          _targetLanguage == 'en' ? true : false,
           _translatedText,
           _targetLanguage,
         ),
@@ -486,51 +477,86 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   }
 
   Widget _buildActionButtons(
-    bool copy,
-    bool favorite,
-    bool share,
-    bool speak,
-    String textToCopy,
-    String languageCode,
-  ) {
+      bool copy,
+      bool favorite,
+      bool share,
+      bool speak,
+      bool search,
+      String textToCopy,
+      String languageCode,
+      ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         share
             ? IconButton(
-                onPressed: () => shareTranslatedText(textToCopy),
-                icon: Icon(Icons.share),
-              )
+          onPressed: () => shareTranslatedText(textToCopy),
+          icon: Icon(Icons.share),
+        )
             : SizedBox.shrink(),
         favorite
             ? IconButton(
-                icon: Icon(
-                  _isSaved ? Icons.star : Icons.star_border,
-                  color: micColor,
-                ),
-                onPressed: _saveInstance,
-                tooltip: 'Save Instance',
-              )
+          icon: Icon(
+            _isSaved ? Icons.star : Icons.star_border,
+            color: micColor,
+          ),
+          onPressed: _saveInstance,
+          tooltip: 'Save Instance',
+        )
             : SizedBox.shrink(),
         copy
             ? IconButton(
-                icon: Icon(Icons.copy),
-                onPressed: () => _copyToClipboard(textToCopy),
-                tooltip: 'Copy',
-              )
+          icon: Icon(Icons.copy),
+          onPressed: () => _copyToClipboard(textToCopy),
+          tooltip: 'Copy',
+        )
             : SizedBox.shrink(),
         speak
             ? IconButton(
-                icon: _isSpeaking
-                    ? Icon(Icons.stop_circle_outlined)
-                    : Icon(Icons.volume_up),
-                onPressed: () => (!_isSpeaking)
-                    ? _handleTextToSpeech(textToCopy, languageCode)
-                    : _stop_tts(),
-                tooltip: 'Speak',
-              )
+          icon: _isSpeaking
+              ? Icon(Icons.stop_circle_outlined)
+              : Icon(Icons.volume_up),
+          onPressed: () => (!_isSpeaking)
+              ? _handleTextToSpeech(textToCopy, languageCode)
+              : _stop_tts(),
+          tooltip: 'Speak',
+        )
+            : SizedBox.shrink(),
+        search
+            ? IconButton(
+          onPressed: () => _searchInDictionary(textToCopy, languageCode),
+          icon: Icon(Icons.find_in_page_outlined),
+          tooltip: "Search",
+        )
             : SizedBox.shrink(),
       ],
+    );
+  }
+
+  void _searchInDictionary(String text, String languageCode) {
+    if (languageCode != 'en') {
+      snackMassage("Please enter english word.");
+    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DictionaryScreen(
+          wifi: true,
+          connectionStatus: "",
+          searchWord: text,
+        ),
+      ),
+    );
+  }
+
+  void _copyToClipboard(String text) {
+    Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(AppLocalizations.of(context)!.textCopied),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: micColor,
+      ),
     );
   }
 

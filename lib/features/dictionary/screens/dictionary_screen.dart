@@ -3,9 +3,9 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
-import 'package:translation_app/core/utilities/colors.dart';
-import 'package:translation_app/core/widgets/example.dart';
-import 'package:translation_app/features/dictionary/screens/view_search.dart';
+import 'package:translatorapp/features/dictionary/screens/view_search.dart';
+import '../../../core/utilities/colors.dart';
+import '../../../core/widgets/example.dart';
 import '../../../data/models/Word_model.dart';
 import '../../../data/repositories/word_repository.dart';
 import '../../../data/services/word_service.dart';
@@ -45,14 +45,20 @@ class _DictionaryScreenState extends State<DictionaryScreen>
   @override
   void initState() {
     super.initState();
-    _searchedWord = widget.searchWord ?? '';
+    _searchedWord = widget.searchWord ?? "";
     if (_searchedWord.isNotEmpty) {
-      _searchWord(_searchedWord);
+      _searchController.text = _searchedWord;
+      // _searchWord(_searchedWord);
+      // Navigator.push(
+      //   context,
+      //   MaterialPageRoute(
+      //     builder: (context) => ViewSearch(wordDefinition: _wordDefinition),
+      //   ),
+      // );
     }
     _loadRecentSearches();
 
     fetchRandomWord();
-    _searchController.clear();
   }
 
   @override
@@ -212,15 +218,15 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                         },
                         child: _isSpeaking
                             ? Icon(
-                                Icons.stop_circle_outlined,
-                                size: 18,
-                                color: Colors.blue,
-                              )
+                          Icons.stop_circle_outlined,
+                          size: 18,
+                          color: Colors.blue,
+                        )
                             : Icon(
-                                Icons.volume_up,
-                                size: 18,
-                                color: Colors.blue,
-                              ),
+                          Icons.volume_up,
+                          size: 18,
+                          color: Colors.blue,
+                        ),
                       ),
                     ],
                   ),
@@ -283,60 +289,60 @@ class _DictionaryScreenState extends State<DictionaryScreen>
                   ),
                   (_recentSearches.isNotEmpty)
                       ? TextButton(
-                          onPressed: _clearRecentWords,
-                          child: Text('Clear all'),
-                        )
+                    onPressed: _clearRecentWords,
+                    child: Text('Clear all'),
+                  )
                       : SizedBox.shrink(),
                 ],
               ),
             ),
             _recentSearches.isNotEmpty
                 ? Expanded(
-                    child: NotificationListener<ScrollNotification>(
-                      onNotification: (scrollNotification) {
-                        if (scrollNotification is ScrollStartNotification) {
-                          _hideKeyboard(context);
-                        }
-                        return false;
-                      },
-                      child: ListView.builder(
-                        itemCount: _recentSearches.length,
-                        itemBuilder: (context, index) {
-                          final word = _recentSearches[index];
-                          return ListTile(
-                            leading: Icon(
-                              Icons.access_time_rounded,
-                              color: Colors.grey,
-                            ),
-                            title: Text(word),
-                            onTap: () {
-                              _searchWord(word);
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ViewSearch(
-                                    wordDefinition: _wordDefinition,
-                                  ),
-                                ),
-                              );
-                            },
-                            trailing: Icon(
-                              Icons.arrow_forward_ios,
-                              size: 16,
-                              color: Colors.grey,
-                            ),
-                          );
-                        },
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (scrollNotification) {
+                  if (scrollNotification is ScrollStartNotification) {
+                    _hideKeyboard(context);
+                  }
+                  return false;
+                },
+                child: ListView.builder(
+                  itemCount: _recentSearches.length,
+                  itemBuilder: (context, index) {
+                    final word = _recentSearches[index];
+                    return ListTile(
+                      leading: Icon(
+                        Icons.access_time_rounded,
+                        color: Colors.grey,
                       ),
-                    ),
-                  )
+                      title: Text(word),
+                      onTap: () {
+                        _searchWord(word);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ViewSearch(
+                              wordDefinition: _wordDefinition,
+                            ),
+                          ),
+                        );
+                      },
+                      trailing: Icon(
+                        Icons.arrow_forward_ios,
+                        size: 16,
+                        color: Colors.grey,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            )
                 : Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(0, size.height * 0.2, 0, 50),
-                      child:
-                          Text(AppLocalizations.of(context)!.findWordBySearch),
-                    ),
-                  ),
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(0, size.height * 0.2, 0, 50),
+                child:
+                Text(AppLocalizations.of(context)!.findWordBySearch),
+              ),
+            ),
           ],
         ),
       ),
